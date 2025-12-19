@@ -1,5 +1,5 @@
 import ASSETS from "../assets.js";
-import { config } from "../main.js";
+import { COMMON_CONST } from "../const/CommonConst.js";
 
 export class Preloader extends Phaser.Scene {
     constructor() {
@@ -10,31 +10,36 @@ export class Preloader extends Phaser.Scene {
         //  We loaded this image in our Boot Scene, so we can display it here
         // this.add.image(512, 384, 'background');
 
+        const barOutlineWidth = 468;
+        const barOutlineHeight = 32;
+        const barOutlineX = (COMMON_CONST.SCREEN_WIDTH - barOutlineWidth) / 2;
+        const barOutlineY = (COMMON_CONST.SCREEN_HEIGHT - barOutlineHeight) / 2;
+
+        const barWidth = 460;
+        const barHeight = 24;
+        const barX = barOutlineX + (barOutlineWidth - barWidth) / 2;
+        const barY = barOutlineY + (barOutlineHeight - barHeight) / 2;
+
         //  A simple progress bar. This is the outline of the bar.
         this.add
-            .rectangle(config.width / 2, config.height / 2, 468, 32)
+            .rectangle(
+                barOutlineX,
+                barOutlineY,
+                barOutlineWidth,
+                barOutlineHeight
+            )
             .setStrokeStyle(1, 0xffffff);
 
         //  This is the progress bar itself. It will increase in size from the left based on the % of progress.
-        const bar = this.add.rectangle(
-            config.width / 2 - 230,
-            config.height / 2,
-            4,
-            28,
-            0xffffff
-        );
-
+        const bar = this.add.rectangle(barX, barY, 4, barHeight, 0xffffff);
         //  Use the 'progress' event emitted by the LoaderPlugin to update the loading bar
         this.load.on("progress", (progress) => {
             //  Update the progress bar (our bar is 464px wide, so 100% = 464px)
-            bar.width = 4 + 460 * progress;
+            bar.width = 4 + barWidth * progress;
         });
     }
 
     preload() {
-        // load timemap
-        // Tiledによって作成されたマップの読み込み
-        this.load.tilemapTiledJSON("map_default_1", "maps/map_default_1.json");
         //  Load the assets for the game - see ./src/assets.js
         for (let type in ASSETS) {
             for (let key in ASSETS[type]) {
@@ -43,17 +48,13 @@ export class Preloader extends Phaser.Scene {
                 this.load[type].apply(this.load, args);
             }
         }
-
-        // load fonts
-        this.load.font("Melonano", "assets/fonts/Melonano_Ver.1.31.ttf");
-        this.load.font("checkPoint", "assets/fonts/cp_period.ttf");
     }
 
     create() {
         //  When all the assets have loaded, it's often worth creating global objects here that the rest of the game can use.
         //  For example, you can define global animations here, so we can use them in other scenes.
 
-        //  Move to the Title screen.
-        this.scene.start("Title");
+        //  Move to the MainMenu. You could also swap this for a Scene Transition, such as a camera fade.
+        this.scene.start("Game");
     }
 }

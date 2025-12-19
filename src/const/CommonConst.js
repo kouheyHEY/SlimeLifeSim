@@ -6,12 +6,6 @@ export const ASSETS_CONST = {
     IMAGE_KEY: "image",
     /** スプライトシートアセットのキー */
     SPRITESHEET_KEY: "spritesheet",
-    /** コイン */
-    COIN_KEY: "coin",
-    /** コインの幅 */
-    COIN_FRAME_WIDTH: 36,
-    /** コインの高さ */
-    COIN_FRAME_HEIGHT: 36,
 };
 
 /**

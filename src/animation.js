@@ -1,24 +1,17 @@
 import ASSETS from './assets.js';
 
 export default {
+    'bat': 
+    {
+        key: 'bat',
+        texture: ASSETS.spritesheet.bat.key,
+        frameRate: 10,
+        repeat: -1
+    },
     'coin': 
     {
         key: 'coin',
         texture: ASSETS.spritesheet.coin.key,
-        frameRate: 5,
-        repeat: -1
-    },
-    'chara':
-    {
-        key: 'chara',
-        texture: ASSETS.spritesheet.chara.key,
-        frameRate: 10,
-        repeat: -1
-    },
-    'flag':
-    {
-        key: 'flag',
-        texture: ASSETS.spritesheet.flag.key,
         frameRate: 5,
         repeat: -1
     },
