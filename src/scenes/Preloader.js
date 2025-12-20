@@ -1,5 +1,6 @@
 import ASSETS from "../assets.js";
-import { COMMON_CONST } from "../const/CommonConst.js";
+import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
+import { MAP_CONST } from "../const/MapConst.js";
 
 export class Preloader extends Phaser.Scene {
     constructor() {
@@ -40,6 +41,13 @@ export class Preloader extends Phaser.Scene {
     }
 
     preload() {
+        // load timemap
+        // Tiledによって作成されたマップの読み込み
+        this.load.tilemapTiledJSON(
+            MAP_CONST.MAP_SEASIDE_KEY,
+            MAP_CONST.MAP_SEASIDE_PATH
+        );
+
         //  Load the assets for the game - see ./src/assets.js
         for (let type in ASSETS) {
             for (let key in ASSETS[type]) {
@@ -48,6 +56,12 @@ export class Preloader extends Phaser.Scene {
                 this.load[type].apply(this.load, args);
             }
         }
+
+        // load fonts
+        this.load.font(
+            FONT_NAME.MELONANO,
+            "assets/fonts/Melonano_Ver.1.31.ttf"
+        );
     }
 
     create() {

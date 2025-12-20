@@ -4,6 +4,8 @@
  */
 import ASSETS from "../assets.js";
 import ANIMATION from "../animation.js";
+import { MapManager } from "../managers/MapManager.js";
+import { MAP_CONST } from "../const/MapConst.js";
 
 export class Game extends Phaser.Scene {
     constructor() {
@@ -13,14 +15,8 @@ export class Game extends Phaser.Scene {
     create() {
         this.centreX = this.scale.width * 0.5;
         this.centreY = this.scale.height * 0.5;
-        this.pathHeight = this.pathHeightMax;
 
         this.cameras.main.setBackgroundColor(0x00ff00);
-
-        this.background1 = this.add.image(0, 0, "background").setOrigin(0);
-        this.background2 = this.add
-            .image(this.background1.width, 0, "background")
-            .setOrigin(0);
 
         // Create tutorial text
         this.tutorialText = this.add
@@ -38,6 +34,8 @@ export class Game extends Phaser.Scene {
         this.initPlayer();
         this.initInput();
         this.initPhysics();
+        this.initMaps();
+        this.initCameras();
     }
 
     update() {
@@ -81,7 +79,11 @@ export class Game extends Phaser.Scene {
 
     initPlayer() {
         this.player = this.physics.add
-            .sprite(200, this.centreY, ASSETS.spritesheet.bat.key)
+            .sprite(
+                20 * MAP_CONST.CELL_SIZE,
+                25 * MAP_CONST.CELL_SIZE,
+                ASSETS.spritesheet.bat.key
+            )
             .setDepth(100)
             .setCollideWorldBounds(true);
         this.player.anims.play(ANIMATION.bat.key, true);
@@ -92,6 +94,27 @@ export class Game extends Phaser.Scene {
         this.input.once("pointerdown", () => {
             this.startGame();
         });
+    }
+
+    /**
+     * マップ初期化
+     */
+    initMaps() {
+        // マップマネージャーの生成
+        this.mapManager = new MapManager(this);
+        // マップの初期化
+        this.mapManager.initMap(
+            MAP_CONST.MAP_SEASIDE_KEY,
+            ASSETS.spritesheet.sheet_seaside.key
+        );
+    }
+
+    /**
+     * カメラ初期化
+     */
+    initCameras() {
+        // メインカメラをプレイヤーに追従させる
+        this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
     }
 
     startGame() {
