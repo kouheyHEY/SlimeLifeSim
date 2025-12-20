@@ -6,6 +6,8 @@ import ASSETS from "../assets.js";
 import ANIMATION from "../animation.js";
 import { MapManager } from "../managers/MapManager.js";
 import { MAP_CONST } from "../const/MapConst.js";
+import { GAME_CONST } from "../const/GameConst.js";
+import assets from "../assets.js";
 
 export class Game extends Phaser.Scene {
     constructor() {
@@ -13,22 +15,7 @@ export class Game extends Phaser.Scene {
     }
 
     create() {
-        this.centreX = this.scale.width * 0.5;
-        this.centreY = this.scale.height * 0.5;
-
         this.cameras.main.setBackgroundColor(0x00ff00);
-
-        // Create tutorial text
-        this.tutorialText = this.add
-            .text(this.centreX, this.centreY, "Tap to fly!", {
-                fontFamily: "Arial Black",
-                fontSize: 42,
-                color: "#ffffff",
-                stroke: "#000000",
-                strokeThickness: 8,
-                align: "center",
-            })
-            .setOrigin(0.5);
 
         this.initAnimations();
         this.initPlayer();
@@ -48,12 +35,6 @@ export class Game extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers(ANIMATION.bat.texture),
             frameRate: ANIMATION.bat.frameRate,
             repeat: ANIMATION.bat.repeat,
-        });
-        this.anims.create({
-            key: ANIMATION.coin.key,
-            frames: this.anims.generateFrameNumbers(ANIMATION.coin.texture),
-            frameRate: ANIMATION.coin.frameRate,
-            repeat: ANIMATION.coin.repeat,
         });
     }
 
@@ -77,11 +58,14 @@ export class Game extends Phaser.Scene {
         );
     }
 
+    /**
+     * プレイヤー初期化
+     */
     initPlayer() {
         this.player = this.physics.add
             .sprite(
-                20 * MAP_CONST.CELL_SIZE,
-                25 * MAP_CONST.CELL_SIZE,
+                20 * MAP_CONST.CELL_SIZE + MAP_CONST.CELL_SIZE / 2,
+                25 * MAP_CONST.CELL_SIZE + MAP_CONST.CELL_SIZE / 2,
                 ASSETS.spritesheet.bat.key
             )
             .setDepth(100)
@@ -90,7 +74,6 @@ export class Game extends Phaser.Scene {
     }
 
     initInput() {
-        this.physics.pause();
         this.input.once("pointerdown", () => {
             this.startGame();
         });
@@ -120,16 +103,7 @@ export class Game extends Phaser.Scene {
     startGame() {
         this.gameStarted = true;
         this.physics.resume();
-        this.input.on("pointerdown", () => {
-            this.fly();
-        });
-
-        this.fly();
-        this.tutorialText.setVisible(false);
-    }
-
-    fly() {
-        this.player.setVelocityY(this.flyVelocity);
+        this.input.on("pointerdown", () => {});
     }
 
     GameOver() {
