@@ -11,4 +11,11 @@ export const GAME_CONST = {
         /** ニジマス */
         NIJIMASU: "fish_nijimasu",
     },
+
+    /** 成功ゲージの最大値 */
+    SUCCESS_GAUGE_MAX: 200,
+    /** 成功ゲージの初期値 */
+    SUCCESS_GAUGE_INITIAL: 50,
+    /** 成功ゲージの時間減少値 */
+    SUCCESS_GAUGE_DECREASE_RATE: 0.2,
 };

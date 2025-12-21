@@ -15,11 +15,11 @@ export const UI_CONST = {
     FISHING_RECTANGLE_LINE_WIDTH: 2,
 
     /** 成功ゲージの長さ */
-    FISHING_SUCCESS_GAUGE_LENGTH: 660,
+    FISHING_SUCCESS_GAUGE_LENGTH: 600,
     /** 成功ゲージのy座標 */
-    FISHING_SUCCESS_GAUGE_Y: 30,
+    FISHING_SUCCESS_GAUGE_Y: 40,
     /** 成功ゲージの高さ */
-    FISHING_SUCCESS_GAUGE_HEIGHT: 30,
+    FISHING_SUCCESS_GAUGE_HEIGHT: 20,
     /** 成功ゲージの枠の色 */
     FISHING_SUCCESS_GAUGE_LINE_COLOR: 0xffffff,
     /** 成功ゲージの枠の太さ */

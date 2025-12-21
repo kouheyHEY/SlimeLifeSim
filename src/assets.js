@@ -14,6 +14,14 @@ export default {
             key: "fish_nijimasu",
             args: ["assets/fish_nijimasu.png"],
         },
+        icon_arrow_up: {
+            key: "icon_arrow_up",
+            args: ["assets/icon_arrow_up.png"],
+        },
+        icon_fish_mini: {
+            key: "icon_fish_mini",
+            args: ["assets/icon_fish_mini.png"],
+        },
     },
     spritesheet: {
         bat: {
