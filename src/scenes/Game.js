@@ -20,7 +20,6 @@ export class Game extends Phaser.Scene {
         this.initAnimations();
         this.initPlayer();
         this.initInput();
-        this.initPhysics();
         this.initMaps();
         this.initCameras();
     }
@@ -36,26 +35,6 @@ export class Game extends Phaser.Scene {
             frameRate: ANIMATION.bat.frameRate,
             repeat: ANIMATION.bat.repeat,
         });
-    }
-
-    initPhysics() {
-        this.obstacleGroup = this.add.group();
-        this.coinGroup = this.add.group();
-
-        this.physics.add.overlap(
-            this.player,
-            this.obstacleGroup,
-            this.hitObstacle,
-            null,
-            this
-        );
-        this.physics.add.overlap(
-            this.player,
-            this.coinGroup,
-            this.collectCoin,
-            null,
-            this
-        );
     }
 
     /**
@@ -104,6 +83,9 @@ export class Game extends Phaser.Scene {
         this.gameStarted = true;
         this.physics.resume();
         this.input.on("pointerdown", () => {});
+        // DEBUG 釣りゲームUIを表示
+        this.scene.pause("Game");
+        this.scene.launch("Fishing", { fishName: "fish_funa" });
     }
 
     GameOver() {

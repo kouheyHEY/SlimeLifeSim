@@ -6,9 +6,13 @@ export default {
     //     },
     // },
     image: {
-        spikes: {
-            key: "spikes",
-            args: ["assets/spikes.png"],
+        fish_funa: {
+            key: "fish_funa",
+            args: ["assets/fish_funa.png"],
+        },
+        fish_nijimasu: {
+            key: "fish_nijimasu",
+            args: ["assets/fish_nijimasu.png"],
         },
     },
     spritesheet: {
@@ -19,16 +23,6 @@ export default {
                 {
                     frameWidth: 48,
                     frameHeight: 48,
-                },
-            ],
-        },
-        coin: {
-            key: "coin",
-            args: [
-                "assets/coin.png",
-                {
-                    frameWidth: 36,
-                    frameHeight: 36,
                 },
             ],
         },

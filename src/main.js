@@ -2,6 +2,7 @@ import { Boot } from "./scenes/Boot.js";
 import { Game } from "./scenes/Game.js";
 import { GameOver } from "./scenes/GameOver.js";
 import { Preloader } from "./scenes/Preloader.js";
+import { Fishing } from "./scenes/Fishing.js";
 import { COMMON_CONST } from "./const/CommonConst.js";
 
 const config = {
@@ -21,7 +22,7 @@ const config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    scene: [Boot, Preloader, Game, GameOver],
+    scene: [Boot, Preloader, Game, Fishing, GameOver],
 };
 
 new Phaser.Game(config);
