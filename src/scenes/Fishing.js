@@ -20,6 +20,8 @@ export class Fishing extends Phaser.Scene {
         this.successGaugeValue = GAME_CONST.SUCCESS_GAUGE_INITIAL;
         // 成功ゲージの最大値を設定
         this.successGaugeMax = GAME_CONST.SUCCESS_GAUGE_MAX;
+        // チャレンジ中の円の個数
+        this.challangeCircleCount = 0;
     }
 
     create() {
@@ -119,6 +121,45 @@ export class Fishing extends Phaser.Scene {
             )
             .setOrigin(0.5, 0.5);
         this.fishingUIContainer.add(this.fishIcon);
+
+        // ゲームで使用する円を表示
+        this.gameCircleGroup = this.add.group();
+        for (let row = 0; row < GAME_CONST.FISHING_GAME_CIRCLE_ROWS; row++) {
+            for (
+                let col = 0;
+                col < GAME_CONST.FISHING_GAME_CIRCLE_COLUMNS;
+                col++
+            ) {
+                const circle = this.add.circle(
+                    (col - (GAME_CONST.FISHING_GAME_CIRCLE_COLUMNS - 1) / 2) *
+                        (GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE * 2 + 40),
+                    (row - (GAME_CONST.FISHING_GAME_CIRCLE_ROWS - 1) / 2) *
+                        (GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE * 2 + 20) +
+                        20,
+                    GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE,
+                    Phaser.Display.Color.HexStringToColor(
+                        GAME_CONST.FISHING_GAME_CIRCLE_BACKGROUND_COLOR
+                    ).color,
+                    GAME_CONST.FISHING_GAME_CIRCLE_ALPHA
+                );
+                circle.setStrokeStyle(
+                    GAME_CONST.FISHING_GAME_CIRCLE_BORDER_WIDTH,
+                    Phaser.Display.Color.HexStringToColor(
+                        GAME_CONST.FISHING_GAME_CIRCLE_BACKGROUND_COLOR
+                    ).color
+                );
+                this.fishingUIContainer.add(circle);
+                this.gameCircleGroup.add(circle);
+            }
+        }
+
+        // 一定間隔でチャレンジ円を表示するタイマーを設定
+        this.time.addEvent({
+            delay: GAME_CONST.FISHING_GAME_CIRCLE_SPAWN_INTERVAL,
+            callback: this.appearChallengeCircle,
+            callbackScope: this,
+            loop: true,
+        });
     }
 
     update() {
@@ -133,5 +174,50 @@ export class Fishing extends Phaser.Scene {
             (this.successGaugeValue / this.successGaugeMax) *
                 UI_CONST.FISHING_SUCCESS_GAUGE_LENGTH -
             UI_CONST.FISHING_SUCCESS_GAUGE_LENGTH / 2;
+    }
+
+    /**
+     * タップする必要のある円を表示する
+     */
+    appearChallengeCircle() {
+        // チャレンジ円の個数が最大値に達している場合は表示しない
+        if (
+            this.challangeCircleCount >=
+            GAME_CONST.FISHING_GAME_CIRCLE_ROWS *
+                GAME_CONST.FISHING_GAME_CIRCLE_COLUMNS
+        ) {
+            return;
+        }
+        this.challangeCircleCount++;
+        // いずれかの円に対して、徐々に小さくなる別色の円を表示
+        const challangeCircIdx = Phaser.Math.Between(
+            0,
+            this.gameCircleGroup.getChildren().length - 1
+        );
+        const baseCircle = this.gameCircleGroup.getChildren()[challangeCircIdx];
+        const challangeCircle = this.add.circle(
+            baseCircle.x,
+            baseCircle.y,
+            GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE,
+            Phaser.Display.Color.HexStringToColor(
+                GAME_CONST.FISHING_GAME_CHALLENGE_CIRCLE_COLOR
+            ).color,
+            GAME_CONST.FISHING_GAME_CHALLENGE_CIRCLE_ALPHA
+        );
+        this.fishingUIContainer.add(challangeCircle);
+
+        // 徐々に小さくなるアニメーションを追加
+        this.tweens.add({
+            targets: challangeCircle,
+            radius: 0,
+            duration: GAME_CONST.FISHING_GAME_CIRCLE_LIFETIME,
+            ease: "Linear",
+            onComplete: () => {
+                // アニメーション完了後に円を削除
+                challangeCircle.destroy();
+                // チャレンジ円の個数を減らす
+                this.challangeCircleCount--;
+            },
+        });
     }
 }

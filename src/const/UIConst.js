@@ -1,8 +1,8 @@
 export const UI_CONST = {
     /** 釣りゲームUIの幅 */
-    FISHING_WIDTH: 720,
+    FISHING_WIDTH: 960,
     /** 釣りゲームUIの高さ */
-    FISHING_HEIGHT: 480,
+    FISHING_HEIGHT: 600,
     /** 釣りゲームUIの背景の色 */
     FISHING_BACKGROUND_COLOR: 0x000000,
     /** 釣りゲームUIの背景の透明度 */
