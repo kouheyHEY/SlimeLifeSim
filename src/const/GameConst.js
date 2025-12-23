@@ -22,9 +22,9 @@ export const GAME_CONST = {
     /** 釣りゲームの出現する円の半径の基準値 */
     FISHING_GAME_CIRCLE_RADIUS_BASE: 120,
     /** 釣りゲームの出現する円の消失時間 */
-    FISHING_GAME_CIRCLE_LIFETIME: 1000,
+    FISHING_GAME_CIRCLE_LIFETIME: 2000,
     /** 釣りゲームの出現する円の出現間隔 */
-    FISHING_GAME_CIRCLE_SPAWN_INTERVAL: 500,
+    FISHING_GAME_CIRCLE_SPAWN_INTERVAL: 750,
     /** 釣りゲームの出現する円の透明度 */
     FISHING_GAME_CIRCLE_ALPHA: 0.2,
     /** 釣りゲームの出現する円の通常色 */
@@ -41,4 +41,12 @@ export const GAME_CONST = {
     FISHING_GAME_CIRCLE_COLUMNS: 3,
     /** 釣りゲームで出現するチャレンジ円の最大数 */
     FISHING_GAME_CHALLENGE_CIRCLE_MAX: 3,
+    /** 成功ゲージをタップしたときの増加値 */
+    SUCCESS_GAUGE_INCREASE_ON_TAP: 40,
+    /** 成功時のフェードの色 */
+    SUCCESS_FADE_COLOR: "#FFFF00",
+    /** 成功時のフェードの持続時間 */
+    SUCCESS_FADE_DURATION: 400,
+    /** 成功時のフェードの倍率 */
+    SUCCESS_FADE_SCALE: 1.3,
 };
