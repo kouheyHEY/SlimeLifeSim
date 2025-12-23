@@ -24,4 +24,21 @@ export const UI_CONST = {
     FISHING_SUCCESS_GAUGE_LINE_COLOR: 0xffffff,
     /** 成功ゲージの枠の太さ */
     FISHING_SUCCESS_GAUGE_LINE_WIDTH: 2,
+
+    /** 釣り結果表示用の長方形の幅 */
+    FISHING_RESULT_WIDTH: 600,
+    /** 釣り結果表示用の長方形の高さ */
+    FISHING_RESULT_HEIGHT: 400,
+    /** 釣り結果表示用の長方形の色 */
+    FISHING_RESULT_RECTANGLE_COLOR: 0x000000,
+    /** 釣り結果表示用の長方形の枠の色 */
+    FISHING_RESULT_RECTANGLE_LINE_COLOR: 0xffffff,
+    /** 釣り結果表示用の長方形の枠の太さ */
+    FISHING_RESULT_RECTANGLE_LINE_WIDTH: 2,
+    /** 釣り結果テキストのフォントサイズ */
+    FISHING_RESULT_TEXT_FONT_SIZE: 32,
+    /** 釣り結果テキストの色 */
+    FISHING_RESULT_TEXT_COLOR: "#FFFFFF",
+    /** 釣り結果の遷移用ボタン文字列 */
+    FISHING_RESULT_BUTTON_TEXT: "OK",
 };

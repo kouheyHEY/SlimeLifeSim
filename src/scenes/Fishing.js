@@ -1,5 +1,6 @@
 import { UI_CONST } from "../const/UIConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
+import { FONT_NAME } from "../const/CommonConst.js";
 import assets from "../assets.js";
 
 /**
@@ -13,16 +14,21 @@ export class Fishing extends Phaser.Scene {
 
     /**
      * 初期化
-     * @param {string} fishName 魚の名前
+     * @param {Object} paramObj パラメータオブジェクト
+     * @param {string} paramObj.fishName 釣る魚の名前
      */
-    init(fishName) {
-        this.fishName = fishName;
+    init(paramObj) {
+        this.fishName = paramObj.fishName;
         // 成功ゲージの初期値を設定
         this.successGaugeValue = GAME_CONST.SUCCESS_GAUGE_INITIAL;
         // 成功ゲージの最大値を設定
         this.successGaugeMax = GAME_CONST.SUCCESS_GAUGE_MAX;
         // チャレンジ中の円の個数
         this.challengeCircleCount = 0;
+        // 状態管理（フィッシング中）
+        this.isFishing = true;
+        // 釣り結果表示中フラグ
+        this.isShowingResult = false;
     }
 
     create() {
@@ -155,7 +161,7 @@ export class Fishing extends Phaser.Scene {
         }
 
         // 一定間隔でチャレンジ円を表示するタイマーを設定
-        this.time.addEvent({
+        this.timerAppearChallengeCircle = this.time.addEvent({
             delay: GAME_CONST.FISHING_GAME_CIRCLE_SPAWN_INTERVAL,
             callback: this.appearChallengeCircle,
             callbackScope: this,
@@ -164,6 +170,16 @@ export class Fishing extends Phaser.Scene {
     }
 
     update() {
+        // 釣り中でなければ何もしない
+        if (!this.isFishing || this.isShowingResult) {
+            return;
+        }
+
+        // 成功ゲージの値が最大値に達した場合、釣り成功処理を実行
+        if (this.successGaugeValue >= this.successGaugeMax) {
+            this.fishingSuccess();
+        }
+
         // 成功ゲージの値を時間経過で減少させる
         this.successGaugeValue -= GAME_CONST.SUCCESS_GAUGE_DECREASE_RATE;
         // 成功ゲージの値が0未満にならないようにする
@@ -269,7 +285,7 @@ export class Fishing extends Phaser.Scene {
             GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE,
             Phaser.Display.Color.HexStringToColor(GAME_CONST.SUCCESS_FADE_COLOR)
                 .color,
-            1
+            GAME_CONST.SUCCESS_FADE_ALPHA
         );
         successCircle.setDepth(100);
         this.fishingUIContainer.add(successCircle);
@@ -281,10 +297,71 @@ export class Fishing extends Phaser.Scene {
                 GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE *
                 GAME_CONST.SUCCESS_FADE_SCALE,
             duration: GAME_CONST.SUCCESS_FADE_DURATION,
-            ease: "Linear",
+            ease: "Quad.out",
             onComplete: () => {
                 successCircle.destroy();
             },
         });
+    }
+
+    /**
+     * 釣り成功時の処理
+     */
+    fishingSuccess() {
+        // チャレンジ円出現のタイマーを停止
+        this.timerAppearChallengeCircle.remove(false);
+        // 円とゲージをフェードアウト
+        this.tweens.add({
+            targets: this.fishingUIContainer,
+            alpha: 0,
+            duration: GAME_CONST.SUCCESS_SCENE_FADE_TIME,
+            ease: "Linear",
+        });
+        // 一定時間後にシーンを終了してメインのゲームシーンに戻る
+        this.time.delayedCall(GAME_CONST.SUCCESS_SCENE_FADE_TIME, () => {
+            this.showFishingResultSuccess();
+        });
+    }
+
+    /**
+     * 釣り結果の表示処理
+     */
+    showFishingResultSuccess() {
+        // メインの時と同じようにコンテナを作成
+        this.fishingResultContainer = this.add.container(
+            this.cameras.main.width / 2,
+            this.cameras.main.height / 2
+        );
+        // UIを長方形で表示
+        const uiRectangle = this.add
+            .rectangle(
+                0,
+                0,
+                UI_CONST.FISHING_RESULT_WIDTH,
+                UI_CONST.FISHING_RESULT_HEIGHT,
+                UI_CONST.FISHING_RESULT_RECTANGLE_COLOR
+            )
+            .setStrokeStyle(
+                UI_CONST.FISHING_RESULT_RECTANGLE_LINE_WIDTH,
+                UI_CONST.FISHING_RESULT_RECTANGLE_LINE_COLOR
+            );
+        this.fishingResultContainer.add(uiRectangle);
+
+        // 結果の魚スプライトを表示
+        const fishSprite = this.add
+            .sprite(0, -50, assets.image[this.fishName].key)
+            .setOrigin(0.5, 0.5);
+        this.fishingResultContainer.add(fishSprite);
+
+        // テキストを表示
+        const resultText = this.add
+            .text(0, 100, `${GAME_CONST.FISH_DISPLAY_NAME[this.fishName]}`, {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `${UI_CONST.FISHING_RESULT_TEXT_FONT_SIZE}px`,
+                color: UI_CONST.FISHING_RESULT_TEXT_COLOR,
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+        this.fishingResultContainer.add(resultText);
     }
 }
