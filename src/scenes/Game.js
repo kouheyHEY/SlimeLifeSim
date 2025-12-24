@@ -5,6 +5,7 @@
 import ASSETS from "../assets.js";
 import ANIMATION from "../animation.js";
 import { MapManager } from "../managers/MapManager.js";
+import { InventoryManager } from "../managers/InventoryManager.js";
 import { MAP_CONST } from "../const/MapConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
 import assets from "../assets.js";
@@ -21,6 +22,8 @@ export class Game extends Phaser.Scene {
         this.initPlayer();
         this.initInput();
         this.initMaps();
+        this.initEvents();
+        this.initInventory();
         this.initCameras();
     }
 
@@ -72,11 +75,46 @@ export class Game extends Phaser.Scene {
     }
 
     /**
+     * イベント初期化
+     */
+    initEvents() {
+        // シーン再開時の処理
+        this.events.on("resume", (scene, data) => {
+            if (data.from === "fishing" && data.success) {
+                this.handleFishingSuccess(data.fishName);
+            }
+        });
+    }
+
+    /**
+     * インベントリ初期化
+     */
+    initInventory() {
+        this.inventoryManager = new InventoryManager(
+            this,
+            GAME_CONST.INVENTORY_SIZE
+        );
+    }
+
+    /**
      * カメラ初期化
      */
     initCameras() {
         // メインカメラをプレイヤーに追従させる
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+    }
+
+    /**
+     * 釣り成功時の処理
+     */
+    handleFishingSuccess(fishName) {
+        console.log(`釣り成功: ${fishName}`);
+        // ここに釣り成功時の処理を追加
+        this.inventoryManager.addItem(
+            fishName,
+            GAME_CONST.FISH_DISPLAY_NAME[fishName],
+            1
+        );
     }
 
     startGame() {

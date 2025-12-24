@@ -61,4 +61,14 @@ export const GAME_CONST = {
     SUCCESS_FADE_ALPHA: 0.8,
     /** 成功時のシーンフェードタイム */
     SUCCESS_SCENE_FADE_TIME: 500,
+
+    /** インベントリのサイズ */
+    INVENTORY_SIZE: 8,
+    /** インベントリの一つのアイテムのストック数 */
+    INVENTORY_ITEM_STOCK: 5,
+};
+
+export const EVENT_CONST = {
+    /** 釣りシーンの結果をメインシーンに伝えるイベントキー */
+    FISHING_RESULT_EVENT: "fishingResultEvent",
 };

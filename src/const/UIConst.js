@@ -61,4 +61,21 @@ export const UI_CONST = {
     FISHING_RESULT_BUTTON_BORDER_WIDTH: 2,
     /** 釣り結果の遷移用ボタンのY座標 */
     FISHING_RESULT_BUTTON_Y: 140,
+
+    /** インベントリの行数 */
+    INVENTORY_ROWS: 2,
+    /** インベントリの列数 */
+    INVENTORY_COLUMNS: 4,
+    /** インベントリのアイテムの枠のサイズ */
+    INVENTORY_ITEM_FRAME_SIZE: 64,
+    /** インベントリの色 */
+    INVENTORY_COLOR: 0x000000,
+    /** インベントリの枠の色 */
+    INVENTORY_BORDER_COLOR: 0xffffff,
+    /** インベントリの枠の太さ */
+    INVENTORY_BORDER_WIDTH: 2,
+    /** インベントリの右端からのX座標 */
+    INVENTORY_X: 100,
+    /** インベントリのY座標 */
+    INVENTORY_Y: 100,
 };

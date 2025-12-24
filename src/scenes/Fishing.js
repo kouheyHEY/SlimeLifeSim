@@ -411,7 +411,11 @@ export class Fishing extends Phaser.Scene {
         okButton.on("pointerdown", () => {
             // 釣りシーンを終了してメインのゲームシーンに戻る
             this.scene.stop("Fishing");
-            this.scene.resume("Game");
+            this.scene.resume("Game", {
+                from: "fishing",
+                fishName: this.fishName,
+                success: true,
+            });
         });
     }
 }
