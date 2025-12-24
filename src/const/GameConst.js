@@ -50,7 +50,7 @@ export const GAME_CONST = {
     /** 釣りゲームで出現するチャレンジ円の最大数 */
     FISHING_GAME_CHALLENGE_CIRCLE_MAX: 3,
     /** 成功ゲージをタップしたときの増加値 */
-    SUCCESS_GAUGE_INCREASE_ON_TAP: 30,
+    SUCCESS_GAUGE_INCREASE_ON_TAP: 100,
     /** 成功時のフェードの色 */
     SUCCESS_FADE_COLOR: "#FFFF00",
     /** 成功時のフェードの持続時間 */

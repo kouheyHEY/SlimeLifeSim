@@ -349,19 +349,69 @@ export class Fishing extends Phaser.Scene {
 
         // 結果の魚スプライトを表示
         const fishSprite = this.add
-            .sprite(0, -50, assets.image[this.fishName].key)
+            .sprite(
+                0,
+                UI_CONST.FISHING_RESULT_SPRITE_Y,
+                assets.image[this.fishName].key
+            )
             .setOrigin(0.5, 0.5);
         this.fishingResultContainer.add(fishSprite);
 
         // テキストを表示
         const resultText = this.add
-            .text(0, 100, `${GAME_CONST.FISH_DISPLAY_NAME[this.fishName]}`, {
-                fontFamily: FONT_NAME.MELONANO,
-                fontSize: `${UI_CONST.FISHING_RESULT_TEXT_FONT_SIZE}px`,
-                color: UI_CONST.FISHING_RESULT_TEXT_COLOR,
-                align: "center",
-            })
+            .text(
+                0,
+                UI_CONST.FISHING_RESULT_TEXT_Y,
+                `${GAME_CONST.FISH_DISPLAY_NAME[this.fishName]}`,
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: `${UI_CONST.FISHING_RESULT_TEXT_FONT_SIZE}px`,
+                    color: UI_CONST.FISHING_RESULT_TEXT_COLOR,
+                    align: "center",
+                }
+            )
             .setOrigin(0.5, 0.5);
         this.fishingResultContainer.add(resultText);
+
+        // OKボタンを枠付きで表示
+        const okButton = this.add
+            .rectangle(
+                0,
+                UI_CONST.FISHING_RESULT_BUTTON_Y,
+                UI_CONST.FISHING_RESULT_BUTTON_WIDTH,
+                UI_CONST.FISHING_RESULT_BUTTON_HEIGHT,
+                Phaser.Display.Color.HexStringToColor(
+                    UI_CONST.FISHING_RESULT_BUTTON_BACKGROUND_COLOR
+                ).color
+            )
+            .setStrokeStyle(
+                UI_CONST.FISHING_RESULT_BUTTON_BORDER_WIDTH,
+                Phaser.Display.Color.HexStringToColor(
+                    UI_CONST.FISHING_RESULT_BUTTON_BORDER_COLOR
+                ).color
+            )
+            .setOrigin(0.5, 0.5)
+            .setInteractive({ useHandCursor: true });
+        this.fishingResultContainer.add(okButton);
+        // OKボタンのテキストを表示
+        const okButtonText = this.add
+            .text(
+                0,
+                UI_CONST.FISHING_RESULT_BUTTON_Y,
+                UI_CONST.FISHING_RESULT_BUTTON_TEXT,
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: `${UI_CONST.FISHING_RESULT_BUTTON_FONT_SIZE}px`,
+                    color: UI_CONST.FISHING_RESULT_BUTTON_TEXT_COLOR,
+                    align: "center",
+                }
+            )
+            .setOrigin(0.5, 0.5);
+        this.fishingResultContainer.add(okButtonText);
+        okButton.on("pointerdown", () => {
+            // 釣りシーンを終了してメインのゲームシーンに戻る
+            this.scene.stop("Fishing");
+            this.scene.resume("Game");
+        });
     }
 }
