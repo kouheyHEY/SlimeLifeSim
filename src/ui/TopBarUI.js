@@ -55,7 +55,7 @@ export class TopBarUI {
         this.topBarContainer.add(this.inventoryUI.inventoryContainer);
 
         // ゲーム情報UIを作成（右側に配置）
-        const gameInfoX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.GAME_INFO_WIDTH - 20;
+        const gameInfoX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.GAME_INFO_WIDTH - UI_CONST.TOP_BAR_RIGHT_PADDING;
         this.gameInfoUI = new GameInfoUI(
             this.scene,
             this.gameTimeManager,

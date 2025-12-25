@@ -158,4 +158,6 @@ export const UI_CONST = {
     TOP_BAR_BORDER_COLOR: 0xffffff,
     /** トップバーUIの枠の太さ */
     TOP_BAR_BORDER_WIDTH: 2,
+    /** トップバーUIの右側パディング */
+    TOP_BAR_RIGHT_PADDING: 20,
 };
