@@ -1,4 +1,5 @@
 import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
+import { UI_CONST } from "../const/UIConst.js";
 
 export class Title extends Phaser.Scene {
     constructor() {
@@ -6,39 +7,52 @@ export class Title extends Phaser.Scene {
     }
 
     create() {
+        // 背景全体に透過オーバーレイをかける
+        const overlay = this.add
+            .rectangle(
+                0,
+                0,
+                this.cameras.main.width,
+                this.cameras.main.height,
+                UI_CONST.TITLE_BACKGROUND_COLOR,
+                UI_CONST.TITLE_BACKGROUND_ALPHA
+            )
+            .setOrigin(0, 0);
+
         // Title text
         const titleText = this.add
             .text(
                 COMMON_CONST.SCREEN_WIDTH / 2,
-                COMMON_CONST.SCREEN_HEIGHT / 3,
+                COMMON_CONST.SCREEN_HEIGHT * UI_CONST.TITLE_TEXT_Y_RATIO,
                 "Slime Life Simulator",
                 {
                     fontFamily: FONT_NAME.MELONANO,
-                    fontSize: "64px",
-                    color: "#FFFFFF",
+                    fontSize: UI_CONST.TITLE_TEXT_FONT_SIZE,
+                    color: UI_CONST.TITLE_TEXT_COLOR,
                     align: "center",
-                    stroke: "#000000",
-                    strokeThickness: 4,
+                    stroke: UI_CONST.TITLE_TEXT_STROKE_COLOR,
+                    strokeThickness: UI_CONST.TITLE_TEXT_STROKE_THICKNESS,
                 }
             )
             .setOrigin(0.5, 0.5);
 
-        // Button dimensions and positions
-        const buttonWidth = 300;
-        const buttonHeight = 60;
-        const buttonSpacing = 80;
-        const buttonY = COMMON_CONST.SCREEN_HEIGHT / 2 + 50;
+        // Button Y position
+        const buttonY =
+            COMMON_CONST.SCREEN_HEIGHT / 2 + UI_CONST.TITLE_BUTTON_Y_OFFSET;
 
         // New Game button
         const newGameButton = this.add
             .rectangle(
                 COMMON_CONST.SCREEN_WIDTH / 2,
                 buttonY,
-                buttonWidth,
-                buttonHeight,
-                0x000000
+                UI_CONST.TITLE_BUTTON_WIDTH,
+                UI_CONST.TITLE_BUTTON_HEIGHT,
+                UI_CONST.TITLE_BUTTON_BACKGROUND_COLOR
             )
-            .setStrokeStyle(3, 0xffffff)
+            .setStrokeStyle(
+                UI_CONST.TITLE_BUTTON_BORDER_WIDTH,
+                UI_CONST.TITLE_BUTTON_BORDER_COLOR
+            )
             .setInteractive({ useHandCursor: true });
 
         const newGameText = this.add
@@ -48,8 +62,8 @@ export class Title extends Phaser.Scene {
                 "New Game",
                 {
                     fontFamily: FONT_NAME.MELONANO,
-                    fontSize: "32px",
-                    color: "#FFFFFF",
+                    fontSize: UI_CONST.TITLE_BUTTON_TEXT_FONT_SIZE,
+                    color: UI_CONST.TITLE_BUTTON_TEXT_COLOR,
                     align: "center",
                 }
             )
@@ -59,23 +73,26 @@ export class Title extends Phaser.Scene {
         const continueButton = this.add
             .rectangle(
                 COMMON_CONST.SCREEN_WIDTH / 2,
-                buttonY + buttonSpacing,
-                buttonWidth,
-                buttonHeight,
-                0x000000
+                buttonY + UI_CONST.TITLE_BUTTON_SPACING,
+                UI_CONST.TITLE_BUTTON_WIDTH,
+                UI_CONST.TITLE_BUTTON_HEIGHT,
+                UI_CONST.TITLE_BUTTON_BACKGROUND_COLOR
             )
-            .setStrokeStyle(3, 0xffffff)
+            .setStrokeStyle(
+                UI_CONST.TITLE_BUTTON_BORDER_WIDTH,
+                UI_CONST.TITLE_BUTTON_BORDER_COLOR
+            )
             .setInteractive({ useHandCursor: true });
 
         const continueText = this.add
             .text(
                 COMMON_CONST.SCREEN_WIDTH / 2,
-                buttonY + buttonSpacing,
+                buttonY + UI_CONST.TITLE_BUTTON_SPACING,
                 "Continue",
                 {
                     fontFamily: FONT_NAME.MELONANO,
-                    fontSize: "32px",
-                    color: "#FFFFFF",
+                    fontSize: UI_CONST.TITLE_BUTTON_TEXT_FONT_SIZE,
+                    color: UI_CONST.TITLE_BUTTON_TEXT_COLOR,
                     align: "center",
                 }
             )
@@ -83,6 +100,7 @@ export class Title extends Phaser.Scene {
 
         // Store UI elements for fade-out animation
         this.titleElements = [
+            overlay,
             titleText,
             newGameButton,
             newGameText,
@@ -92,17 +110,17 @@ export class Title extends Phaser.Scene {
 
         // Button hover effects
         newGameButton.on("pointerover", () => {
-            newGameButton.setFillStyle(0x333333);
+            newGameButton.setFillStyle(UI_CONST.TITLE_BUTTON_HOVER_COLOR);
         });
         newGameButton.on("pointerout", () => {
-            newGameButton.setFillStyle(0x000000);
+            newGameButton.setFillStyle(UI_CONST.TITLE_BUTTON_BACKGROUND_COLOR);
         });
 
         continueButton.on("pointerover", () => {
-            continueButton.setFillStyle(0x333333);
+            continueButton.setFillStyle(UI_CONST.TITLE_BUTTON_HOVER_COLOR);
         });
         continueButton.on("pointerout", () => {
-            continueButton.setFillStyle(0x000000);
+            continueButton.setFillStyle(UI_CONST.TITLE_BUTTON_BACKGROUND_COLOR);
         });
 
         // Button click handlers
@@ -123,11 +141,12 @@ export class Title extends Phaser.Scene {
         this.tweens.add({
             targets: this.titleElements,
             alpha: 0,
-            duration: 1000,
+            duration: UI_CONST.TITLE_FADE_DURATION,
             ease: "Linear",
             onComplete: () => {
-                // Transition to Game scene
-                this.scene.start("Game");
+                // タイトルシーンを停止し、ゲームシーンを再開
+                this.scene.stop("Title");
+                this.scene.resume("Game");
             },
         });
     }

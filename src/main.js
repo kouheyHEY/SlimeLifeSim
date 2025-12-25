@@ -23,7 +23,7 @@ const config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    scene: [Boot, Preloader, Title, Game, Fishing, GameOver],
+    scene: [Boot, Preloader, Game, Title, Fishing, GameOver],
 };
 
 new Phaser.Game(config);

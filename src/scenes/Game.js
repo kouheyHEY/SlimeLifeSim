@@ -26,6 +26,13 @@ export class Game extends Phaser.Scene {
         this.initMaps();
         this.initEvents();
         this.initInventory();
+
+        // タイトルシーンを前面に表示
+        // まず描画を1フレーム待ってから、ゲームシーンを一時停止してタイトルを表示
+        this.time.delayedCall(50, () => {
+            this.scene.launch("Title");
+            this.scene.pause("Game");
+        });
     }
 
     update() {
