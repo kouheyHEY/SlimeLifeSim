@@ -6,7 +6,9 @@ import ASSETS from "../assets.js";
 import ANIMATION from "../animation.js";
 import { MapManager } from "../managers/MapManager.js";
 import { InventoryManager } from "../managers/InventoryManager.js";
+import { GameTimeManager } from "../managers/GameTimeManager.js";
 import { InventoryUI } from "../ui/InventoryUI.js";
+import { GameInfoUI } from "../ui/GameInfoUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
 import assets from "../assets.js";
@@ -26,9 +28,16 @@ export class Game extends Phaser.Scene {
         this.initMaps();
         this.initEvents();
         this.initInventory();
+        this.initGameTime();
     }
 
     update() {
+        // ゲーム時間とUIの更新（ゲーム開始前でも時間は進める）
+        if (this.gameTimeManager) {
+            this.gameTimeManager.update();
+            this.gameInfoUI.update();
+        }
+        
         if (!this.gameStarted) return;
     }
 
@@ -115,6 +124,16 @@ export class Game extends Phaser.Scene {
             this.sys.game.config.height
         );
         this.uiCamera.setScroll(0, 0);
+    }
+
+    /**
+     * ゲーム時間初期化
+     */
+    initGameTime() {
+        this.gameTimeManager = new GameTimeManager(this);
+        this.gameInfoUI = new GameInfoUI(this, this.gameTimeManager);
+        // 初期表示のためにUIを更新
+        this.gameInfoUI.update();
     }
 
     /**
