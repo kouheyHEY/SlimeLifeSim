@@ -24,7 +24,7 @@ export class Title extends Phaser.Scene {
             .text(
                 COMMON_CONST.SCREEN_WIDTH / 2,
                 COMMON_CONST.SCREEN_HEIGHT * UI_CONST.TITLE_TEXT_Y_RATIO,
-                "Slime Life Simulator",
+                "Slime Life\nSimulator",
                 {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: UI_CONST.TITLE_TEXT_FONT_SIZE,
