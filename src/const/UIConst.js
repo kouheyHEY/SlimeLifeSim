@@ -123,4 +123,6 @@ export const UI_CONST = {
     TITLE_BUTTON_TEXT_COLOR: "#FFFFFF",
     /** タイトル画面のフェードアウトの時間（ミリ秒） */
     TITLE_FADE_DURATION: 1000,
+    /** ゲームシーン初期化後、タイトルシーンを表示するまでの遅延（ミリ秒） */
+    TITLE_SCENE_LAUNCH_DELAY: 50,
 };
