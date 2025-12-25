@@ -56,17 +56,12 @@ export class Title extends Phaser.Scene {
             .setInteractive({ useHandCursor: true });
 
         const newGameText = this.add
-            .text(
-                COMMON_CONST.SCREEN_WIDTH / 2,
-                buttonY,
-                "New Game",
-                {
-                    fontFamily: FONT_NAME.MELONANO,
-                    fontSize: UI_CONST.TITLE_BUTTON_TEXT_FONT_SIZE,
-                    color: UI_CONST.TITLE_BUTTON_TEXT_COLOR,
-                    align: "center",
-                }
-            )
+            .text(COMMON_CONST.SCREEN_WIDTH / 2, buttonY, "New Game", {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: UI_CONST.TITLE_BUTTON_TEXT_FONT_SIZE,
+                color: UI_CONST.TITLE_BUTTON_TEXT_COLOR,
+                align: "center",
+            })
             .setOrigin(0.5, 0.5);
 
         // Continue button
@@ -146,7 +141,9 @@ export class Title extends Phaser.Scene {
             onComplete: () => {
                 // タイトルシーンを停止し、ゲームシーンを再開
                 this.scene.stop("Title");
-                this.scene.resume("Game");
+                this.scene.resume("Game", {
+                    from: "title",
+                });
             },
         });
     }
