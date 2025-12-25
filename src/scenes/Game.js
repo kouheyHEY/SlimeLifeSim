@@ -11,6 +11,7 @@ import { InventoryUI } from "../ui/InventoryUI.js";
 import { GameInfoUI } from "../ui/GameInfoUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
+import { UI_CONST } from "../const/UIConst.js";
 import assets from "../assets.js";
 
 export class Game extends Phaser.Scene {
@@ -28,6 +29,13 @@ export class Game extends Phaser.Scene {
         this.initMaps();
         this.initEvents();
         this.initInventory();
+
+        // タイトルシーンを前面に表示
+        // まず描画を1フレーム待ってから、ゲームシーンを一時停止してタイトルを表示
+        this.time.delayedCall(UI_CONST.TITLE_SCENE_LAUNCH_DELAY, () => {
+            this.scene.launch("Title");
+            this.scene.pause("Game");
+        });
         this.initGameTime();
     }
 
