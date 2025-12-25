@@ -6,6 +6,7 @@ import ASSETS from "../assets.js";
 import ANIMATION from "../animation.js";
 import { MapManager } from "../managers/MapManager.js";
 import { InventoryManager } from "../managers/InventoryManager.js";
+import { InventoryUI } from "../ui/InventoryUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
 import assets from "../assets.js";
@@ -18,13 +19,13 @@ export class Game extends Phaser.Scene {
     create() {
         this.cameras.main.setBackgroundColor(0x00ff00);
 
+        this.initCameras();
         this.initAnimations();
         this.initPlayer();
         this.initInput();
         this.initMaps();
         this.initEvents();
         this.initInventory();
-        this.initCameras();
     }
 
     update() {
@@ -53,6 +54,11 @@ export class Game extends Phaser.Scene {
             .setDepth(100)
             .setCollideWorldBounds(true);
         this.player.anims.play(ANIMATION.bat.key, true);
+
+        // メインカメラをプレイヤーに追従させる
+        this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+        // UIカメラから除外
+        this.uiCamera.ignore(this.player);
     }
 
     initInput() {
@@ -94,14 +100,21 @@ export class Game extends Phaser.Scene {
             this,
             GAME_CONST.INVENTORY_SIZE
         );
+        this.inventoryUI = new InventoryUI(this, this.inventoryManager);
     }
 
     /**
      * カメラ初期化
      */
     initCameras() {
-        // メインカメラをプレイヤーに追従させる
-        this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+        // UIカメラの作成
+        this.uiCamera = this.cameras.add(
+            0,
+            0,
+            this.sys.game.config.width,
+            this.sys.game.config.height
+        );
+        this.uiCamera.setScroll(0, 0);
     }
 
     /**
@@ -115,6 +128,8 @@ export class Game extends Phaser.Scene {
             GAME_CONST.FISH_DISPLAY_NAME[fishName],
             1
         );
+        // インベントリUIの更新
+        this.inventoryUI.update();
     }
 
     startGame() {

@@ -1,3 +1,4 @@
+import { GAME_CONST } from "../const/GameConst.js";
 /**
  * インベントリの管理クラス
  */
@@ -11,6 +12,7 @@ export class InventoryManager {
         this.scene = scene;
         this.items = [];
         this.size = size;
+        this.initInventory();
     }
 
     /** インベントリの初期化 */
@@ -37,22 +39,22 @@ export class InventoryManager {
                 GAME_CONST.INVENTORY_ITEM_STOCK
             ) {
                 existingItem.stock += quantity;
+                return;
             } else {
                 console.log("アイテムのストック数が上限を超えています。");
             }
+        }
+        // 空きスロットを探して追加
+        const emptySlot = this.items.find((item) => item.itemKey === null);
+        if (emptySlot) {
+            emptySlot.itemKey = itemKey;
+            emptySlot.itemName = itemName;
+            emptySlot.stock = Math.min(
+                quantity,
+                GAME_CONST.INVENTORY_ITEM_STOCK
+            );
         } else {
-            // 空きスロットを探して追加
-            const emptySlot = this.items.find((item) => item.itemKey === null);
-            if (emptySlot) {
-                emptySlot.itemKey = itemKey;
-                emptySlot.itemName = itemName;
-                emptySlot.stock = Math.min(
-                    quantity,
-                    GAME_CONST.INVENTORY_ITEM_STOCK
-                );
-            } else {
-                console.log("インベントリがいっぱいです。");
-            }
+            console.log("インベントリがいっぱいです。");
         }
     }
 }

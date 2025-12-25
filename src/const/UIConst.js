@@ -67,15 +67,23 @@ export const UI_CONST = {
     /** インベントリの列数 */
     INVENTORY_COLUMNS: 4,
     /** インベントリのアイテムの枠のサイズ */
-    INVENTORY_ITEM_FRAME_SIZE: 64,
+    INVENTORY_ITEM_FRAME_SIZE: 96,
     /** インベントリの色 */
     INVENTORY_COLOR: 0x000000,
     /** インベントリの枠の色 */
     INVENTORY_BORDER_COLOR: 0xffffff,
     /** インベントリの枠の太さ */
     INVENTORY_BORDER_WIDTH: 2,
-    /** インベントリの右端からのX座標 */
+    /** インベントリのパディング */
+    INVENTORY_ITEM_PADDING: 0,
+    /** インベントリのX座標 */
     INVENTORY_X: 100,
     /** インベントリのY座標 */
     INVENTORY_Y: 100,
+    /** インベントリの数量のフォントサイズ */
+    INVENTORY_QUANTITY_FONT_SIZE: 16,
+    /** インベントリのフォント色 */
+    INVENTORY_FONT_COLOR: "#FFFFFF",
+    /** インベントリに表示するアイテムのサイズ */
+    INVENTORY_ITEM_DISPLAY_SIZE: 80,
 };

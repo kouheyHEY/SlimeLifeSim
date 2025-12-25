@@ -36,6 +36,8 @@ export class MapManager {
             0
         );
         this.layers[layerKeyBack1] = backgroundLayer;
+        // UIカメラから除外
+        this.scene.uiCamera.ignore(backgroundLayer);
 
         // 当たり判定を付与
         backgroundLayer.setCollisionByExclusion([-1]);
@@ -49,6 +51,8 @@ export class MapManager {
             0
         );
         this.layers[layerKeyFront1] = frontLayer1;
+        // UIカメラから除外
+        this.scene.uiCamera.ignore(frontLayer1);
 
         // 前面レイヤー2を作成
         const frontLayer2 = this.mapData.createLayer(
@@ -58,6 +62,8 @@ export class MapManager {
             0
         );
         this.layers[layerKeyFront2] = frontLayer2;
+        // UIカメラから除外
+        this.scene.uiCamera.ignore(frontLayer2);
 
         // マップの幅と高さを取得
         const mapWidth = this.mapData.widthInPixels;
