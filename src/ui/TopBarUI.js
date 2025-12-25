@@ -44,12 +44,7 @@ export class TopBarUI {
                 UI_CONST.TOP_BAR_BORDER_COLOR
             );
         this.topBarContainer.add(this.background);
-        this.scene.cameras.main.ignore(this.background);
-
-        // インベントリの幅を計算
-        const inventoryWidth = UI_CONST.INVENTORY_COLUMNS * 
-            (UI_CONST.INVENTORY_ITEM_FRAME_SIZE + UI_CONST.INVENTORY_ITEM_PADDING);
-
+        
         // インベントリUIを作成（左側に配置）
         this.inventoryUI = new InventoryUI(
             this.scene,
@@ -68,6 +63,9 @@ export class TopBarUI {
             UI_CONST.GAME_INFO_Y
         );
         this.topBarContainer.add(this.gameInfoUI.infoContainer);
+        
+        // トップバー全体をメインカメラから除外（UIはカメラの移動に追従しない）
+        this.scene.cameras.main.ignore(this.topBarContainer);
     }
 
     /**
