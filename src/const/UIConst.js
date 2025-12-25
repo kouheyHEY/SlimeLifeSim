@@ -86,4 +86,27 @@ export const UI_CONST = {
     INVENTORY_FONT_COLOR: "#FFFFFF",
     /** インベントリに表示するアイテムのサイズ */
     INVENTORY_ITEM_DISPLAY_SIZE: 80,
+
+    /** ゲーム情報UIの幅 */
+    GAME_INFO_WIDTH: 200,
+    /** ゲーム情報UIの高さ */
+    GAME_INFO_HEIGHT: 100,
+    /** ゲーム情報UIのX座標（画面右端からのオフセット） */
+    GAME_INFO_X_OFFSET: 20,
+    /** ゲーム情報UIのY座標 */
+    GAME_INFO_Y: 20,
+    /** ゲーム情報UIの背景色 */
+    GAME_INFO_COLOR: 0x000000,
+    /** ゲーム情報UIの枠の色 */
+    GAME_INFO_BORDER_COLOR: 0xffffff,
+    /** ゲーム情報UIの枠の太さ */
+    GAME_INFO_BORDER_WIDTH: 2,
+    /** ゲーム情報UIのフォントサイズ */
+    GAME_INFO_FONT_SIZE: 20,
+    /** ゲーム情報UIのフォント色 */
+    GAME_INFO_FONT_COLOR: "#FFFFFF",
+    /** ゲーム情報UIの行間 */
+    GAME_INFO_LINE_SPACING: 30,
+    /** ゲーム情報UIの内部パディング */
+    GAME_INFO_PADDING: 10,
 };
