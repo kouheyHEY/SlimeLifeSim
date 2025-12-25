@@ -4,17 +4,21 @@ import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
 
 /**
  * ゲーム情報表示UI
- * 画面右上に日付、天気、時刻を表示
+ * トップバー内に日付、天気、時刻を表示
  */
 export class GameInfoUI {
     /**
      * コンストラクタ
      * @param {Phaser.Scene} scene - 所属するシーン
      * @param {GameTimeManager} gameTimeManager - ゲーム時間マネージャー
+     * @param {number} x - X座標（親コンテナ内での相対位置）
+     * @param {number} y - Y座標（親コンテナ内での相対位置）
      */
-    constructor(scene, gameTimeManager) {
+    constructor(scene, gameTimeManager, x = UI_CONST.GAME_INFO_X, y = UI_CONST.GAME_INFO_Y) {
         this.scene = scene;
         this.gameTimeManager = gameTimeManager;
+        this.x = x;
+        this.y = y;
         this.createUI();
     }
 
@@ -22,12 +26,8 @@ export class GameInfoUI {
      * UIの作成
      */
     createUI() {
-        // コンテナのX座標を計算（画面右端から配置）
-        const containerX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.GAME_INFO_WIDTH - UI_CONST.GAME_INFO_X_OFFSET;
-        const containerY = UI_CONST.GAME_INFO_Y;
-
-        // コンテナを作成
-        this.infoContainer = this.scene.add.container(containerX, containerY);
+        // コンテナを作成（親コンテナ内での相対位置）
+        this.infoContainer = this.scene.add.container(this.x, this.y);
 
         // 背景を作成
         this.background = this.scene.add

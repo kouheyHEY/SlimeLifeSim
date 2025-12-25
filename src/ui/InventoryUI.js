@@ -9,11 +9,15 @@ export class InventoryUI {
      * コンストラクタ
      * @param {Phaser.Scene} scene - 所属するシーン
      * @param {InventoryManager} inventoryManager - インベントリマネージャー
+     * @param {number} x - X座標（親コンテナ内での相対位置）
+     * @param {number} y - Y座標（親コンテナ内での相対位置）
      */
-    constructor(scene, inventoryManager) {
+    constructor(scene, inventoryManager, x = UI_CONST.INVENTORY_X, y = UI_CONST.INVENTORY_Y) {
         this.scene = scene;
         this.inventoryManager = inventoryManager;
         this.inventoryFrameGroup = this.scene.add.group();
+        this.x = x;
+        this.y = y;
         this.createUI();
     }
 
@@ -21,10 +25,10 @@ export class InventoryUI {
      * UIの作成
      */
     createUI() {
-        // コンテナを作成
+        // コンテナを作成（親コンテナ内での相対位置）
         this.inventoryContainer = this.scene.add.container(
-            UI_CONST.INVENTORY_X,
-            UI_CONST.INVENTORY_Y
+            this.x,
+            this.y
         );
 
         for (let r = 0; r < UI_CONST.INVENTORY_ROWS; r++) {

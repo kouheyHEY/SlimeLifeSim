@@ -7,8 +7,7 @@ import ANIMATION from "../animation.js";
 import { MapManager } from "../managers/MapManager.js";
 import { InventoryManager } from "../managers/InventoryManager.js";
 import { GameTimeManager } from "../managers/GameTimeManager.js";
-import { InventoryUI } from "../ui/InventoryUI.js";
-import { GameInfoUI } from "../ui/GameInfoUI.js";
+import { TopBarUI } from "../ui/TopBarUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
 import { UI_CONST } from "../const/UIConst.js";
@@ -41,9 +40,9 @@ export class Game extends Phaser.Scene {
 
     update() {
         // ゲーム時間とUIの更新（ゲーム開始前でも時間は進める）
-        if (this.gameTimeManager) {
+        if (this.topBarUI) {
             this.gameTimeManager.update();
-            this.gameInfoUI.update();
+            this.topBarUI.update();
         }
         
         if (!this.gameStarted) return;
@@ -117,7 +116,7 @@ export class Game extends Phaser.Scene {
             this,
             GAME_CONST.INVENTORY_SIZE
         );
-        this.inventoryUI = new InventoryUI(this, this.inventoryManager);
+        // インベントリUIはトップバーUIで初期化されるため、ここでは作成しない
     }
 
     /**
@@ -139,9 +138,16 @@ export class Game extends Phaser.Scene {
      */
     initGameTime() {
         this.gameTimeManager = new GameTimeManager(this);
-        this.gameInfoUI = new GameInfoUI(this, this.gameTimeManager);
+        
+        // トップバーUIを作成（ゲーム情報とインベントリを統合）
+        this.topBarUI = new TopBarUI(
+            this,
+            this.gameTimeManager,
+            this.inventoryManager
+        );
+        
         // 初期表示のためにUIを更新
-        this.gameInfoUI.update();
+        this.topBarUI.update();
     }
 
     /**
@@ -156,7 +162,7 @@ export class Game extends Phaser.Scene {
             1
         );
         // インベントリUIの更新
-        this.inventoryUI.update();
+        this.topBarUI.updateInventory();
     }
 
     startGame() {

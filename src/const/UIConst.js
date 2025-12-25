@@ -76,10 +76,10 @@ export const UI_CONST = {
     INVENTORY_BORDER_WIDTH: 2,
     /** インベントリのパディング */
     INVENTORY_ITEM_PADDING: 0,
-    /** インベントリのX座標 */
-    INVENTORY_X: 100,
-    /** インベントリのY座標 */
-    INVENTORY_Y: 100,
+    /** インベントリのX座標（トップバー内での相対位置） */
+    INVENTORY_X: 20,
+    /** インベントリのY座標（トップバー内での相対位置） */
+    INVENTORY_Y: 20,
     /** インベントリの数量のフォントサイズ */
     INVENTORY_QUANTITY_FONT_SIZE: 16,
     /** インベントリのフォント色 */
@@ -129,9 +129,9 @@ export const UI_CONST = {
     GAME_INFO_WIDTH: 200,
     /** ゲーム情報UIの高さ */
     GAME_INFO_HEIGHT: 100,
-    /** ゲーム情報UIのX座標（画面右端からのオフセット） */
-    GAME_INFO_X_OFFSET: 20,
-    /** ゲーム情報UIのY座標 */
+    /** ゲーム情報UIのX座標（トップバー内での相対位置） */
+    GAME_INFO_X: 20,
+    /** ゲーム情報UIのY座標（トップバー内での相対位置） */
     GAME_INFO_Y: 20,
     /** ゲーム情報UIの背景色 */
     GAME_INFO_COLOR: 0x000000,
@@ -147,4 +147,15 @@ export const UI_CONST = {
     GAME_INFO_LINE_SPACING: 30,
     /** ゲーム情報UIの内部パディング */
     GAME_INFO_PADDING: 10,
+
+    /** トップバーUIの高さ */
+    TOP_BAR_HEIGHT: 240,
+    /** トップバーUIの背景色 */
+    TOP_BAR_COLOR: 0x000000,
+    /** トップバーUIの背景透明度 */
+    TOP_BAR_ALPHA: 0.7,
+    /** トップバーUIの枠の色 */
+    TOP_BAR_BORDER_COLOR: 0xffffff,
+    /** トップバーUIの枠の太さ */
+    TOP_BAR_BORDER_WIDTH: 2,
 };
