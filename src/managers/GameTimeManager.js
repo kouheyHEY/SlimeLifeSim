@@ -43,8 +43,10 @@ export class GameTimeManager {
         
         if (minutesToAdd > 0) {
             this.addMinutes(minutesToAdd);
-            this.lastUpdateTime = now;
         }
+        
+        // シーンが一時停止と再開を繰り返す際の時間蓄積を防ぐため、常に更新
+        this.lastUpdateTime = now;
     }
     
     /**
