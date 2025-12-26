@@ -40,7 +40,7 @@ export class Game extends Phaser.Scene {
 
     update() {
         // ゲーム時間とUIの更新（シーンが動いている時のみ）
-        if (this.topBarUI && this.scene.scene.isActive()) {
+        if (this.topBarUI) {
             this.gameTimeManager.update();
             this.topBarUI.update();
         }
