@@ -4,7 +4,7 @@ import { UI_CONST } from "../const/UIConst.js";
 import { COMMON_CONST } from "../const/CommonConst.js";
 
 /**
- * 画面上部の統合UIバー
+ * 画面右側の統合サイドバー
  * ゲーム情報とインベントリを含む
  */
 export class TopBarUI {
@@ -25,46 +25,49 @@ export class TopBarUI {
      * UIの作成
      */
     createUI() {
-        // トップバーのコンテナを作成
-        this.topBarContainer = this.scene.add.container(0, 0);
+        // サイドバーのX位置（画面右端）
+        const sidebarX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.SIDEBAR_WIDTH;
+        
+        // サイドバーのコンテナを作成
+        this.topBarContainer = this.scene.add.container(sidebarX, 0);
 
         // 背景を作成
         this.background = this.scene.add
             .rectangle(
                 0,
                 0,
-                COMMON_CONST.SCREEN_WIDTH,
-                UI_CONST.TOP_BAR_HEIGHT,
-                UI_CONST.TOP_BAR_COLOR,
-                UI_CONST.TOP_BAR_ALPHA
+                UI_CONST.SIDEBAR_WIDTH,
+                COMMON_CONST.SCREEN_HEIGHT,
+                UI_CONST.SIDEBAR_COLOR,
+                UI_CONST.SIDEBAR_ALPHA
             )
             .setOrigin(0, 0)
             .setStrokeStyle(
-                UI_CONST.TOP_BAR_BORDER_WIDTH,
-                UI_CONST.TOP_BAR_BORDER_COLOR
+                UI_CONST.SIDEBAR_BORDER_WIDTH,
+                UI_CONST.SIDEBAR_BORDER_COLOR
             );
         this.topBarContainer.add(this.background);
         
-        // インベントリUIを作成（左側に配置）
+        // ゲーム情報UIを作成（上部に配置）
+        this.gameInfoUI = new GameInfoUI(
+            this.scene,
+            this.gameTimeManager,
+            UI_CONST.GAME_INFO_X,
+            UI_CONST.SIDEBAR_PADDING
+        );
+        this.topBarContainer.add(this.gameInfoUI.infoContainer);
+        
+        // インベントリUIを作成（ゲーム情報の下に配置）
+        const inventoryY = UI_CONST.SIDEBAR_PADDING + UI_CONST.GAME_INFO_HEIGHT + UI_CONST.SIDEBAR_PADDING;
         this.inventoryUI = new InventoryUI(
             this.scene,
             this.inventoryManager,
             UI_CONST.INVENTORY_X,
-            UI_CONST.INVENTORY_Y
+            inventoryY
         );
         this.topBarContainer.add(this.inventoryUI.inventoryContainer);
-
-        // ゲーム情報UIを作成（右側に配置）
-        const gameInfoX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.GAME_INFO_WIDTH - UI_CONST.TOP_BAR_RIGHT_PADDING;
-        this.gameInfoUI = new GameInfoUI(
-            this.scene,
-            this.gameTimeManager,
-            gameInfoX,
-            UI_CONST.GAME_INFO_Y
-        );
-        this.topBarContainer.add(this.gameInfoUI.infoContainer);
         
-        // トップバー全体をメインカメラから除外（UIはカメラの移動に追従しない）
+        // サイドバー全体をメインカメラから除外（UIはカメラの移動に追従しない）
         this.scene.cameras.main.ignore(this.topBarContainer);
     }
 

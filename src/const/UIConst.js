@@ -63,9 +63,9 @@ export const UI_CONST = {
     FISHING_RESULT_BUTTON_Y: 140,
 
     /** インベントリの行数 */
-    INVENTORY_ROWS: 2,
+    INVENTORY_ROWS: 4,
     /** インベントリの列数 */
-    INVENTORY_COLUMNS: 4,
+    INVENTORY_COLUMNS: 2,
     /** インベントリのアイテムの枠のサイズ */
     INVENTORY_ITEM_FRAME_SIZE: 96,
     /** インベントリの色 */
@@ -148,16 +148,16 @@ export const UI_CONST = {
     /** ゲーム情報UIの内部パディング */
     GAME_INFO_PADDING: 10,
 
-    /** トップバーUIの高さ */
-    TOP_BAR_HEIGHT: 240,
-    /** トップバーUIの背景色 */
-    TOP_BAR_COLOR: 0x000000,
-    /** トップバーUIの背景透明度 */
-    TOP_BAR_ALPHA: 0.7,
-    /** トップバーUIの枠の色 */
-    TOP_BAR_BORDER_COLOR: 0xffffff,
-    /** トップバーUIの枠の太さ */
-    TOP_BAR_BORDER_WIDTH: 2,
-    /** トップバーUIの右側パディング */
-    TOP_BAR_RIGHT_PADDING: 20,
+    /** サイドバーUIの幅 */
+    SIDEBAR_WIDTH: 240,
+    /** サイドバーUIの背景色 */
+    SIDEBAR_COLOR: 0x000000,
+    /** サイドバーUIの背景透明度 */
+    SIDEBAR_ALPHA: 0.7,
+    /** サイドバーUIの枠の色 */
+    SIDEBAR_BORDER_COLOR: 0xffffff,
+    /** サイドバーUIの枠の太さ */
+    SIDEBAR_BORDER_WIDTH: 2,
+    /** サイドバーUIの上下パディング */
+    SIDEBAR_PADDING: 20,
 };
