@@ -39,8 +39,8 @@ export class Game extends Phaser.Scene {
     }
 
     update() {
-        // ゲーム時間とUIの更新（ゲーム開始前でも時間は進める）
-        if (this.topBarUI) {
+        // ゲーム時間とUIの更新（シーンが動いている時のみ）
+        if (this.topBarUI && !this.scene.isPaused()) {
             this.gameTimeManager.update();
             this.topBarUI.update();
         }

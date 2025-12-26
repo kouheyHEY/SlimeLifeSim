@@ -1,6 +1,6 @@
 /**
  * ゲーム時間管理マネージャー
- * 1実時間秒 = 1ゲーム内分
+ * 1実時間秒 = 2ゲーム内分
  */
 export class GameTimeManager {
     /**
@@ -32,14 +32,14 @@ export class GameTimeManager {
     
     /**
      * ゲーム時間の更新
-     * 1実時間秒 = 1ゲーム内分
+     * 1実時間秒 = 2ゲーム内分
      */
     update() {
         const now = Date.now();
         const deltaSeconds = (now - this.lastUpdateTime) / 1000;
         
-        // 1秒で1分進める
-        const minutesToAdd = Math.floor(deltaSeconds);
+        // 1秒で2分進める
+        const minutesToAdd = Math.floor(deltaSeconds * 2);
         
         if (minutesToAdd > 0) {
             this.addMinutes(minutesToAdd);
