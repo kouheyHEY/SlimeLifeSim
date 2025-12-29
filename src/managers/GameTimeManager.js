@@ -1,6 +1,6 @@
 /**
  * ゲーム時間管理マネージャー
- * 1実時間秒 = 1ゲーム内分
+ * 1実時間秒 = 2ゲーム内分
  */
 export class GameTimeManager {
     /**
@@ -32,19 +32,21 @@ export class GameTimeManager {
     
     /**
      * ゲーム時間の更新
-     * 1実時間秒 = 1ゲーム内分
+     * 1実時間秒 = 2ゲーム内分
      */
     update() {
         const now = Date.now();
         const deltaSeconds = (now - this.lastUpdateTime) / 1000;
         
-        // 1秒で1分進める
-        const minutesToAdd = Math.floor(deltaSeconds);
+        // 1秒で2分進める
+        const minutesToAdd = Math.floor(deltaSeconds * 2);
         
         if (minutesToAdd > 0) {
             this.addMinutes(minutesToAdd);
-            this.lastUpdateTime = now;
         }
+        
+        // シーンが一時停止と再開を繰り返す際の時間蓄積を防ぐため、常に更新
+        this.lastUpdateTime = now;
     }
     
     /**
