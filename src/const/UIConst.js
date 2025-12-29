@@ -126,7 +126,7 @@ export const UI_CONST = {
     /** ゲームシーン初期化後、タイトルシーンを表示するまでの遅延（ミリ秒） */
     TITLE_SCENE_LAUNCH_DELAY: 50,
     /** ゲーム情報UIの幅 */
-    GAME_INFO_WIDTH: 200,
+    GAME_INFO_WIDTH: 192,
     /** ゲーム情報UIの高さ */
     GAME_INFO_HEIGHT: 100,
     /** ゲーム情報UIのX座標（トップバー内での相対位置） */
