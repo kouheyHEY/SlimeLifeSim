@@ -135,6 +135,8 @@ export class GameTimeManager {
                 this.fishHitActive = false;
                 this.lotteryActive = true;
                 console.log("魚ヒット終了");
+                // イベントを発火してUIを更新
+                this.scene.events.emit('fishHit', false);
             }
             return;
         }
