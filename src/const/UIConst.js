@@ -128,7 +128,7 @@ export const UI_CONST = {
     /** ゲーム情報UIの幅 */
     GAME_INFO_WIDTH: 192,
     /** ゲーム情報UIの高さ */
-    GAME_INFO_HEIGHT: 100,
+    GAME_INFO_HEIGHT: 180,
     /** ゲーム情報UIのX座標（トップバー内での相対位置） */
     GAME_INFO_X: 20,
     /** ゲーム情報UIのY座標（トップバー内での相対位置） */
@@ -147,6 +147,17 @@ export const UI_CONST = {
     GAME_INFO_LINE_SPACING: 30,
     /** ゲーム情報UIの内部パディング */
     GAME_INFO_PADDING: 10,
+    /** 時間円グラフの半径 */
+    TIME_CIRCLE_RADIUS: 50,
+    /** 時間円グラフの線の太さ */
+    TIME_CIRCLE_LINE_WIDTH: 8,
+    /** 時間帯の色 */
+    TIME_PERIOD_COLORS: {
+        朝: 0xffeb3b,   // 黄色 (morning)
+        昼: 0xff9800,   // オレンジ (day)
+        夕方: 0xff5722, // 赤オレンジ (evening)
+        夜: 0x3f51b5,   // 青 (night)
+    },
 
     /** サイドバーUIの幅 */
     SIDEBAR_WIDTH: 240,
