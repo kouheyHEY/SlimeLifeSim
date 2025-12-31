@@ -190,7 +190,7 @@ export class Game extends Phaser.Scene {
             return;
         }
         
-        // プレイヤーの上に「！」アイコンを表示
+        // プレイヤーの上に釣りアイコンを表示
         this.fishHitIndicator = this.add.text(
             0,
             -40,

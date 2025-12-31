@@ -187,13 +187,6 @@ export class GameTimeManager {
     }
     
     /**
-     * 釣りゲーム開始時の処理（抽選とヒットを一時停止）
-     */
-    pauseFishSystem() {
-        // 何もしない（ゲームシーンが停止すればupdateも呼ばれない）
-    }
-    
-    /**
      * 釣りゲーム終了時の処理（ヒットを終了し抽選を再開）
      */
     resumeFishSystem() {
