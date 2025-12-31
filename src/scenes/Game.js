@@ -28,6 +28,7 @@ export class Game extends Phaser.Scene {
         this.initMaps();
         this.initEvents();
         this.initInventory();
+        this.initGameTime();
 
         // タイトルシーンを前面に表示
         // まず描画を1フレーム待ってから、ゲームシーンを一時停止してタイトルを表示
@@ -35,7 +36,6 @@ export class Game extends Phaser.Scene {
             this.scene.launch("Title");
             this.scene.pause("Game");
         });
-        this.initGameTime();
     }
 
     update() {
@@ -44,9 +44,9 @@ export class Game extends Phaser.Scene {
             this.gameTimeManager.update();
             this.topBarUI.update();
         }
-        
+
         if (!this.gameStarted) return;
-        
+
         // 魚ヒットインジケーターの位置を更新
         this.updateFishHitIndicator();
     }
@@ -113,7 +113,7 @@ export class Game extends Phaser.Scene {
                 this.gameTimeManager.resumeFishSystem();
             }
         });
-        
+
         // 魚ヒットイベントの購読
         this.events.on("fishHit", (isActive) => {
             if (isActive) {
@@ -154,14 +154,14 @@ export class Game extends Phaser.Scene {
      */
     initGameTime() {
         this.gameTimeManager = new GameTimeManager(this);
-        
+
         // トップバーUIを作成（ゲーム情報とインベントリを統合）
         this.topBarUI = new TopBarUI(
             this,
             this.gameTimeManager,
             this.inventoryManager
         );
-        
+
         // 初期表示のためにUIを更新
         this.topBarUI.update();
     }
@@ -180,7 +180,7 @@ export class Game extends Phaser.Scene {
         // インベントリUIの更新
         this.topBarUI.updateInventory();
     }
-    
+
     /**
      * 魚ヒットインジケーターを表示
      */
@@ -189,31 +189,28 @@ export class Game extends Phaser.Scene {
             this.fishHitIndicator.setVisible(true);
             return;
         }
-        
+
         // プレイヤーの上に釣りアイコンを表示
-        this.fishHitIndicator = this.add.text(
-            0,
-            -40,
-            "🎣",
-            {
+        this.fishHitIndicator = this.add
+            .text(0, -40, "🎣", {
                 fontSize: "32px",
-                align: "center"
-            }
-        ).setOrigin(0.5, 0.5);
-        
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+
         // UIカメラから除外（プレイヤーと一緒に動く）
         this.uiCamera.ignore(this.fishHitIndicator);
-        
+
         // 点滅アニメーションを追加
         this.tweens.add({
             targets: this.fishHitIndicator,
             alpha: 0.3,
             duration: 500,
             yoyo: true,
-            repeat: -1
+            repeat: -1,
         });
     }
-    
+
     /**
      * 魚ヒットインジケーターを非表示
      */
@@ -222,7 +219,7 @@ export class Game extends Phaser.Scene {
             this.fishHitIndicator.setVisible(false);
         }
     }
-    
+
     /**
      * 魚ヒットインジケーターの位置を更新
      */
@@ -246,7 +243,7 @@ export class Game extends Phaser.Scene {
             }
         });
     }
-    
+
     /**
      * 釣りゲームを開始
      */

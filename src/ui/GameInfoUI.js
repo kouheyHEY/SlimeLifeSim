@@ -14,7 +14,12 @@ export class GameInfoUI {
      * @param {number} x - X座標（親コンテナ内での相対位置）
      * @param {number} y - Y座標（親コンテナ内での相対位置）
      */
-    constructor(scene, gameTimeManager, x = UI_CONST.GAME_INFO_X, y = UI_CONST.GAME_INFO_Y) {
+    constructor(
+        scene,
+        gameTimeManager,
+        x = UI_CONST.GAME_INFO_X,
+        y = UI_CONST.GAME_INFO_Y
+    ) {
         this.scene = scene;
         this.gameTimeManager = gameTimeManager;
         this.x = x;
@@ -50,16 +55,11 @@ export class GameInfoUI {
 
         // 日付テキスト
         this.dateText = this.scene.add
-            .text(
-                UI_CONST.GAME_INFO_PADDING,
-                UI_CONST.GAME_INFO_PADDING,
-                "",
-                {
-                    fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
-                    color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
-                }
-            )
+            .text(UI_CONST.GAME_INFO_PADDING, UI_CONST.GAME_INFO_PADDING, "", {
+                fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
+                color: UI_CONST.GAME_INFO_FONT_COLOR,
+                fontFamily: FONT_NAME.MELONANO,
+            })
             .setOrigin(0, 0);
         this.infoContainer.add(this.dateText);
         this.scene.cameras.main.ignore(this.dateText);
@@ -84,7 +84,8 @@ export class GameInfoUI {
         this.timeText = this.scene.add
             .text(
                 UI_CONST.GAME_INFO_PADDING,
-                UI_CONST.GAME_INFO_PADDING + UI_CONST.GAME_INFO_LINE_SPACING * 2,
+                UI_CONST.GAME_INFO_PADDING +
+                    UI_CONST.GAME_INFO_LINE_SPACING * 2,
                 "",
                 {
                     fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
@@ -102,12 +103,15 @@ export class GameInfoUI {
      */
     update() {
         // 日付を更新
-        this.dateText.setText(this.gameTimeManager.getDateString());
+        const dateStr = this.gameTimeManager.getDateString();
+        this.dateText.setText(dateStr);
 
         // 天気を更新
-        this.weatherText.setText(this.gameTimeManager.getWeatherIcon());
+        const weatherIcon = this.gameTimeManager.getWeatherIcon();
+        this.weatherText.setText(weatherIcon);
 
         // 時刻を更新
-        this.timeText.setText(this.gameTimeManager.getTimeString());
+        const timeStr = this.gameTimeManager.getTimeString();
+        this.timeText.setText(timeStr);
     }
 }
