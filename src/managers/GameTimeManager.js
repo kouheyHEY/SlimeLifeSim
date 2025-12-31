@@ -256,7 +256,7 @@ export class GameTimeManager {
                 return (totalMinutes - periodStart) / 540;
             } else {
                 // 0:00-5:59
-                const adjustedMinutes = totalMinutes + 3 * 60; // 夜の開始から3時間後として計算
+                const adjustedMinutes = totalMinutes + (24 - 21) * 60; // 夜の開始(21:00)から経過した時間
                 return adjustedMinutes / 540;
             }
         }
