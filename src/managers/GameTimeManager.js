@@ -1,3 +1,5 @@
+import { GAME_CONST } from "../const/GameConst.js";
+
 /**
  * ゲーム時間管理マネージャー
  * 1実時間秒 = 2ゲーム内分
@@ -28,6 +30,12 @@ export class GameTimeManager {
         // 天気の状態
         this.weatherStates = ['☀️', '⛅', '☁️', '🌧️'];
         this.currentWeather = this.weatherStates[0]; // 初期は晴れ
+        
+        // 魚ヒット関連
+        this.fishHitActive = false; // 魚がヒットしているか
+        this.fishHitEndTime = null; // ヒット終了時刻（ゲーム内分の合計）
+        this.lotteryActive = true; // 抽選が有効かどうか
+        this.lastLotteryMinute = this.getTotalMinutes(); // 最後に抽選を行った時刻
     }
     
     /**
@@ -43,6 +51,7 @@ export class GameTimeManager {
         
         if (minutesToAdd > 0) {
             this.addMinutes(minutesToAdd);
+            this.checkFishHitLottery();
         }
         
         // シーンが一時停止と再開を繰り返す際の時間蓄積を防ぐため、常に更新
@@ -102,5 +111,96 @@ export class GameTimeManager {
      */
     getWeatherIcon() {
         return this.currentWeather;
+    }
+    
+    /**
+     * 現在のゲーム時間を分単位の合計で取得
+     * @returns {number} 合計分数
+     */
+    getTotalMinutes() {
+        return this.currentTime.day * 24 * 60 + 
+               this.currentTime.hour * 60 + 
+               this.currentTime.minute;
+    }
+    
+    /**
+     * 魚ヒットの抽選をチェック
+     */
+    checkFishHitLottery() {
+        const currentTotalMinutes = this.getTotalMinutes();
+        
+        // ヒットが有効な場合、終了時刻をチェック
+        if (this.fishHitActive) {
+            if (currentTotalMinutes >= this.fishHitEndTime) {
+                this.fishHitActive = false;
+                this.lotteryActive = true;
+                console.log("魚ヒット終了");
+            }
+            return;
+        }
+        
+        // 抽選が無効の場合は何もしない
+        if (!this.lotteryActive) {
+            return;
+        }
+        
+        // 1分ごとに抽選を行う
+        if (currentTotalMinutes > this.lastLotteryMinute) {
+            this.lastLotteryMinute = currentTotalMinutes;
+            
+            // 低確率で魚がヒット
+            const random = Phaser.Math.Between(1, GAME_CONST.FISH_HIT_LOTTERY_PROBABILITY);
+            if (random === 1) {
+                this.triggerFishHit();
+            }
+        }
+    }
+    
+    /**
+     * 魚ヒットを発生させる
+     */
+    triggerFishHit() {
+        this.fishHitActive = true;
+        this.lotteryActive = false;
+        
+        // ヒット持続時間をランダムに決定（10～20分）
+        const duration = Phaser.Math.Between(
+            GAME_CONST.FISH_HIT_DURATION_MIN,
+            GAME_CONST.FISH_HIT_DURATION_MAX
+        );
+        this.fishHitEndTime = this.getTotalMinutes() + duration;
+        
+        console.log(`魚ヒット発生！ ${duration}分間有効`);
+        
+        // イベントを発火してUIを更新
+        this.scene.events.emit('fishHit', true);
+    }
+    
+    /**
+     * 魚がヒットしているかどうかを取得
+     * @returns {boolean} ヒット状態
+     */
+    isFishHitActive() {
+        return this.fishHitActive;
+    }
+    
+    /**
+     * 釣りゲーム開始時の処理（抽選とヒットを一時停止）
+     */
+    pauseFishSystem() {
+        // 何もしない（ゲームシーンが停止すればupdateも呼ばれない）
+    }
+    
+    /**
+     * 釣りゲーム終了時の処理（ヒットを終了し抽選を再開）
+     */
+    resumeFishSystem() {
+        this.fishHitActive = false;
+        this.lotteryActive = true;
+        this.lastLotteryMinute = this.getTotalMinutes();
+        console.log("魚ヒットシステム再開");
+        
+        // イベントを発火してUIを更新
+        this.scene.events.emit('fishHit', false);
     }
 }

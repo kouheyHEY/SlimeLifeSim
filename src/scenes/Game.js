@@ -46,6 +46,9 @@ export class Game extends Phaser.Scene {
         }
         
         if (!this.gameStarted) return;
+        
+        // 魚ヒットインジケーターの位置を更新
+        this.updateFishHitIndicator();
     }
 
     initAnimations() {
@@ -104,6 +107,19 @@ export class Game extends Phaser.Scene {
         this.events.on("resume", (scene, data) => {
             if (data.from === "fishing" && data.success) {
                 this.handleFishingSuccess(data.fishName);
+            }
+            // 釣りゲームから戻ってきた時、魚ヒットシステムを再開
+            if (data.from === "fishing") {
+                this.gameTimeManager.resumeFishSystem();
+            }
+        });
+        
+        // 魚ヒットイベントの購読
+        this.events.on("fishHit", (isActive) => {
+            if (isActive) {
+                this.showFishHitIndicator();
+            } else {
+                this.hideFishHitIndicator();
             }
         });
     }
@@ -164,14 +180,83 @@ export class Game extends Phaser.Scene {
         // インベントリUIの更新
         this.topBarUI.updateInventory();
     }
+    
+    /**
+     * 魚ヒットインジケーターを表示
+     */
+    showFishHitIndicator() {
+        if (this.fishHitIndicator) {
+            this.fishHitIndicator.setVisible(true);
+            return;
+        }
+        
+        // プレイヤーの上に「！」アイコンを表示
+        this.fishHitIndicator = this.add.text(
+            0,
+            -40,
+            "🎣",
+            {
+                fontSize: "32px",
+                align: "center"
+            }
+        ).setOrigin(0.5, 0.5);
+        
+        // UIカメラから除外（プレイヤーと一緒に動く）
+        this.uiCamera.ignore(this.fishHitIndicator);
+        
+        // 点滅アニメーションを追加
+        this.tweens.add({
+            targets: this.fishHitIndicator,
+            alpha: 0.3,
+            duration: 500,
+            yoyo: true,
+            repeat: -1
+        });
+    }
+    
+    /**
+     * 魚ヒットインジケーターを非表示
+     */
+    hideFishHitIndicator() {
+        if (this.fishHitIndicator) {
+            this.fishHitIndicator.setVisible(false);
+        }
+    }
+    
+    /**
+     * 魚ヒットインジケーターの位置を更新
+     */
+    updateFishHitIndicator() {
+        if (this.fishHitIndicator && this.fishHitIndicator.visible) {
+            this.fishHitIndicator.setPosition(
+                this.player.x,
+                this.player.y - 40
+            );
+        }
+    }
 
     startGame() {
         this.gameStarted = true;
         this.physics.resume();
-        this.input.on("pointerdown", () => {});
-        // DEBUG 釣りゲームUIを表示
+        // 画面タップ時の処理を設定
+        this.input.on("pointerdown", () => {
+            // 魚がヒットしている場合のみ釣りゲームを開始
+            if (this.gameTimeManager.isFishHitActive()) {
+                this.startFishing();
+            }
+        });
+    }
+    
+    /**
+     * 釣りゲームを開始
+     */
+    startFishing() {
+        console.log("釣りゲーム開始");
         this.scene.pause("Game");
-        this.scene.launch("Fishing", { fishName: "fish_funa" });
+        // ランダムに魚の種類を選択
+        const fishNames = Object.values(GAME_CONST.FISH_NAME);
+        const randomFish = Phaser.Utils.Array.GetRandom(fishNames);
+        this.scene.launch("Fishing", { fishName: randomFish });
     }
 
     GameOver() {
