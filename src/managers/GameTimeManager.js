@@ -209,4 +209,56 @@ export class GameTimeManager {
         // イベントを発火してUIを更新
         this.scene.events.emit("fishHit", false);
     }
+
+    /**
+     * 現在の時間帯を取得
+     * @returns {string} 時間帯 ("朝", "昼", "夕方", "夜")
+     */
+    getTimePeriod() {
+        const hour = this.currentTime.hour;
+        if (hour >= 6 && hour < 12) {
+            return "朝"; // Morning: 6:00-11:59
+        } else if (hour >= 12 && hour < 18) {
+            return "昼"; // Day: 12:00-17:59
+        } else if (hour >= 18 && hour < 21) {
+            return "夕方"; // Evening: 18:00-20:59
+        } else {
+            return "夜"; // Night: 21:00-5:59
+        }
+    }
+
+    /**
+     * 現在の時間帯内での進行度を取得（0.0-1.0）
+     * @returns {number} 進行度
+     */
+    getTimePeriodProgress() {
+        const hour = this.currentTime.hour;
+        const minute = this.currentTime.minute;
+        const totalMinutes = hour * 60 + minute;
+
+        if (hour >= 6 && hour < 12) {
+            // 朝: 6:00-11:59 (6時間 = 360分)
+            const periodStart = 6 * 60; // 360分
+            return (totalMinutes - periodStart) / 360;
+        } else if (hour >= 12 && hour < 18) {
+            // 昼: 12:00-17:59 (6時間 = 360分)
+            const periodStart = 12 * 60; // 720分
+            return (totalMinutes - periodStart) / 360;
+        } else if (hour >= 18 && hour < 21) {
+            // 夕方: 18:00-20:59 (3時間 = 180分)
+            const periodStart = 18 * 60; // 1080分
+            return (totalMinutes - periodStart) / 180;
+        } else {
+            // 夜: 21:00-5:59 (9時間 = 540分)
+            if (hour >= 21) {
+                // 21:00-23:59
+                const periodStart = 21 * 60; // 1260分
+                return (totalMinutes - periodStart) / 540;
+            } else {
+                // 0:00-5:59
+                const adjustedMinutes = totalMinutes + (24 - 21) * 60; // 夜の開始(21:00)から経過した時間
+                return adjustedMinutes / 540;
+            }
+        }
+    }
 }
