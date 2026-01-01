@@ -18,6 +18,8 @@ export class InventoryUI {
         this.inventoryFrameGroup = this.scene.add.group();
         this.x = x;
         this.y = y;
+        this.itemSprites = []; // アイテムスプライトの配列
+        this.quantityTexts = []; // 数量テキストの配列
         this.createUI();
     }
 
@@ -67,6 +69,20 @@ export class InventoryUI {
      * インベントリの更新
      */
     update() {
+        // 既存のアイテムスプライトと数量テキストをクリア
+        this.itemSprites.forEach((sprite) => {
+            if (sprite) {
+                sprite.destroy();
+            }
+        });
+        this.quantityTexts.forEach((text) => {
+            if (text) {
+                text.destroy();
+            }
+        });
+        this.itemSprites = [];
+        this.quantityTexts = [];
+
         // インベントリの内容に応じてUIを更新する処理をここに追加
         for (let i = 0; i < this.inventoryManager.size; i++) {
             const item = this.inventoryManager.items[i];
@@ -86,6 +102,7 @@ export class InventoryUI {
                 );
                 this.scene.cameras.main.ignore(sprite);
                 this.inventoryContainer.add(sprite);
+                this.itemSprites.push(sprite);
                 // 数量表示
                 const quantityText = this.scene.add
                     .text(
@@ -101,6 +118,11 @@ export class InventoryUI {
                     .setOrigin(1, 1);
                 this.scene.cameras.main.ignore(quantityText);
                 this.inventoryContainer.add(quantityText);
+                this.quantityTexts.push(quantityText);
+            } else {
+                // 空のスロットにはnullを追加してインデックスを保持
+                this.itemSprites.push(null);
+                this.quantityTexts.push(null);
             }
         }
     }
