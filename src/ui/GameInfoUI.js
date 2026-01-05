@@ -53,42 +53,29 @@ export class GameInfoUI {
         // メインカメラから除外
         this.scene.cameras.main.ignore(this.background);
 
-        // 日付テキスト
-        this.dateText = this.scene.add
+        // 日数テキスト
+        this.dayText = this.scene.add
             .text(UI_CONST.GAME_INFO_PADDING, UI_CONST.GAME_INFO_PADDING, "", {
                 fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
                 color: UI_CONST.GAME_INFO_FONT_COLOR,
                 fontFamily: FONT_NAME.MELONANO,
             })
             .setOrigin(0, 0);
-        this.infoContainer.add(this.dateText);
-        this.scene.cameras.main.ignore(this.dateText);
-
-        // 天気テキスト
-        this.weatherText = this.scene.add
-            .text(
-                UI_CONST.GAME_INFO_PADDING,
-                UI_CONST.GAME_INFO_PADDING + UI_CONST.GAME_INFO_LINE_SPACING,
-                "",
-                {
-                    fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
-                    color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
-                }
-            )
-            .setOrigin(0, 0);
-        this.infoContainer.add(this.weatherText);
-        this.scene.cameras.main.ignore(this.weatherText);
+        this.infoContainer.add(this.dayText);
+        this.scene.cameras.main.ignore(this.dayText);
 
         // 円グラフの中心位置
         const circleX = UI_CONST.GAME_INFO_WIDTH / 2;
-        const circleY = UI_CONST.GAME_INFO_PADDING + UI_CONST.GAME_INFO_LINE_SPACING * 2 + UI_CONST.TIME_CIRCLE_RADIUS;
+        const circleY =
+            UI_CONST.GAME_INFO_PADDING +
+            UI_CONST.GAME_INFO_LINE_SPACING +
+            UI_CONST.TIME_CIRCLE_RADIUS;
 
         // 円グラフ用のGraphicsオブジェクト
         this.timeCircleGraphics = this.scene.add.graphics();
         this.infoContainer.add(this.timeCircleGraphics);
         this.scene.cameras.main.ignore(this.timeCircleGraphics);
-        
+
         // 円グラフの中心位置を保存
         this.circleX = circleX;
         this.circleY = circleY;
@@ -109,13 +96,9 @@ export class GameInfoUI {
      * UIの更新
      */
     update() {
-        // 日付を更新
-        const dateStr = this.gameTimeManager.getDateString();
-        this.dateText.setText(dateStr);
-
-        // 天気を更新
-        const weatherIcon = this.gameTimeManager.getWeatherIcon();
-        this.weatherText.setText(weatherIcon);
+        // 日数を更新
+        const day = this.gameTimeManager.currentTime.day;
+        this.dayText.setText(`DAY ${day}`);
 
         // 時間帯と進行度を取得
         const timePeriod = this.gameTimeManager.getTimePeriod();
@@ -159,7 +142,7 @@ export class GameInfoUI {
             this.timeCircleGraphics.beginPath();
             // 12時の位置から開始（-90度）
             const startAngle = -90;
-            const endAngle = startAngle + (360 * progress);
+            const endAngle = startAngle + 360 * progress;
             this.timeCircleGraphics.arc(
                 this.circleX,
                 this.circleY,

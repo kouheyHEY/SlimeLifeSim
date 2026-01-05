@@ -144,19 +144,19 @@ export const UI_CONST = {
     /** ゲーム情報UIのフォント色 */
     GAME_INFO_FONT_COLOR: "#FFFFFF",
     /** ゲーム情報UIの行間 */
-    GAME_INFO_LINE_SPACING: 30,
+    GAME_INFO_LINE_SPACING: 40,
     /** ゲーム情報UIの内部パディング */
-    GAME_INFO_PADDING: 10,
+    GAME_INFO_PADDING: 20,
     /** 時間円グラフの半径 */
     TIME_CIRCLE_RADIUS: 50,
     /** 時間円グラフの線の太さ */
     TIME_CIRCLE_LINE_WIDTH: 8,
     /** 時間帯の色 */
     TIME_PERIOD_COLORS: {
-        朝: 0xffeb3b,   // 黄色 (morning)
-        昼: 0xff9800,   // オレンジ (day)
+        朝: 0xffeb3b, // 黄色 (morning)
+        昼: 0xff9800, // オレンジ (day)
         夕方: 0xff5722, // 赤オレンジ (evening)
-        夜: 0x3f51b5,   // 青 (night)
+        夜: 0x3f51b5, // 青 (night)
     },
 
     /** サイドバーUIの幅 */

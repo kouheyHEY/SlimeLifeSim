@@ -30,6 +30,9 @@ export class Game extends Phaser.Scene {
         this.initInventory();
         this.initGameTime();
 
+        // ゲーム開始前はゲーム時間を一時停止
+        this.gameTimeManager.pause();
+
         // タイトルシーンを前面に表示
         // まず描画を1フレーム待ってから、ゲームシーンを一時停止してタイトルを表示
         this.time.delayedCall(UI_CONST.TITLE_SCENE_LAUNCH_DELAY, () => {
@@ -44,6 +47,7 @@ export class Game extends Phaser.Scene {
             this.gameTimeManager.update();
             this.topBarUI.update();
         }
+        console.log(this.gameTimeManager.isPausedFlag);
 
         if (!this.gameStarted) return;
 
@@ -105,6 +109,9 @@ export class Game extends Phaser.Scene {
     initEvents() {
         // シーン再開時の処理
         this.events.on("resume", (scene, data) => {
+            // ゲーム時間を再開
+            this.gameTimeManager.resume();
+
             if (data.from === "fishing" && data.success) {
                 this.handleFishingSuccess(data.fishName);
             }
@@ -250,6 +257,8 @@ export class Game extends Phaser.Scene {
     startFishing() {
         console.log("釣りゲーム開始");
         this.scene.pause("Game");
+        // ゲーム時間を一時停止
+        this.gameTimeManager.pause();
         // ランダムに魚の種類を選択
         const fishNames = Object.values(GAME_CONST.FISH_NAME);
         const randomFish = Phaser.Utils.Array.GetRandom(fishNames);

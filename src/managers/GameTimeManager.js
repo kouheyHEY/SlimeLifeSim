@@ -39,6 +39,9 @@ export class GameTimeManager {
         this.fishHitEndTime = null; // ヒット終了時刻（ゲーム内分の合計）
         this.lotteryActive = true; // 抽選が有効かどうか
         this.lastLotteryMinute = this.getTotalMinutes(); // 最後に抽選を行った時刻
+
+        // ゲーム時間のポーズ状態
+        this.isPausedFlag = false; // ゲーム時間が一時停止中かどうか
     }
 
     /**
@@ -46,6 +49,12 @@ export class GameTimeManager {
      * 1実時間秒 = 2ゲーム内分
      */
     update() {
+        // ゲーム時間が一時停止中の場合は時間を進めない
+        if (this.isPausedFlag) {
+            this.lastUpdateTime = Date.now();
+            return;
+        }
+
         const now = Date.now();
         const deltaSeconds = (now - this.lastUpdateTime) / 1000;
 
@@ -260,5 +269,23 @@ export class GameTimeManager {
                 return adjustedMinutes / 540;
             }
         }
+    }
+
+    /**
+     * ゲーム時間を一時停止
+     */
+    pause() {
+        this.isPausedFlag = true;
+        // ポーズ時に前回の更新時刻をリセット（再開時に時間差が蓄積しないようにする）
+        this.lastUpdateTime = Date.now();
+    }
+
+    /**
+     * ゲーム時間を再開
+     */
+    resume() {
+        this.isPausedFlag = false;
+        // 再開時に前回の更新時刻をリセット（ポーズ中の時間差を無視する）
+        this.lastUpdateTime = Date.now();
     }
 }
