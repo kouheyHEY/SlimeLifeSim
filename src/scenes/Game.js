@@ -259,10 +259,38 @@ export class Game extends Phaser.Scene {
         this.scene.pause("Game");
         // ゲーム時間を一時停止
         this.gameTimeManager.pause();
-        // ランダムに魚の種類を選択
-        const fishNames = Object.values(GAME_CONST.FISH_NAME);
-        const randomFish = Phaser.Utils.Array.GetRandom(fishNames);
-        this.scene.launch("Fishing", { fishName: randomFish });
+        // 確率をもとに対象を選択（重み付けランダム）
+        const target = this.selectFishByWeight();
+        this.scene.launch("Fishing", { fishName: target });
+    }
+
+    /**
+     * 重み付けランダム選択で魚またはボトルを選択
+     * @returns {string} 選択された魚またはボトルの名前
+     */
+    selectFishByWeight() {
+        const weights = GAME_CONST.FISH_WEIGHT;
+        const targets = Object.keys(weights);
+
+        // 総重みを計算
+        const totalWeight = targets.reduce(
+            (sum, target) => sum + weights[target],
+            0
+        );
+
+        // ランダムな値を生成（0～totalWeight）
+        let random = Phaser.Math.Between(1, totalWeight);
+
+        // 累積重みで対象を選択
+        for (const target of targets) {
+            random -= weights[target];
+            if (random <= 0) {
+                return target;
+            }
+        }
+
+        // フォールバック（通常は到達しない）
+        return targets[0];
     }
 
     GameOver() {

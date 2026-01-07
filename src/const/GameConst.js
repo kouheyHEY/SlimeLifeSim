@@ -10,6 +10,12 @@ export const GAME_CONST = {
         FUNA: "fish_funa",
         /** ニジマス */
         NIJIMASU: "fish_nijimasu",
+        /** タイ */
+        TAI: "fish_tai",
+        /** マグロ */
+        TUNA: "fish_tuna",
+        /** エビ */
+        EBI: "fish_ebi",
     },
 
     /** 魚の表示名 */
@@ -18,6 +24,30 @@ export const GAME_CONST = {
         fish_funa: "フナ\n(Crucian carp)",
         /** ニジマス */
         fish_nijimasu: "ニジマス\n(Rainbow trout)",
+        /** タイ */
+        fish_tai: "タイ\n(Sea bream)",
+        /** マグロ */
+        fish_tuna: "マグロ\n(Bluefin tuna)",
+        /** エビ */
+        fish_ebi: "エビ\n(Shrimp)",
+        /** メッセージボトル */
+        bottle_letter: "メッセージボトル\n(Message bottle)",
+    },
+
+    /** 釣れる対象の確率重み */
+    FISH_WEIGHT: {
+        /** フナ */
+        fish_funa: 50,
+        /** ニジマス */
+        fish_nijimasu: 25,
+        /** エビ */
+        fish_ebi: 10,
+        /** マグロ */
+        fish_tuna: 8,
+        /** タイ */
+        fish_tai: 2,
+        /** メッセージボトル */
+        bottle_letter: 5,
     },
 
     /** 成功ゲージの最大値 */

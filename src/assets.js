@@ -14,6 +14,18 @@ export default {
             key: "fish_nijimasu",
             args: ["assets/fish_nijimasu.png"],
         },
+        fish_tai: {
+            key: "fish_tai",
+            args: ["assets/fish_tai.png"],
+        },
+        fish_tuna: {
+            key: "fish_tuna",
+            args: ["assets/fish_tuna.png"],
+        },
+        fish_ebi: {
+            key: "fish_ebi",
+            args: ["assets/fish_ebi.png"],
+        },
         icon_arrow_up: {
             key: "icon_arrow_up",
             args: ["assets/icon_arrow_up.png"],
@@ -21,6 +33,10 @@ export default {
         icon_fish_mini: {
             key: "icon_fish_mini",
             args: ["assets/icon_fish_mini.png"],
+        },
+        bottle_letter: {
+            key: "bottle_letter",
+            args: ["assets/bottle_letter.png"],
         },
     },
     spritesheet: {
