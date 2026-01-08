@@ -1,8 +1,8 @@
 export const GAME_CONST = {
     /** プレイヤーの幅 */
-    PLAYER_WIDTH: 48,
+    PLAYER_WIDTH: 256,
     /** プレイヤーの高さ */
-    PLAYER_HEIGHT: 48,
+    PLAYER_HEIGHT: 192,
 
     /** 魚の名前 */
     FISH_NAME: {
@@ -37,15 +37,15 @@ export const GAME_CONST = {
     /** 釣れる対象の確率重み */
     FISH_WEIGHT: {
         /** フナ */
-        fish_funa: 50,
+        fish_funa: 40,
         /** ニジマス */
         fish_nijimasu: 25,
         /** エビ */
-        fish_ebi: 10,
+        fish_ebi: 15,
         /** マグロ */
-        fish_tuna: 8,
+        fish_tuna: 10,
         /** タイ */
-        fish_tai: 2,
+        fish_tai: 5,
         /** メッセージボトル */
         bottle_letter: 5,
     },

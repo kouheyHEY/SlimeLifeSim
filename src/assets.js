@@ -50,6 +50,26 @@ export default {
                 },
             ],
         },
+        slime_anim_bounce: {
+            key: "slime_anim_bounce",
+            args: [
+                "assets/slime_anim_bounce.png",
+                {
+                    frameWidth: 256,
+                    frameHeight: 192,
+                },
+            ],
+        },
+        slime_anim_wink: {
+            key: "slime_anim_wink",
+            args: [
+                "assets/slime_anim_wink.png",
+                {
+                    frameWidth: 256,
+                    frameHeight: 192,
+                },
+            ],
+        },
         sheet_seaside: {
             key: "sheet_seaside",
             args: [

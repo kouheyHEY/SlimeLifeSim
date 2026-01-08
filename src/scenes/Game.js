@@ -23,9 +23,9 @@ export class Game extends Phaser.Scene {
 
         this.initCameras();
         this.initAnimations();
+        this.initMaps();
         this.initPlayer();
         this.initInput();
-        this.initMaps();
         this.initEvents();
         this.initInventory();
         this.initGameTime();
@@ -62,6 +62,24 @@ export class Game extends Phaser.Scene {
             frameRate: ANIMATION.bat.frameRate,
             repeat: ANIMATION.bat.repeat,
         });
+
+        this.anims.create({
+            key: ANIMATION.slime_anim_bounce.key,
+            frames: this.anims.generateFrameNumbers(
+                ANIMATION.slime_anim_bounce.texture
+            ),
+            frameRate: ANIMATION.slime_anim_bounce.frameRate,
+            repeat: ANIMATION.slime_anim_bounce.repeat,
+        });
+
+        this.anims.create({
+            key: ANIMATION.slime_anim_wink.key,
+            frames: this.anims.generateFrameNumbers(
+                ANIMATION.slime_anim_wink.texture
+            ),
+            frameRate: ANIMATION.slime_anim_wink.frameRate,
+            repeat: ANIMATION.slime_anim_wink.repeat,
+        });
     }
 
     /**
@@ -70,18 +88,49 @@ export class Game extends Phaser.Scene {
     initPlayer() {
         this.player = this.physics.add
             .sprite(
-                20 * MAP_CONST.CELL_SIZE + MAP_CONST.CELL_SIZE / 2,
-                25 * MAP_CONST.CELL_SIZE + MAP_CONST.CELL_SIZE / 2,
-                ASSETS.spritesheet.bat.key
+                MAP_CONST.PLAYER_START_POSITION.x * MAP_CONST.CELL_SIZE,
+                MAP_CONST.PLAYER_START_POSITION.y * MAP_CONST.CELL_SIZE,
+                ASSETS.spritesheet.slime_anim_bounce.key
             )
-            .setDepth(100)
+            .setDepth(50)
             .setCollideWorldBounds(true);
-        this.player.anims.play(ANIMATION.bat.key, true);
 
         // メインカメラをプレイヤーに追従させる
         this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
         // UIカメラから除外
         this.uiCamera.ignore(this.player);
+
+        // プレイヤーとマップの当たり判定を設定
+        this.mapManager.addCollision(this.player, MAP_CONST.LAYER_KEYS.BACK1);
+
+        // スライムアニメーションの開始
+        this.scheduleSlimeAnimation();
+    }
+
+    /**
+     * スライムアニメーションをランダムにスケジュール
+     */
+    scheduleSlimeAnimation() {
+        // アニメーション再生間隔をランダムに設定（2～5秒）
+        const nextDelay = Phaser.Math.Between(2000, 5000);
+
+        this.time.delayedCall(nextDelay, () => {
+            // bounce と wink のアニメーションをランダムに選択
+            const animations = [
+                ANIMATION.slime_anim_bounce.key,
+                ANIMATION.slime_anim_wink.key,
+            ];
+            const randomAnimation =
+                animations[Phaser.Math.Between(0, animations.length - 1)];
+
+            // アニメーションを再生
+            this.player.anims.play(randomAnimation, true);
+
+            // アニメーション終了後、次のアニメーションをスケジュール
+            this.player.once("animationcomplete", () => {
+                this.scheduleSlimeAnimation();
+            });
+        });
     }
 
     initInput() {

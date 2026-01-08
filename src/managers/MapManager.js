@@ -1,3 +1,5 @@
+import { MAP_CONST } from "../const/MapConst.js";
+
 /**
  * マップ初期化用・管理クラス
  */
@@ -24,44 +26,40 @@ export class MapManager {
         // タイルセットの読み込み
         const tileset = this.mapData.addTilesetImage(tilesetKey, tilesetKey);
 
-        const layerKeyBack1 = "back1";
-        const layerKeyFront1 = "front1_wood";
-        const layerKeyFront2 = "front2_sea";
-
         // 最背面レイヤーを作成
         const backgroundLayer = this.mapData.createLayer(
-            layerKeyBack1,
+            MAP_CONST.LAYER_KEYS.BACK1,
             tileset,
             0,
             0
         );
-        this.layers[layerKeyBack1] = backgroundLayer;
+        this.layers[MAP_CONST.LAYER_KEYS.BACK1] = backgroundLayer;
         // UIカメラから除外
         this.scene.uiCamera.ignore(backgroundLayer);
 
-        // 当たり判定を付与
-        backgroundLayer.setCollisionByExclusion([-1]);
-        this.scene.physics.add.collider(this.scene.player, backgroundLayer);
-
         // 前面レイヤー1を作成
         const frontLayer1 = this.mapData.createLayer(
-            layerKeyFront1,
+            MAP_CONST.LAYER_KEYS.FRONT1_WOOD,
             tileset,
             0,
             0
         );
-        this.layers[layerKeyFront1] = frontLayer1;
+        this.layers[MAP_CONST.LAYER_KEYS.FRONT1_WOOD] = frontLayer1;
+        // 前面レイヤーの描画深度を設定
+        frontLayer1.setDepth(200);
         // UIカメラから除外
         this.scene.uiCamera.ignore(frontLayer1);
 
         // 前面レイヤー2を作成
         const frontLayer2 = this.mapData.createLayer(
-            layerKeyFront2,
+            MAP_CONST.LAYER_KEYS.FRONT2_SEA,
             tileset,
             0,
             0
         );
-        this.layers[layerKeyFront2] = frontLayer2;
+        this.layers[MAP_CONST.LAYER_KEYS.FRONT2_SEA] = frontLayer2;
+        // 前面レイヤーの描画深度を設定
+        frontLayer2.setDepth(200);
         // UIカメラから除外
         this.scene.uiCamera.ignore(frontLayer2);
 
@@ -71,5 +69,16 @@ export class MapManager {
         // ワールドの境界をマップのサイズに設定
         this.scene.physics.world.setBounds(0, 0, mapWidth, mapHeight);
         this.scene.cameras.main.setBounds(0, 0, mapWidth, mapHeight);
+    }
+
+    /**
+     * 衝突判定を付与
+     */
+    addCollision(obj, layerKey) {
+        const layer = this.layers[layerKey];
+        if (layer) {
+            layer.setCollisionByExclusion([-1]);
+            this.scene.physics.add.collider(obj, layer);
+        }
     }
 }
