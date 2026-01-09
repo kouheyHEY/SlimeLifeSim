@@ -1,6 +1,10 @@
 import { UI_CONST } from "../const/UIConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
-import { FONT_NAME } from "../const/CommonConst.js";
+import {
+    FONT_NAME,
+    getLocalizedText,
+    getCurrentLanguage,
+} from "../const/CommonConst.js";
 import assets from "../assets.js";
 import { wrapText } from "../utils/TextUtils.js";
 
@@ -363,18 +367,16 @@ export class Fishing extends Phaser.Scene {
         this.fishingResultContainer.add(fishSprite);
 
         // テキストを表示
+        const fishDisplayName =
+            getLocalizedText(GAME_CONST.FISH_DISPLAY_NAME[this.fishName]) ||
+            this.fishName;
         const resultText = this.add
-            .text(
-                0,
-                UI_CONST.FISHING_RESULT_TEXT_Y,
-                `${GAME_CONST.FISH_DISPLAY_NAME[this.fishName]}`,
-                {
-                    fontFamily: FONT_NAME.MELONANO,
-                    fontSize: `${UI_CONST.FISHING_RESULT_TEXT_FONT_SIZE}px`,
-                    color: UI_CONST.FISHING_RESULT_TEXT_COLOR,
-                    align: "center",
-                }
-            )
+            .text(0, UI_CONST.FISHING_RESULT_TEXT_Y, fishDisplayName, {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `${UI_CONST.FISHING_RESULT_TEXT_FONT_SIZE}px`,
+                color: UI_CONST.FISHING_RESULT_TEXT_COLOR,
+                align: "center",
+            })
             .setOrigin(0.5, 0.5);
         this.fishingResultContainer.add(resultText);
 
@@ -466,7 +468,8 @@ export class Fishing extends Phaser.Scene {
             // 手紙の内容を表示
             // story_planet.jsonから手紙の内容を取得（順番に表示）
             const storyData = this.cache.json.get(this.letterCategory);
-            const letterMessages = storyData.messages.JP;
+            const currentLang = getCurrentLanguage() || "JP";
+            const letterMessages = storyData.messages[currentLang];
             // letterIndexを使用して順番に表示（インデックスが範囲外の場合は最後の手紙）
             const letterIndex =
                 this.letterIndex !== undefined
@@ -478,9 +481,13 @@ export class Fishing extends Phaser.Scene {
             this.totalLetters = letterMessages.length;
 
             // 一時的なテキストオブジェクトを作成してテキストの幅を測定
+            const fontSize =
+                currentLang === "EN"
+                    ? UI_CONST.LETTER_TEXT_FONT_SIZE_EN
+                    : UI_CONST.LETTER_TEXT_FONT_SIZE;
             const tempText = this.add.text(0, 0, "", {
                 fontFamily: FONT_NAME.MELONANO,
-                fontSize: `${UI_CONST.LETTER_TEXT_FONT_SIZE}px`,
+                fontSize: `${fontSize}px`,
             });
 
             // テキストを幅に合わせて改行
@@ -494,7 +501,7 @@ export class Fishing extends Phaser.Scene {
             const letterText = this.add
                 .text(0, UI_CONST.LETTER_TEXT_Y, wrappedText, {
                     fontFamily: FONT_NAME.MELONANO,
-                    fontSize: `${UI_CONST.LETTER_TEXT_FONT_SIZE}px`,
+                    fontSize: `${fontSize}px`,
                     color: UI_CONST.LETTER_TEXT_COLOR,
                     align: "left",
                     lineSpacing: UI_CONST.LETTER_TEXT_LINE_SPACING,

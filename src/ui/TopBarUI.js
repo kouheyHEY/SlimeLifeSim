@@ -1,7 +1,11 @@
 import { GameInfoUI } from "./GameInfoUI.js";
 import { InventoryUI } from "./InventoryUI.js";
-import { UI_CONST } from "../const/UIConst.js";
-import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
+import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
+import {
+    COMMON_CONST,
+    FONT_NAME,
+    getLocalizedText,
+} from "../const/CommonConst.js";
 
 /**
  * 画面右側の統合サイドバー
@@ -107,12 +111,17 @@ export class TopBarUI {
             .setVisible(false);
 
         this.letterButtonText = this.scene.add
-            .text(x + 45, y + 25, "手紙を読む", {
-                fontFamily: FONT_NAME.MELONANO,
-                fontSize: "20px",
-                color: "#FFFFFF",
-                align: "left",
-            })
+            .text(
+                x + 45,
+                y + 25,
+                getLocalizedText(UI_TEXT.LETTER.READ_BUTTON),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "20px",
+                    color: "#FFFFFF",
+                    align: "left",
+                }
+            )
             .setOrigin(0, 0.5)
             .setVisible(false);
 

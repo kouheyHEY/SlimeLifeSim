@@ -172,6 +172,10 @@ export const UI_CONST = {
     TIME_CIRCLE_RADIUS: 50,
     /** 時間円グラフの線の太さ */
     TIME_CIRCLE_LINE_WIDTH: 10,
+    /** 時間数直線の長さ（英語版） */
+    TIME_LINE_WIDTH: 160,
+    /** 時間数直線の高さ（英語版） */
+    TIME_LINE_HEIGHT: 10,
     /** プレイヤー状態アイコンのサイズ */
     PLAYER_STATUS_ICON_SIZE: 40,
     /** コインアイコンのサイズ */
@@ -209,12 +213,14 @@ export const UI_CONST = {
     LETTER_WINDOW_RECTANGLE_LINE_WIDTH: 2,
     /** 手紙テキストのフォントサイズ */
     LETTER_TEXT_FONT_SIZE: 24,
+    /** 手紙テキストのフォントサイズ（英語） */
+    LETTER_TEXT_FONT_SIZE_EN: 20,
     /** 手紙テキストの色 */
     LETTER_TEXT_COLOR: "#FFFFFF",
     /** 手紙テキストのY座標 */
     LETTER_TEXT_Y: -230,
     /** 手紙テキストの行間 */
-    LETTER_TEXT_LINE_SPACING: 40,
+    LETTER_TEXT_LINE_SPACING: 30,
     /** 手紙テキストのテキスト最大幅 */
     LETTER_TEXT_MAX_WIDTH: 600,
     /** 手紙ウィンドウの閉じるボタンのテキスト */
@@ -235,4 +241,25 @@ export const UI_CONST = {
     LETTER_CLOSE_BUTTON_BORDER_WIDTH: 2,
     /** 手紙ウィンドウの閉じるボタンのY座標 */
     LETTER_CLOSE_BUTTON_Y: 170,
+};
+
+/**
+ * UI テキスト定数（多言語対応）
+ */
+export const UI_TEXT = {
+    /** アイテム詳細モーダルのテキスト */
+    ITEM_DETAIL: {
+        QUANTITY: { JP: "数量: ", EN: "Quantity: " },
+        NO_DESCRIPTION: { JP: "説明なし", EN: "No description" },
+        VALUE: { JP: "価値: ", EN: "Value: " },
+        COIN: { JP: " コイン", EN: " Coins" },
+        EAT_BUTTON: { JP: "食べる", EN: "Eat" },
+        SELL_BUTTON: { JP: "売る", EN: "Sell" },
+        CLOSE_BUTTON: { JP: "×", EN: "×" },
+    },
+    /** 手紙関連のテキスト */
+    LETTER: {
+        READ_BUTTON: { JP: "手紙を読む", EN: "Letters" },
+        LETTER_PREFIX: { JP: "手紙 ", EN: "Letter " },
+    },
 };

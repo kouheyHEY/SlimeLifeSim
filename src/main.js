@@ -5,6 +5,7 @@ import { Preloader } from "./scenes/Preloader.js";
 import { Fishing } from "./scenes/Fishing.js";
 import { Title } from "./scenes/Title.js";
 import { LetterList } from "./scenes/LetterList.js";
+import { LanguageSelect } from "./scenes/LanguageSelect.js";
 import { COMMON_CONST } from "./const/CommonConst.js";
 
 const config = {
@@ -24,7 +25,16 @@ const config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    scene: [Boot, Preloader, Game, Title, Fishing, LetterList, GameOver],
+    scene: [
+        Boot,
+        LanguageSelect,
+        Preloader,
+        Game,
+        Title,
+        Fishing,
+        LetterList,
+        GameOver,
+    ],
 };
 
 new Phaser.Game(config);

@@ -1,3 +1,5 @@
+import { getCurrentLanguage } from "../const/CommonConst.js";
+
 /**
  * 手紙の管理クラス
  */
@@ -98,13 +100,21 @@ export class LetterManager {
      * @returns {string} カテゴリの表示名
      */
     getCategoryDisplayName(categoryKey) {
+        const currentLang = getCurrentLanguage() || "JP";
         const displayNames = {
-            story_planet: "元住民からの手紙",
+            story_planet: {
+                JP: "元住民からの手紙",
+                EN: "Letters from a Former Resident",
+            },
             // 将来的に追加されるカテゴリ
-            // "story_ocean": "海底の物語",
-            // "story_mountain": "山頂からの便り",
+            // "story_ocean": { JP: "海底の物語", EN: "Tales from the Deep" },
+            // "story_mountain": { JP: "山頂からの便り", EN: "Messages from the Summit" },
         };
-        return displayNames[categoryKey] || categoryKey;
+        const categoryName = displayNames[categoryKey];
+        if (categoryName && typeof categoryName === "object") {
+            return categoryName[currentLang] || categoryName.JP;
+        }
+        return categoryKey;
     }
 
     /**

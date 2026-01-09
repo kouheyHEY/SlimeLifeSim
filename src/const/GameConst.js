@@ -10,9 +10,9 @@ export const GAME_CONST = {
     PLAYER_INITIAL_COINS: 0,
     /** プレイヤー状態の表示名 */
     PLAYER_STATUS_DISPLAY_NAME: {
-        status_smile: "健康",
-        status_normal: "普通",
-        status_bad: "不調",
+        status_smile: { JP: "健康", EN: "Healthy" },
+        status_normal: { JP: "普通", EN: "Normal" },
+        status_bad: { JP: "不調", EN: "Poor" },
     },
 
     /** 魚の名前 */
@@ -34,27 +34,45 @@ export const GAME_CONST = {
     /** 魚の表示名 */
     FISH_DISPLAY_NAME: {
         /** フナ */
-        fish_funa: "フナ\n(Crucian carp)",
+        fish_funa: { JP: "フナ", EN: "Crucian carp" },
         /** ニジマス */
-        fish_nijimasu: "ニジマス\n(Rainbow trout)",
+        fish_nijimasu: { JP: "ニジマス", EN: "Rainbow trout" },
         /** タイ */
-        fish_tai: "タイ\n(Sea bream)",
+        fish_tai: { JP: "タイ", EN: "Sea bream" },
         /** マグロ */
-        fish_tuna: "マグロ\n(Bluefin tuna)",
+        fish_tuna: { JP: "マグロ", EN: "Bluefin tuna" },
         /** エビ */
-        fish_ebi: "エビ\n(Shrimp)",
+        fish_ebi: { JP: "エビ", EN: "Shrimp" },
         /** メッセージボトル */
-        bottle_letter: "メッセージボトル\n(Message bottle)",
+        bottle_letter: { JP: "メッセージボトル", EN: "Message bottle" },
     },
 
     /** アイテムの説明 */
     ITEM_DESCRIPTION: {
-        fish_funa: "淡水に生息する普通の魚。\nどこでも釣れる。",
-        fish_ebi: "小さな甲殻類。\n比較的よく釣れる。",
-        fish_nijimasu: "美しい虹色の魚。\n人気の食材。",
-        fish_tuna: "海の王者。\n希少で高級な食材。",
-        fish_tai: "縁起の良い魚。\n最高級の食材で大変レア。",
-        bottle_letter: "海を漂う手紙入りの瓶。\n誰かのメッセージが入っている。",
+        fish_funa: {
+            JP: "淡水に生息する普通の魚。\nどこでも釣れる。",
+            EN: "A common freshwater fish.\nCan be caught anywhere.",
+        },
+        fish_ebi: {
+            JP: "小さな甲殻類。\n比較的よく釣れる。",
+            EN: "A small crustacean.\nRelatively common.",
+        },
+        fish_nijimasu: {
+            JP: "美しい虹色の魚。\n人気の食材。",
+            EN: "A beautiful rainbow fish.\nPopular ingredient.",
+        },
+        fish_tuna: {
+            JP: "海の王者。\n希少で高級な食材。",
+            EN: "King of the sea.\nRare and luxurious.",
+        },
+        fish_tai: {
+            JP: "縁起の良い魚。\n最高級の食材で大変レア。",
+            EN: "An auspicious fish.\nExtremely rare delicacy.",
+        },
+        bottle_letter: {
+            JP: "海を漂う手紙入りの瓶。\n誰かのメッセージが入っている。",
+            EN: "A bottle with a letter inside.\nContains someone's message.",
+        },
     },
 
     /** アイテムの価値（コイン） */
@@ -80,7 +98,7 @@ export const GAME_CONST = {
         /** タイ */
         fish_tai: 5,
         /** メッセージボトル */
-        bottle_letter: 5,
+        bottle_letter: 5000,
     },
 
     /** 成功ゲージの最大値 */
@@ -152,10 +170,10 @@ export const TIME_PERIOD = {
  * 時間帯の表示名
  */
 export const TIME_PERIOD_DISPLAY_NAME = {
-    MORNING: "朝",
-    DAY: "昼",
-    EVENING: "夕方",
-    NIGHT: "夜",
+    MORNING: { JP: "朝", EN: "Morning" },
+    DAY: { JP: "昼", EN: "Day" },
+    EVENING: { JP: "夕方", EN: "Evening" },
+    NIGHT: { JP: "夜", EN: "Night" },
 };
 
 /**

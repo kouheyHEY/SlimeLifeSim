@@ -37,3 +37,46 @@ export const FONT_NAME = {
     /** チェックポイントフォント */
     CHECKPOINT: "checkPoint",
 };
+
+/** 言語設定 */
+export const LANGUAGE = {
+    /** 日本語 */
+    JAPANESE: "JP",
+    /** 英語 */
+    ENGLISH: "EN",
+};
+
+/** LocalStorage キー */
+export const STORAGE_KEY = {
+    /** 言語設定 */
+    LANGUAGE: "slimelife_language",
+};
+
+/**
+ * 現在の言語設定を取得
+ * @returns {string} 言語コード（"JP" または "EN"）
+ */
+export function getCurrentLanguage() {
+    const saved = localStorage.getItem(STORAGE_KEY.LANGUAGE);
+    return saved || null; // デフォルトはnull（未設定）
+}
+
+/**
+ * 言語設定を保存
+ * @param {string} language - 言語コード（"JP" または "EN"）
+ */
+export function setCurrentLanguage(language) {
+    localStorage.setItem(STORAGE_KEY.LANGUAGE, language);
+}
+
+/**
+ * 多言語テキストから現在の言語のテキストを取得
+ * @param {Object} textObject - {JP: "...", EN: "..."} 形式のオブジェクト
+ * @returns {string} 現在の言語のテキスト
+ */
+export function getLocalizedText(textObject) {
+    if (!textObject) return "";
+    if (typeof textObject === "string") return textObject;
+    const lang = getCurrentLanguage() || LANGUAGE.JAPANESE;
+    return textObject[lang] || textObject.JP || "";
+}

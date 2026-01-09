@@ -1,6 +1,6 @@
 import { InventoryManager } from "../managers/InventoryManager.js";
-import { UI_CONST } from "../const/UIConst.js";
-import { FONT_NAME } from "../const/CommonConst.js";
+import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
+import { FONT_NAME, getLocalizedText } from "../const/CommonConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
 /**
  * インベントリのUI
@@ -190,8 +190,9 @@ export class InventoryUI {
         // アイテム名
         const itemName =
             GAME_CONST.FISH_DISPLAY_NAME[item.itemKey] || item.itemKey;
+        const displayName = getLocalizedText(itemName);
         const nameText = this.scene.add
-            .text(0, -100, itemName, {
+            .text(0, -100, displayName, {
                 fontFamily: FONT_NAME.MELONANO,
                 fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                 color: "#FFFFFF",
@@ -202,20 +203,29 @@ export class InventoryUI {
 
         // 数量
         const quantityText = this.scene.add
-            .text(0, -50, `数量: ${item.stock}`, {
-                fontFamily: FONT_NAME.MELONANO,
-                fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
-                color: "#FFFF00",
-                align: "center",
-            })
+            .text(
+                0,
+                -50,
+                `${getLocalizedText(UI_TEXT.ITEM_DETAIL.QUANTITY)}${
+                    item.stock
+                }`,
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
+                    color: "#FFFF00",
+                    align: "center",
+                }
+            )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(quantityText);
 
         // 説明
         const description =
-            GAME_CONST.ITEM_DESCRIPTION[item.itemKey] || "説明なし";
+            GAME_CONST.ITEM_DESCRIPTION[item.itemKey] ||
+            UI_TEXT.ITEM_DETAIL.NO_DESCRIPTION;
+        const displayDesc = getLocalizedText(description);
         const descText = this.scene.add
-            .text(0, 20, description, {
+            .text(0, 20, displayDesc, {
                 fontFamily: FONT_NAME.MELONANO,
                 fontSize: `${UI_CONST.ITEM_DETAIL_DESC_FONT_SIZE}px`,
                 color: "#CCCCCC",
@@ -228,12 +238,19 @@ export class InventoryUI {
         // 価値
         const value = GAME_CONST.ITEM_VALUE[item.itemKey] || 0;
         const valueText = this.scene.add
-            .text(0, 100, `価値: ${value} コイン`, {
-                fontFamily: FONT_NAME.MELONANO,
-                fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
-                color: "#FFD700",
-                align: "center",
-            })
+            .text(
+                0,
+                100,
+                `${getLocalizedText(
+                    UI_TEXT.ITEM_DETAIL.VALUE
+                )}${value}${getLocalizedText(UI_TEXT.ITEM_DETAIL.COIN)}`,
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
+                    color: "#FFD700",
+                    align: "center",
+                }
+            )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(valueText);
 
@@ -254,12 +271,17 @@ export class InventoryUI {
         this.itemDetailModal.add(eatButton);
 
         const eatText = this.scene.add
-            .text(-130, buttonY, "食べる", {
-                fontFamily: FONT_NAME.MELONANO,
-                fontSize: "20px",
-                color: "#FFFFFF",
-                align: "center",
-            })
+            .text(
+                -130,
+                buttonY,
+                getLocalizedText(UI_TEXT.ITEM_DETAIL.EAT_BUTTON),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "20px",
+                    color: "#FFFFFF",
+                    align: "center",
+                }
+            )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(eatText);
 
@@ -291,12 +313,17 @@ export class InventoryUI {
         this.itemDetailModal.add(sellButton);
 
         const sellText = this.scene.add
-            .text(0, buttonY, "売る", {
-                fontFamily: FONT_NAME.MELONANO,
-                fontSize: "20px",
-                color: "#FFFFFF",
-                align: "center",
-            })
+            .text(
+                0,
+                buttonY,
+                getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_BUTTON),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "20px",
+                    color: "#FFFFFF",
+                    align: "center",
+                }
+            )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(sellText);
 
@@ -328,12 +355,17 @@ export class InventoryUI {
         this.itemDetailModal.add(closeButton);
 
         const closeText = this.scene.add
-            .text(130, buttonY, "×", {
-                fontFamily: FONT_NAME.MELONANO,
-                fontSize: "32px",
-                color: "#FFFFFF",
-                align: "center",
-            })
+            .text(
+                130,
+                buttonY,
+                getLocalizedText(UI_TEXT.ITEM_DETAIL.CLOSE_BUTTON),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "32px",
+                    color: "#FFFFFF",
+                    align: "center",
+                }
+            )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(closeText);
 

@@ -1,6 +1,11 @@
 import { GameTimeManager } from "../managers/GameTimeManager.js";
 import { UI_CONST } from "../const/UIConst.js";
-import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
+import {
+    COMMON_CONST,
+    FONT_NAME,
+    getLocalizedText,
+    getCurrentLanguage,
+} from "../const/CommonConst.js";
 import { GAME_CONST, TIME_PERIOD_DISPLAY_NAME } from "../const/GameConst.js";
 
 /**
@@ -84,26 +89,31 @@ export class GameInfoUI {
         this.infoContainer.add(this.timeText);
         this.scene.cameras.main.ignore(this.timeText);
 
-        // 円グラフの中心位置
-        const circleX = UI_CONST.GAME_INFO_WIDTH / 2;
-        const circleY =
+        // 数直線表示（全言語共通）
+        const lineY =
             UI_CONST.GAME_INFO_PADDING * 2 +
             UI_CONST.GAME_INFO_LINE_SPACING * 2 +
-            UI_CONST.TIME_CIRCLE_RADIUS;
+            60;
 
-        // 円グラフ用のGraphicsオブジェクト
-        this.timeCircleGraphics = this.scene.add.graphics();
-        this.infoContainer.add(this.timeCircleGraphics);
-        this.scene.cameras.main.ignore(this.timeCircleGraphics);
+        // 数直線用のGraphicsオブジェクト
+        this.timeLineGraphics = this.scene.add.graphics();
+        this.infoContainer.add(this.timeLineGraphics);
+        this.scene.cameras.main.ignore(this.timeLineGraphics);
 
-        // 円グラフの中心位置を保存
-        this.circleX = circleX;
-        this.circleY = circleY;
+        // 数直線の位置を保存
+        this.lineX = UI_CONST.GAME_INFO_WIDTH / 2;
+        this.lineY = lineY;
 
-        // 時間帯テキスト（円グラフの中央）
+        // 現在の言語を取得
+        const currentLang = getCurrentLanguage() || "JP";
+
+        // 時間帯テキスト（数直線の上）
         this.timePeriodText = this.scene.add
-            .text(circleX, circleY, "", {
-                fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
+            .text(this.lineX, lineY - 20, "", {
+                fontSize:
+                    currentLang === "EN"
+                        ? "16px"
+                        : `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
                 color: UI_CONST.GAME_INFO_FONT_COLOR,
                 fontFamily: FONT_NAME.MELONANO,
             })
@@ -112,11 +122,7 @@ export class GameInfoUI {
         this.scene.cameras.main.ignore(this.timePeriodText);
 
         // ステータスとコインの縦並び表示（左寄せ）
-        const itemsStartY =
-            circleY +
-            UI_CONST.TIME_CIRCLE_RADIUS +
-            UI_CONST.GAME_INFO_PADDING +
-            25;
+        const itemsStartY = this.lineY + 60;
         const leftMargin = UI_CONST.GAME_INFO_PADDING + 5;
 
         // プレイヤーステータスアイコン（左寄せ）
@@ -132,17 +138,15 @@ export class GameInfoUI {
 
         // ステータス名テキスト（アイコンの右側）
         const statusTextX = leftMargin + UI_CONST.PLAYER_STATUS_ICON_SIZE + 8;
+        const statusName =
+            GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[this.playerStatus];
+        const statusDisplayText = statusName ? statusName.JP : "";
         this.statusText = this.scene.add
-            .text(
-                statusTextX,
-                itemsStartY,
-                GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[this.playerStatus] || "",
-                {
-                    fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
-                    color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
-                }
-            )
+            .text(statusTextX, itemsStartY, statusDisplayText, {
+                fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
+                color: UI_CONST.GAME_INFO_FONT_COLOR,
+                fontFamily: FONT_NAME.MELONANO,
+            })
             .setOrigin(0, 0.5);
         this.infoContainer.add(this.statusText);
         this.scene.cameras.main.ignore(this.statusText);
@@ -195,19 +199,21 @@ export class GameInfoUI {
         const timePeriod = this.gameTimeManager.getTimePeriod();
         const progress = this.gameTimeManager.getTimePeriodProgress();
 
-        // 時間帯テキストを更新（日本語表示）
+        // 時間帯テキストを更新
         const timePeriodDisplay =
-            TIME_PERIOD_DISPLAY_NAME[timePeriod] || timePeriod;
+            getLocalizedText(TIME_PERIOD_DISPLAY_NAME[timePeriod]) ||
+            timePeriod;
         this.timePeriodText.setText(timePeriodDisplay);
 
-        // 円グラフを描画
-        this.drawTimeCircle(timePeriod, progress);
+        // 数直線を描画
+        this.drawTimeLine(timePeriod, progress);
 
         // ステータステキストを更新
         if (this.statusText) {
-            this.statusText.setText(
-                GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[this.playerStatus] || ""
-            );
+            const statusName =
+                GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[this.playerStatus];
+            const statusDisplayText = getLocalizedText(statusName);
+            this.statusText.setText(statusDisplayText);
         }
 
         // コイン枚数を更新
@@ -226,8 +232,8 @@ export class GameInfoUI {
             console.log(`スプライトを更新: ${status}`);
         }
         if (this.statusText) {
-            const displayName =
-                GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[status] || "";
+            const statusName = GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[status];
+            const displayName = getLocalizedText(statusName);
             this.statusText.setText(displayName);
             console.log(`テキストを更新: ${displayName}`);
         }
@@ -298,46 +304,31 @@ export class GameInfoUI {
     }
 
     /**
-     * 時間の円グラフを描画
+     * 時間の数直線を描画
      * @param {string} timePeriod - 現在の時間帯
      * @param {number} progress - 時間帯内での進行度（0.0-1.0）
      */
-    drawTimeCircle(timePeriod, progress) {
-        this.timeCircleGraphics.clear();
+    drawTimeLine(timePeriod, progress) {
+        this.timeLineGraphics.clear();
 
-        const radius = UI_CONST.TIME_CIRCLE_RADIUS;
-        const lineWidth = UI_CONST.TIME_CIRCLE_LINE_WIDTH;
+        const width = UI_CONST.TIME_LINE_WIDTH;
+        const height = UI_CONST.TIME_LINE_HEIGHT;
         const color = UI_CONST.TIME_PERIOD_COLORS[timePeriod];
+        const x = this.lineX - width / 2;
+        const y = this.lineY - height / 2;
 
-        // 背景の円（グレー）
-        this.timeCircleGraphics.lineStyle(lineWidth, 0x333333, 1);
-        this.timeCircleGraphics.beginPath();
-        this.timeCircleGraphics.arc(
-            this.circleX,
-            this.circleY,
-            radius,
-            Phaser.Math.DegToRad(0),
-            Phaser.Math.DegToRad(360),
-            false
-        );
-        this.timeCircleGraphics.strokePath();
+        // 背景の長方形（グレー）
+        this.timeLineGraphics.fillStyle(0x333333, 1);
+        this.timeLineGraphics.fillRect(x, y, width, height);
 
-        // 進行度の円弧（時間帯の色）
+        // 進行度の長方形（時間帯の色）
         if (progress > 0) {
-            this.timeCircleGraphics.lineStyle(lineWidth, color, 1);
-            this.timeCircleGraphics.beginPath();
-            // 12時の位置から開始（-90度）
-            const startAngle = -90;
-            const endAngle = startAngle + 360 * progress;
-            this.timeCircleGraphics.arc(
-                this.circleX,
-                this.circleY,
-                radius,
-                Phaser.Math.DegToRad(startAngle),
-                Phaser.Math.DegToRad(endAngle),
-                false
-            );
-            this.timeCircleGraphics.strokePath();
+            this.timeLineGraphics.fillStyle(color, 1);
+            this.timeLineGraphics.fillRect(x, y, width * progress, height);
         }
+
+        // 枚線
+        this.timeLineGraphics.lineStyle(2, 0xffffff, 1);
+        this.timeLineGraphics.strokeRect(x, y, width, height);
     }
 }

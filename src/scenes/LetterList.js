@@ -1,5 +1,9 @@
-import { UI_CONST } from "../const/UIConst.js";
-import { FONT_NAME } from "../const/CommonConst.js";
+import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
+import {
+    FONT_NAME,
+    getLocalizedText,
+    getCurrentLanguage,
+} from "../const/CommonConst.js";
 import { wrapText } from "../utils/TextUtils.js";
 
 /**
@@ -72,7 +76,8 @@ export class LetterList extends Phaser.Scene {
             // カテゴリ内の手紙を表示
             const readLetters = this.letterManager.getReadLetters(categoryKey);
             const storyData = this.cache.json.get(categoryKey);
-            const letterMessages = storyData.messages.JP;
+            const currentLang = getCurrentLanguage() || "JP";
+            const letterMessages = storyData.messages[currentLang];
 
             readLetters.forEach((letterIndex) => {
                 // 手紙アイテムの背景
@@ -91,7 +96,9 @@ export class LetterList extends Phaser.Scene {
                     .text(
                         0,
                         currentY,
-                        `手紙 ${letterIndex + 1}: ${previewText}`,
+                        `${getLocalizedText(UI_TEXT.LETTER.LETTER_PREFIX)}${
+                            letterIndex + 1
+                        }: ${previewText}`,
                         {
                             fontFamily: FONT_NAME.MELONANO,
                             fontSize: "18px",
@@ -182,13 +189,18 @@ export class LetterList extends Phaser.Scene {
 
         // 手紙の内容を取得
         const storyData = this.cache.json.get(categoryKey);
-        const letterMessages = storyData.messages.JP;
+        const currentLang = getCurrentLanguage() || "JP";
+        const letterMessages = storyData.messages[currentLang];
         const letterContent = letterMessages[letterIndex];
 
         // 一時的なテキストオブジェクトを作成してテキストの幅を測定
+        const fontSize =
+            currentLang === "EN"
+                ? UI_CONST.LETTER_TEXT_FONT_SIZE_EN
+                : UI_CONST.LETTER_TEXT_FONT_SIZE;
         const tempText = this.add.text(0, 0, "", {
             fontFamily: FONT_NAME.MELONANO,
-            fontSize: `${UI_CONST.LETTER_TEXT_FONT_SIZE}px`,
+            fontSize: `${fontSize}px`,
         });
 
         // テキストを幅に合わせて改行
@@ -202,7 +214,7 @@ export class LetterList extends Phaser.Scene {
         const letterText = this.add
             .text(0, UI_CONST.LETTER_TEXT_Y, wrappedText, {
                 fontFamily: FONT_NAME.MELONANO,
-                fontSize: `${UI_CONST.LETTER_TEXT_FONT_SIZE}px`,
+                fontSize: `${fontSize}px`,
                 color: UI_CONST.LETTER_TEXT_COLOR,
                 align: "left",
                 lineSpacing: UI_CONST.LETTER_TEXT_LINE_SPACING,
