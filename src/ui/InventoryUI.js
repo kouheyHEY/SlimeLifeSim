@@ -1,6 +1,7 @@
 import { InventoryManager } from "../managers/InventoryManager.js";
 import { UI_CONST } from "../const/UIConst.js";
 import { FONT_NAME } from "../const/CommonConst.js";
+import { GAME_CONST } from "../const/GameConst.js";
 /**
  * インベントリのUI
  */
@@ -9,17 +10,26 @@ export class InventoryUI {
      * コンストラクタ
      * @param {Phaser.Scene} scene - 所属するシーン
      * @param {InventoryManager} inventoryManager - インベントリマネージャー
+     * @param {GameTimeManager} gameTimeManager - ゲーム時間マネージャー
      * @param {number} x - X座標（親コンテナ内での相対位置）
      * @param {number} y - Y座標（親コンテナ内での相対位置）
      */
-    constructor(scene, inventoryManager, x = UI_CONST.INVENTORY_X, y = UI_CONST.INVENTORY_Y) {
+    constructor(
+        scene,
+        inventoryManager,
+        gameTimeManager,
+        x = UI_CONST.INVENTORY_X,
+        y = UI_CONST.INVENTORY_Y
+    ) {
         this.scene = scene;
         this.inventoryManager = inventoryManager;
+        this.gameTimeManager = gameTimeManager;
         this.inventoryFrameGroup = this.scene.add.group();
         this.x = x;
         this.y = y;
         this.itemSprites = []; // アイテムスプライトの配列
         this.quantityTexts = []; // 数量テキストの配列
+        this.itemDetailModal = null; // アイテム詳細モーダル
         this.createUI();
     }
 
@@ -28,10 +38,7 @@ export class InventoryUI {
      */
     createUI() {
         // コンテナを作成（親コンテナ内での相対位置）
-        this.inventoryContainer = this.scene.add.container(
-            this.x,
-            this.y
-        );
+        this.inventoryContainer = this.scene.add.container(this.x, this.y);
 
         for (let r = 0; r < UI_CONST.INVENTORY_ROWS; r++) {
             for (let c = 0; c < UI_CONST.INVENTORY_COLUMNS; c++) {
@@ -96,13 +103,19 @@ export class InventoryUI {
                         frame.y + UI_CONST.INVENTORY_ITEM_FRAME_SIZE / 2,
                         item.itemKey
                     )
-                    .setOrigin(0.5, 0.5);
+                    .setOrigin(0.5, 0.5)
+                    .setInteractive({ useHandCursor: true });
                 sprite.setScale(
                     UI_CONST.INVENTORY_ITEM_DISPLAY_SIZE / sprite.width
                 );
                 this.scene.cameras.main.ignore(sprite);
                 this.inventoryContainer.add(sprite);
                 this.itemSprites.push(sprite);
+
+                // クリック時にアイテム詳細を表示
+                sprite.on("pointerdown", () => {
+                    this.showItemDetail(item);
+                });
                 // 数量表示
                 const quantityText = this.scene.add
                     .text(
@@ -124,6 +137,208 @@ export class InventoryUI {
                 this.itemSprites.push(null);
                 this.quantityTexts.push(null);
             }
+        }
+    }
+
+    /**
+     * アイテム詳細モーダルを表示
+     * @param {Object} item - アイテム情報
+     */
+    showItemDetail(item) {
+        // ゲーム時間を一時停止
+        if (this.gameTimeManager) {
+            this.gameTimeManager.pause();
+            this.gameTimeManager.pauseFishSystem();
+        }
+
+        // 既存のモーダルがあれば削除
+        if (this.itemDetailModal) {
+            this.itemDetailModal.destroy();
+        }
+
+        // モーダル用のコンテナを作成（画面中央）
+        const centerX = this.scene.cameras.main.width / 2;
+        const centerY = this.scene.cameras.main.height / 2;
+        this.itemDetailModal = this.scene.add.container(centerX, centerY);
+
+        // 背景
+        const bg = this.scene.add
+            .rectangle(
+                0,
+                0,
+                UI_CONST.ITEM_DETAIL_WIDTH,
+                UI_CONST.ITEM_DETAIL_HEIGHT,
+                UI_CONST.ITEM_DETAIL_BG_COLOR
+            )
+            .setStrokeStyle(
+                UI_CONST.ITEM_DETAIL_BORDER_WIDTH,
+                UI_CONST.ITEM_DETAIL_BORDER_COLOR
+            );
+        this.itemDetailModal.add(bg);
+
+        // アイテムテクスチャ
+        const itemSprite = this.scene.add
+            .sprite(0, -200, item.itemKey)
+            .setOrigin(0.5, 0.5);
+        const scale = UI_CONST.ITEM_DETAIL_TEXTURE_SIZE / itemSprite.width;
+        itemSprite.setScale(scale);
+        this.itemDetailModal.add(itemSprite);
+
+        // アイテム名
+        const itemName =
+            GAME_CONST.FISH_DISPLAY_NAME[item.itemKey] || item.itemKey;
+        const nameText = this.scene.add
+            .text(0, -100, itemName, {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
+                color: "#FFFFFF",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+        this.itemDetailModal.add(nameText);
+
+        // 数量
+        const quantityText = this.scene.add
+            .text(0, -50, `数量: ${item.stock}`, {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
+                color: "#FFFF00",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+        this.itemDetailModal.add(quantityText);
+
+        // 説明
+        const description =
+            GAME_CONST.ITEM_DESCRIPTION[item.itemKey] || "説明なし";
+        const descText = this.scene.add
+            .text(0, 20, description, {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `${UI_CONST.ITEM_DETAIL_DESC_FONT_SIZE}px`,
+                color: "#CCCCCC",
+                align: "center",
+                lineSpacing: 5,
+            })
+            .setOrigin(0.5, 0.5);
+        this.itemDetailModal.add(descText);
+
+        // 価値
+        const value = GAME_CONST.ITEM_VALUE[item.itemKey] || 0;
+        const valueText = this.scene.add
+            .text(0, 100, `価値: ${value} コイン`, {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
+                color: "#FFD700",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+        this.itemDetailModal.add(valueText);
+
+        // ボタンのY座標
+        const buttonY = 200;
+
+        // 食べるボタン
+        const eatButton = this.scene.add
+            .rectangle(
+                -130,
+                buttonY,
+                UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
+                UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
+                0x44aa44
+            )
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        this.itemDetailModal.add(eatButton);
+
+        const eatText = this.scene.add
+            .text(-130, buttonY, "食べる", {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: "20px",
+                color: "#FFFFFF",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+        this.itemDetailModal.add(eatText);
+
+        eatButton.on("pointerdown", () => {
+            console.log("食べる（ダミー）:", item.itemKey);
+            this.closeItemDetail();
+        });
+
+        // 売るボタン
+        const sellButton = this.scene.add
+            .rectangle(
+                0,
+                buttonY,
+                UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
+                UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
+                0xaa8844
+            )
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        this.itemDetailModal.add(sellButton);
+
+        const sellText = this.scene.add
+            .text(0, buttonY, "売る", {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: "20px",
+                color: "#FFFFFF",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+        this.itemDetailModal.add(sellText);
+
+        sellButton.on("pointerdown", () => {
+            console.log("売る（ダミー）:", item.itemKey, value);
+            this.closeItemDetail();
+        });
+
+        // 閉じるボタン（×）
+        const closeButton = this.scene.add
+            .rectangle(
+                130,
+                buttonY,
+                UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
+                UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
+                0xaa4444
+            )
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        this.itemDetailModal.add(closeButton);
+
+        const closeText = this.scene.add
+            .text(130, buttonY, "×", {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: "32px",
+                color: "#FFFFFF",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+        this.itemDetailModal.add(closeText);
+
+        closeButton.on("pointerdown", () => {
+            this.closeItemDetail();
+        });
+
+        // メインカメラから除外
+        this.itemDetailModal.each((child) => {
+            this.scene.cameras.main.ignore(child);
+        });
+    }
+
+    /**
+     * アイテム詳細モーダルを閉じる
+     */
+    closeItemDetail() {
+        if (this.itemDetailModal) {
+            this.itemDetailModal.destroy();
+            this.itemDetailModal = null;
+        }
+
+        // ゲーム時間を再開
+        if (this.gameTimeManager) {
+            this.gameTimeManager.resume();
+            this.gameTimeManager.resumeFishSystem();
         }
     }
 }

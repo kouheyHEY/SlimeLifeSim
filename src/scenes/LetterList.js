@@ -142,9 +142,9 @@ export class LetterList extends Phaser.Scene {
         this.letterListContainer.add(closeButton);
 
         const closeButtonText = this.add
-            .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "閉じる", {
+            .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "×", {
                 fontFamily: FONT_NAME.MELONANO,
-                fontSize: `${UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE}px`,
+                fontSize: "32px",
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",
             })
@@ -332,9 +332,9 @@ export class LetterList extends Phaser.Scene {
         this.letterContentContainer.add(backButton);
 
         const backButtonText = this.add
-            .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "戻る", {
+            .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "×", {
                 fontFamily: FONT_NAME.MELONANO,
-                fontSize: `${UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE}px`,
+                fontSize: "32px",
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",
             })

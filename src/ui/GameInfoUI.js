@@ -64,11 +64,27 @@ export class GameInfoUI {
         this.infoContainer.add(this.dayText);
         this.scene.cameras.main.ignore(this.dayText);
 
+        // 時刻テキスト（24時間表記）
+        this.timeText = this.scene.add
+            .text(
+                UI_CONST.GAME_INFO_PADDING,
+                UI_CONST.GAME_INFO_PADDING + UI_CONST.GAME_INFO_LINE_SPACING,
+                "",
+                {
+                    fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
+                    color: UI_CONST.GAME_INFO_FONT_COLOR,
+                    fontFamily: FONT_NAME.MELONANO,
+                }
+            )
+            .setOrigin(0, 0);
+        this.infoContainer.add(this.timeText);
+        this.scene.cameras.main.ignore(this.timeText);
+
         // 円グラフの中心位置
         const circleX = UI_CONST.GAME_INFO_WIDTH / 2;
         const circleY =
-            UI_CONST.GAME_INFO_PADDING +
-            UI_CONST.GAME_INFO_LINE_SPACING +
+            UI_CONST.GAME_INFO_PADDING * 2 +
+            UI_CONST.GAME_INFO_LINE_SPACING * 2 +
             UI_CONST.TIME_CIRCLE_RADIUS;
 
         // 円グラフ用のGraphicsオブジェクト
@@ -99,6 +115,14 @@ export class GameInfoUI {
         // 日数を更新
         const day = this.gameTimeManager.currentTime.day;
         this.dayText.setText(`DAY ${day}`);
+
+        // 時刻を更新（24時間表記）
+        const hour = this.gameTimeManager.currentTime.hour;
+        const minute = this.gameTimeManager.currentTime.minute;
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute
+            .toString()
+            .padStart(2, "0")}`;
+        this.timeText.setText(timeString);
 
         // 時間帯と進行度を取得
         const timePeriod = this.gameTimeManager.getTimePeriod();

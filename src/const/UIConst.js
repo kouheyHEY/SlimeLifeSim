@@ -87,6 +87,27 @@ export const UI_CONST = {
     /** インベントリに表示するアイテムのサイズ */
     INVENTORY_ITEM_DISPLAY_SIZE: 80,
 
+    /** アイテム詳細モーダルの幅 */
+    ITEM_DETAIL_WIDTH: 500,
+    /** アイテム詳細モーダルの高さ */
+    ITEM_DETAIL_HEIGHT: 600,
+    /** アイテム詳細モーダルの背景色 */
+    ITEM_DETAIL_BG_COLOR: 0x2a2a2a,
+    /** アイテム詳細モーダルの枠色 */
+    ITEM_DETAIL_BORDER_COLOR: 0xffffff,
+    /** アイテム詳細モーダルの枠の太さ */
+    ITEM_DETAIL_BORDER_WIDTH: 3,
+    /** アイテム詳細のテクスチャサイズ */
+    ITEM_DETAIL_TEXTURE_SIZE: 128,
+    /** アイテム詳細のフォントサイズ */
+    ITEM_DETAIL_FONT_SIZE: 20,
+    /** アイテム詳細の説明フォントサイズ */
+    ITEM_DETAIL_DESC_FONT_SIZE: 18,
+    /** アイテム詳細のボタン幅 */
+    ITEM_DETAIL_BUTTON_WIDTH: 120,
+    /** アイテム詳細のボタン高さ */
+    ITEM_DETAIL_BUTTON_HEIGHT: 50,
+
     /** タイトル画面の背景の色 */
     TITLE_BACKGROUND_COLOR: 0x000000,
     /** タイトル画面の背景の透明度 */
@@ -128,7 +149,7 @@ export const UI_CONST = {
     /** ゲーム情報UIの幅 */
     GAME_INFO_WIDTH: 192,
     /** ゲーム情報UIの高さ */
-    GAME_INFO_HEIGHT: 180,
+    GAME_INFO_HEIGHT: 190,
     /** ゲーム情報UIのX座標（トップバー内での相対位置） */
     GAME_INFO_X: 20,
     /** ゲーム情報UIのY座標（トップバー内での相対位置） */
@@ -140,17 +161,17 @@ export const UI_CONST = {
     /** ゲーム情報UIの枠の太さ */
     GAME_INFO_BORDER_WIDTH: 2,
     /** ゲーム情報UIのフォントサイズ */
-    GAME_INFO_FONT_SIZE: 20,
+    GAME_INFO_FONT_SIZE: 16,
     /** ゲーム情報UIのフォント色 */
     GAME_INFO_FONT_COLOR: "#FFFFFF",
     /** ゲーム情報UIの行間 */
-    GAME_INFO_LINE_SPACING: 40,
+    GAME_INFO_LINE_SPACING: 24,
     /** ゲーム情報UIの内部パディング */
-    GAME_INFO_PADDING: 20,
+    GAME_INFO_PADDING: 10,
     /** 時間円グラフの半径 */
     TIME_CIRCLE_RADIUS: 50,
     /** 時間円グラフの線の太さ */
-    TIME_CIRCLE_LINE_WIDTH: 8,
+    TIME_CIRCLE_LINE_WIDTH: 10,
     /** 時間帯の色 */
     TIME_PERIOD_COLORS: {
         朝: 0xffeb3b, // 黄色 (morning)

@@ -70,6 +70,7 @@ export class TopBarUI {
         this.inventoryUI = new InventoryUI(
             this.scene,
             this.inventoryManager,
+            this.gameTimeManager,
             inventoryX,
             inventoryY
         );

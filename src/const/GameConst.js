@@ -36,6 +36,26 @@ export const GAME_CONST = {
         bottle_letter: "メッセージボトル\n(Message bottle)",
     },
 
+    /** アイテムの説明 */
+    ITEM_DESCRIPTION: {
+        fish_funa: "淡水に生息する魚。\n食用に適している。",
+        fish_nijimasu: "美しい虹色の魚。\n高級食材として人気。",
+        fish_tai: "縁起の良い魚。\nとても美味しい。",
+        fish_tuna: "海の王者。\n最高級の食材。",
+        fish_ebi: "小さな甲殻類。\n料理の素材に使える。",
+        bottle_letter: "海を漂う手紙入りの瓶。\n誰かのメッセージが入っている。",
+    },
+
+    /** アイテムの価値（コイン） */
+    ITEM_VALUE: {
+        fish_funa: 10,
+        fish_nijimasu: 30,
+        fish_tai: 100,
+        fish_tuna: 200,
+        fish_ebi: 5,
+        bottle_letter: 0,
+    },
+
     /** 釣れる対象の確率重み */
     FISH_WEIGHT: {
         /** フナ */
@@ -49,7 +69,7 @@ export const GAME_CONST = {
         /** タイ */
         fish_tai: 5,
         /** メッセージボトル */
-        bottle_letter: 500,
+        bottle_letter: 5,
     },
 
     /** 成功ゲージの最大値 */
