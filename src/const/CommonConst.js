@@ -50,6 +50,10 @@ export const LANGUAGE = {
 export const STORAGE_KEY = {
     /** 言語設定 */
     LANGUAGE: "slimelife_language",
+    /** アップグレード情報 */
+    UPGRADES: "slimelife_upgrades",
+    /** ゲーム設定 */
+    SETTINGS: "slimelife_settings",
 };
 
 /**

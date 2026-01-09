@@ -171,11 +171,26 @@ export class GameTimeManager {
         if (currentTotalMinutes > this.lastLotteryMinute) {
             this.lastLotteryMinute = currentTotalMinutes;
 
-            // 低確率で魚がヒット
-            const random = Phaser.Math.Between(
+            // アップグレードによる確率倍率を取得
+            let catchRateMultiplier = 1.0;
+            if (
+                this.scene.upgradeManager &&
+                this.scene.upgradeManager.getFishCatchRateMultiplier
+            ) {
+                catchRateMultiplier =
+                    this.scene.upgradeManager.getFishCatchRateMultiplier();
+            }
+
+            // 確率を倍率で調整（確率が高いほど当たりやすい）
+            const adjustedProbability = Math.max(
                 1,
-                GAME_CONST.FISH_HIT_LOTTERY_PROBABILITY
+                Math.floor(
+                    GAME_CONST.FISH_HIT_LOTTERY_PROBABILITY / catchRateMultiplier
+                )
             );
+
+            // 低確率で魚がヒット
+            const random = Phaser.Math.Between(1, adjustedProbability);
             if (random === 1) {
                 this.triggerFishHit();
             }

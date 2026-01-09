@@ -8,10 +8,14 @@ import { MapManager } from "../managers/MapManager.js";
 import { InventoryManager } from "../managers/InventoryManager.js";
 import { LetterManager } from "../managers/LetterManager.js";
 import { GameTimeManager } from "../managers/GameTimeManager.js";
+import { UpgradeManager } from "../managers/UpgradeManager.js";
+import { SettingsManager } from "../managers/SettingsManager.js";
 import { TopBarUI } from "../ui/TopBarUI.js";
+import { SidebarUI } from "../ui/SidebarUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
-import { UI_CONST } from "../const/UIConst.js";
+import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
+import { FONT_NAME, getLocalizedText } from "../const/CommonConst.js";
 import assets from "../assets.js";
 import { TimeOfDayManager } from "../managers/TimeOfDayManager.js";
 
@@ -34,6 +38,7 @@ export class Game extends Phaser.Scene {
         this.initInventory();
         this.initLetter();
         this.initGameTime();
+        this.initUpgradesAndSettings();
 
         // ゲーム開始前はゲーム時間を一時停止
         this.gameTimeManager.pause();
@@ -48,19 +53,24 @@ export class Game extends Phaser.Scene {
 
     update() {
         // ゲーム時間とUIの更新（シーンが動いている時のみ）
-        if (this.topBarUI) {
+        if (this.topBarUI && this.sidebarUI) {
             this.gameTimeManager.update();
             this.topBarUI.update();
+            this.sidebarUI.update();
 
             // 背景色用の細かい時間帯が変わったかチェック
-            if (this.gameTimeManager.hasBackgroundTimeChanged()) {
+            if (
+                this.settingsManager.isBackgroundColorChangeEnabled() &&
+                this.gameTimeManager.hasBackgroundTimeChanged()
+            ) {
                 this.timeOfDayManager.updateBackgroundColor();
             }
 
             // ステータス管理用の時間帯が変わったかチェック
-            this.gameTimeManager.hasTimeOfDayChanged();
+            if (this.settingsManager.isStatusChangeEnabled()) {
+                this.gameTimeManager.hasTimeOfDayChanged();
+            }
         }
-        console.log(this.gameTimeManager.isPausedFlag);
 
         if (!this.gameStarted) return;
 
@@ -128,6 +138,12 @@ export class Game extends Phaser.Scene {
         const nextDelay = Phaser.Math.Between(2000, 5000);
 
         this.time.delayedCall(nextDelay, () => {
+            // 設定でアニメーションが無効化されている場合はスキップ
+            if (!this.settingsManager.isPlayerAnimationEnabled()) {
+                this.scheduleSlimeAnimation();
+                return;
+            }
+
             // bounce と wink のアニメーションをランダムに選択
             const animations = [
                 ANIMATION.slime_anim_bounce.key,
@@ -247,8 +263,11 @@ export class Game extends Phaser.Scene {
             this.gameTimeManager
         );
 
-        // トップバーUIを作成（ゲーム情報とインベントリを統合）
-        this.topBarUI = new TopBarUI(
+        // トップバーUIを作成（画面上部）
+        this.topBarUI = new TopBarUI(this, this.gameTimeManager);
+
+        // サイドバーUIを作成（ゲーム情報とインベントリを統合）
+        this.sidebarUI = new SidebarUI(
             this,
             this.gameTimeManager,
             this.inventoryManager
@@ -256,9 +275,23 @@ export class Game extends Phaser.Scene {
 
         // 初期表示のためにUIを更新
         this.topBarUI.update();
+        this.sidebarUI.update();
 
         // 初期時間帯の背景色を設定
         this.timeOfDayManager.updateBackgroundColor();
+    }
+
+    /**
+     * アップグレードと設定の初期化
+     */
+    initUpgradesAndSettings() {
+        this.upgradeManager = new UpgradeManager(this);
+        this.settingsManager = new SettingsManager(this);
+
+        // アップグレードに基づいて自動釣り設定を同期
+        if (this.upgradeManager.isAutoFishingEnabled()) {
+            this.settingsManager.setAutoFishing(true);
+        }
     }
 
     /**
@@ -275,17 +308,26 @@ export class Game extends Phaser.Scene {
                     letterIndex
                 );
                 // UIを更新（手紙ボタンの表示）
-                this.topBarUI.updateLetterButton();
+                this.sidebarUI.updateLetterButton();
             }
         } else {
             // ここに釣り成功時の処理を追加
+            // アップグレードによる価値倍率を適用
+            const valueMultiplier =
+                this.upgradeManager.getFishValueMultiplier();
+            const baseValue = GAME_CONST.ITEM_VALUE[fishName] || 0;
+            const actualValue = Math.floor(baseValue * valueMultiplier);
+
+            // コイン獲得（価値倍率適用後）
+            this.sidebarUI.gameInfoUI.addCoins(actualValue);
+
             this.inventoryManager.addItem(
                 fishName,
                 GAME_CONST.FISH_DISPLAY_NAME[fishName],
                 1
             );
             // インベントリUIの更新
-            this.topBarUI.updateInventory();
+            this.sidebarUI.updateInventory();
         }
     }
 
@@ -357,6 +399,13 @@ export class Game extends Phaser.Scene {
      */
     startFishing() {
         console.log("釣りゲーム開始");
+
+        // 自動釣りが有効な場合は即座に釣り上げ
+        if (this.settingsManager.isAutoFishingEnabled()) {
+            this.autoFishing();
+            return;
+        }
+
         this.scene.pause("Game");
         // ゲーム時間を一時停止
         this.gameTimeManager.pause();
@@ -365,7 +414,10 @@ export class Game extends Phaser.Scene {
         // 確率をもとに対象を選択（重み付けランダム）
         const target = this.selectFishByWeight();
         // メッセージボトルの場合は次の手紙のインデックスを渡す
-        const params = { fishName: target };
+        const params = {
+            fishName: target,
+            linePowerMultiplier: this.upgradeManager.getLinePowerMultiplier(),
+        };
         if (target === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
             // 現在はstory_planetのみ、将来的には確率で選択するなど
             const letterCategory = "story_planet";
@@ -374,6 +426,28 @@ export class Game extends Phaser.Scene {
             params.letterCategory = letterCategory;
         }
         this.scene.launch("Fishing", params);
+    }
+
+    /**
+     * 自動釣り処理
+     */
+    autoFishing() {
+        console.log("自動釣り実行");
+        // 確率をもとに対象を選択（重み付けランダム）
+        const target = this.selectFishByWeight();
+
+        // 手紙の処理
+        if (target === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
+            const letterCategory = "story_planet";
+            const letterIndex =
+                this.letterManager.getNextLetterIndex(letterCategory);
+            this.handleFishingSuccess(target, letterIndex, letterCategory);
+        } else {
+            this.handleFishingSuccess(target);
+        }
+
+        // 魚ヒットシステムを再開
+        this.gameTimeManager.resumeFishSystem();
     }
 
     /**
@@ -416,7 +490,7 @@ export class Game extends Phaser.Scene {
      */
     handleStatusDecrease() {
         console.log("handleStatusDecreaseが呼ばれました");
-        const canDecrease = this.topBarUI.gameInfoUI.decreasePlayerStatus();
+        const canDecrease = this.sidebarUI.gameInfoUI.decreasePlayerStatus();
         console.log(`ステータス低下結果: ${canDecrease}`);
 
         if (!canDecrease) {
@@ -428,7 +502,7 @@ export class Game extends Phaser.Scene {
 
             if (fishItems.length > 0) {
                 // 魚がある場合は選択モーダルを表示
-                this.topBarUI.inventoryUI.showFishSelectionModal(() => {
+                this.sidebarUI.inventoryUI.showFishSelectionModal(() => {
                     // 魚を食べた後の処理
                     console.log("魚を食べて体力回復");
                 });
@@ -456,5 +530,507 @@ export class Game extends Phaser.Scene {
         this.time.delayedCall(2000, () => {
             this.scene.start("GameOver");
         });
+    }
+
+    /**
+     * 一時停止モーダルを表示
+     */
+    showPauseModal() {
+        // ゲーム時間を一時停止
+        this.gameTimeManager.pause();
+
+        // モーダル用のシーンを作成（簡易実装）
+        const pauseContainer = this.add.container(
+            this.sys.game.config.width / 2,
+            this.sys.game.config.height / 2
+        );
+        pauseContainer.setDepth(2000);
+        this.cameras.main.ignore(pauseContainer);
+
+        // 背景オーバーレイ
+        const overlay = this.add
+            .rectangle(
+                0,
+                0,
+                this.sys.game.config.width,
+                this.sys.game.config.height,
+                0x000000,
+                0.7
+            )
+            .setOrigin(0.5, 0.5)
+            .setScrollFactor(0);
+        pauseContainer.add(overlay);
+
+        // モーダル背景
+        const modalBg = this.add
+            .rectangle(
+                0,
+                0,
+                UI_CONST.PAUSE_MODAL_WIDTH,
+                UI_CONST.PAUSE_MODAL_HEIGHT,
+                0x222222,
+                0.95
+            )
+            .setStrokeStyle(4, 0xffffff);
+        pauseContainer.add(modalBg);
+
+        // タイトル
+        const title = this.add
+            .text(
+                0,
+                -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 40,
+                getLocalizedText(UI_TEXT.PAUSE_MODAL.TITLE),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "32px",
+                    color: "#ffff00",
+                }
+            )
+            .setOrigin(0.5);
+        pauseContainer.add(title);
+
+        let currentY = -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 100;
+        const lineHeight = 50;
+
+        // BGM音量スライダー（簡易版：クリックで切り替え）
+        const bgmText = this.add
+            .text(
+                -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+                currentY,
+                `${getLocalizedText(UI_TEXT.PAUSE_MODAL.BGM_VOLUME)}: ${Math.round(this.settingsManager.getBgmVolume() * 100)}%`,
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "20px",
+                    color: "#ffffff",
+                }
+            )
+            .setOrigin(0, 0.5);
+        pauseContainer.add(bgmText);
+        currentY += lineHeight;
+
+        // SE音量スライダー（簡易版）
+        const seText = this.add
+            .text(
+                -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+                currentY,
+                `${getLocalizedText(UI_TEXT.PAUSE_MODAL.SE_VOLUME)}: ${Math.round(this.settingsManager.getSeVolume() * 100)}%`,
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "20px",
+                    color: "#ffffff",
+                }
+            )
+            .setOrigin(0, 0.5);
+        pauseContainer.add(seText);
+        currentY += lineHeight;
+
+        // 背景色変化トグル
+        const bgColorToggle = this.createToggle(
+            pauseContainer,
+            -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+            currentY,
+            getLocalizedText(UI_TEXT.PAUSE_MODAL.BACKGROUND_COLOR),
+            this.settingsManager.isBackgroundColorChangeEnabled(),
+            (enabled) => {
+                this.settingsManager.setBackgroundColorChange(enabled);
+            }
+        );
+        currentY += lineHeight;
+
+        // プレイヤーアニメーショントグル
+        const animToggle = this.createToggle(
+            pauseContainer,
+            -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+            currentY,
+            getLocalizedText(UI_TEXT.PAUSE_MODAL.PLAYER_ANIMATION),
+            this.settingsManager.isPlayerAnimationEnabled(),
+            (enabled) => {
+                this.settingsManager.setPlayerAnimation(enabled);
+            }
+        );
+        currentY += lineHeight;
+
+        // ステータス変化トグル
+        const statusToggle = this.createToggle(
+            pauseContainer,
+            -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+            currentY,
+            getLocalizedText(UI_TEXT.PAUSE_MODAL.STATUS_CHANGE),
+            this.settingsManager.isStatusChangeEnabled(),
+            (enabled) => {
+                this.settingsManager.setStatusChange(enabled);
+            }
+        );
+        currentY += lineHeight;
+
+        // 自動釣りトグル（アップグレードがある場合のみ）
+        if (this.upgradeManager.isAutoFishingEnabled()) {
+            const autoFishToggle = this.createToggle(
+                pauseContainer,
+                -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+                currentY,
+                getLocalizedText(UI_TEXT.PAUSE_MODAL.AUTO_FISHING),
+                this.settingsManager.isAutoFishingEnabled(),
+                (enabled) => {
+                    this.settingsManager.setAutoFishing(enabled);
+                }
+            );
+            currentY += lineHeight;
+        }
+
+        // 再開ボタン
+        const resumeButton = this.add
+            .rectangle(0, UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60, 150, 50, 0x00cc00)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        pauseContainer.add(resumeButton);
+
+        const resumeText = this.add
+            .text(
+                0,
+                UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60,
+                getLocalizedText(UI_TEXT.PAUSE_MODAL.RESUME),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "20px",
+                    color: "#ffffff",
+                }
+            )
+            .setOrigin(0.5);
+        pauseContainer.add(resumeText);
+
+        resumeButton.on("pointerdown", () => {
+            // ゲーム時間を再開
+            this.gameTimeManager.resume();
+            // モーダルを削除
+            pauseContainer.destroy();
+        });
+
+        this.pauseContainer = pauseContainer;
+    }
+
+    /**
+     * トグルボタンを作成
+     */
+    createToggle(container, x, y, label, initialValue, callback) {
+        const text = this.add
+            .text(x, y, `${label}: ${initialValue ? "ON" : "OFF"}`, {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: "20px",
+                color: "#ffffff",
+            })
+            .setOrigin(0, 0.5)
+            .setInteractive({ useHandCursor: true });
+        container.add(text);
+
+        let enabled = initialValue;
+        text.on("pointerdown", () => {
+            enabled = !enabled;
+            text.setText(`${label}: ${enabled ? "ON" : "OFF"}`);
+            callback(enabled);
+        });
+
+        return text;
+    }
+
+    /**
+     * アップグレードモーダルを表示
+     */
+    showUpgradeModal() {
+        // ゲーム時間を一時停止
+        this.gameTimeManager.pause();
+
+        // モーダル用のコンテナ
+        const upgradeContainer = this.add.container(
+            this.sys.game.config.width / 2,
+            this.sys.game.config.height / 2
+        );
+        upgradeContainer.setDepth(2000);
+        this.cameras.main.ignore(upgradeContainer);
+
+        // 背景オーバーレイ
+        const overlay = this.add
+            .rectangle(
+                0,
+                0,
+                this.sys.game.config.width,
+                this.sys.game.config.height,
+                0x000000,
+                0.7
+            )
+            .setOrigin(0.5, 0.5)
+            .setScrollFactor(0);
+        upgradeContainer.add(overlay);
+
+        // モーダル背景
+        const modalBg = this.add
+            .rectangle(
+                0,
+                0,
+                UI_CONST.UPGRADE_MODAL_WIDTH,
+                UI_CONST.UPGRADE_MODAL_HEIGHT,
+                0x222222,
+                0.95
+            )
+            .setStrokeStyle(4, 0xffffff);
+        upgradeContainer.add(modalBg);
+
+        // タイトル
+        const title = this.add
+            .text(
+                0,
+                -UI_CONST.UPGRADE_MODAL_HEIGHT / 2 + 40,
+                getLocalizedText(UI_TEXT.UPGRADE_MODAL.TITLE),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "32px",
+                    color: "#ffff00",
+                }
+            )
+            .setOrigin(0.5);
+        upgradeContainer.add(title);
+
+        // コイン表示
+        const coinsText = this.add
+            .text(
+                0,
+                -UI_CONST.UPGRADE_MODAL_HEIGHT / 2 + 80,
+                `${getLocalizedText({ JP: "所持コイン", EN: "Coins" })}: ${this.sidebarUI.gameInfoUI.coins}`,
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "20px",
+                    color: "#ffffff",
+                }
+            )
+            .setOrigin(0.5);
+        upgradeContainer.add(coinsText);
+
+        let currentY = -UI_CONST.UPGRADE_MODAL_HEIGHT / 2 + 140;
+        const lineHeight = 80;
+
+        // アップグレードアイテムを作成
+        const upgrades = [
+            {
+                key: "fishCatchRate",
+                name: UI_TEXT.UPGRADE_MODAL.FISH_CATCH_RATE,
+            },
+            { key: "linePower", name: UI_TEXT.UPGRADE_MODAL.LINE_POWER },
+            { key: "fishValue", name: UI_TEXT.UPGRADE_MODAL.FISH_VALUE },
+            { key: "autoFishing", name: UI_TEXT.UPGRADE_MODAL.AUTO_FISHING },
+        ];
+
+        const upgradeElements = [];
+        upgrades.forEach((upgrade, index) => {
+            const element = this.createUpgradeItem(
+                upgradeContainer,
+                0,
+                currentY,
+                upgrade.key,
+                upgrade.name,
+                () => {
+                    // アップグレード実行後、UI更新
+                    coinsText.setText(
+                        `${getLocalizedText({ JP: "所持コイン", EN: "Coins" })}: ${this.sidebarUI.gameInfoUI.coins}`
+                    );
+                    upgradeElements.forEach((el) => el.update());
+                }
+            );
+            upgradeElements.push(element);
+            currentY += lineHeight;
+        });
+
+        // 閉じるボタン
+        const closeButton = this.add
+            .rectangle(
+                0,
+                UI_CONST.UPGRADE_MODAL_HEIGHT / 2 - 60,
+                150,
+                50,
+                0xcc0000
+            )
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        upgradeContainer.add(closeButton);
+
+        const closeText = this.add
+            .text(
+                0,
+                UI_CONST.UPGRADE_MODAL_HEIGHT / 2 - 60,
+                getLocalizedText(UI_TEXT.UPGRADE_MODAL.CLOSE),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "20px",
+                    color: "#ffffff",
+                }
+            )
+            .setOrigin(0.5);
+        upgradeContainer.add(closeText);
+
+        closeButton.on("pointerdown", () => {
+            // ゲーム時間を再開
+            this.gameTimeManager.resume();
+            // モーダルを削除
+            upgradeContainer.destroy();
+        });
+
+        this.upgradeContainer = upgradeContainer;
+    }
+
+    /**
+     * アップグレードアイテムを作成
+     */
+    createUpgradeItem(container, x, y, upgradeKey, nameText, onUpgrade) {
+        const itemContainer = this.add.container(x, y);
+        container.add(itemContainer);
+
+        const level = this.upgradeManager.getLevel(upgradeKey);
+        const maxLevel = this.upgradeManager.getMaxLevel(upgradeKey);
+        const cost = this.upgradeManager.getUpgradeCost(upgradeKey);
+        const canUpgrade = this.upgradeManager.canUpgrade(upgradeKey);
+
+        // 名前とレベル
+        const nameLabel = this.add
+            .text(
+                -UI_CONST.UPGRADE_MODAL_WIDTH / 2 + 40,
+                0,
+                `${getLocalizedText(nameText)}`,
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "18px",
+                    color: "#ffffff",
+                }
+            )
+            .setOrigin(0, 0.5);
+        itemContainer.add(nameLabel);
+
+        const levelLabel = this.add
+            .text(
+                -UI_CONST.UPGRADE_MODAL_WIDTH / 2 + 40,
+                25,
+                canUpgrade
+                    ? `${getLocalizedText(UI_TEXT.UPGRADE_MODAL.LEVEL)} ${level}/${maxLevel}`
+                    : getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX_LEVEL),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "16px",
+                    color: "#aaaaaa",
+                }
+            )
+            .setOrigin(0, 0.5);
+        itemContainer.add(levelLabel);
+
+        // アップグレードボタン
+        if (canUpgrade) {
+            const button = this.add
+                .rectangle(
+                    UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120,
+                    0,
+                    100,
+                    40,
+                    0x00cc00
+                )
+                .setStrokeStyle(2, 0xffffff)
+                .setInteractive({ useHandCursor: true });
+            itemContainer.add(button);
+
+            const buttonText = this.add
+                .text(
+                    UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120,
+                    0,
+                    `${cost}`,
+                    {
+                        fontFamily: FONT_NAME.MELONANO,
+                        fontSize: "18px",
+                        color: "#ffffff",
+                    }
+                )
+                .setOrigin(0.5);
+            itemContainer.add(buttonText);
+
+            button.on("pointerdown", () => {
+                const result = this.upgradeManager.upgrade(
+                    upgradeKey,
+                    this.sidebarUI.gameInfoUI.coins
+                );
+                if (result.success) {
+                    this.sidebarUI.gameInfoUI.setCoins(result.newCoins);
+                    // 自動釣りアップグレードの場合、設定を有効化
+                    if (
+                        upgradeKey === "autoFishing" &&
+                        this.upgradeManager.isAutoFishingEnabled()
+                    ) {
+                        this.settingsManager.setAutoFishing(true);
+                    }
+                    onUpgrade();
+                }
+            });
+        }
+
+        return {
+            update: () => {
+                const newLevel = this.upgradeManager.getLevel(upgradeKey);
+                const newMaxLevel = this.upgradeManager.getMaxLevel(upgradeKey);
+                const newCost = this.upgradeManager.getUpgradeCost(upgradeKey);
+                const newCanUpgrade =
+                    this.upgradeManager.canUpgrade(upgradeKey);
+
+                levelLabel.setText(
+                    newCanUpgrade
+                        ? `${getLocalizedText(UI_TEXT.UPGRADE_MODAL.LEVEL)} ${newLevel}/${newMaxLevel}`
+                        : getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX_LEVEL)
+                );
+
+                // 既存のボタンとテキストを削除して再作成
+                itemContainer.removeAll(true);
+                itemContainer.add(nameLabel);
+                itemContainer.add(levelLabel);
+
+                if (newCanUpgrade) {
+                    const button = this.add
+                        .rectangle(
+                            UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120,
+                            0,
+                            100,
+                            40,
+                            0x00cc00
+                        )
+                        .setStrokeStyle(2, 0xffffff)
+                        .setInteractive({ useHandCursor: true });
+                    itemContainer.add(button);
+
+                    const buttonText = this.add
+                        .text(
+                            UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120,
+                            0,
+                            `${newCost}`,
+                            {
+                                fontFamily: FONT_NAME.MELONANO,
+                                fontSize: "18px",
+                                color: "#ffffff",
+                            }
+                        )
+                        .setOrigin(0.5);
+                    itemContainer.add(buttonText);
+
+                    button.on("pointerdown", () => {
+                        const result = this.upgradeManager.upgrade(
+                            upgradeKey,
+                            this.sidebarUI.gameInfoUI.coins
+                        );
+                        if (result.success) {
+                            this.sidebarUI.gameInfoUI.setCoins(result.newCoins);
+                            // 自動釣りアップグレードの場合、設定を有効化
+                            if (
+                                upgradeKey === "autoFishing" &&
+                                this.upgradeManager.isAutoFishingEnabled()
+                            ) {
+                                this.settingsManager.setAutoFishing(true);
+                            }
+                            onUpgrade();
+                        }
+                    });
+                }
+            },
+        };
     }
 }

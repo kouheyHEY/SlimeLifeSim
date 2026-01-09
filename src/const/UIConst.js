@@ -241,6 +241,37 @@ export const UI_CONST = {
     LETTER_CLOSE_BUTTON_BORDER_WIDTH: 2,
     /** 手紙ウィンドウの閉じるボタンのY座標 */
     LETTER_CLOSE_BUTTON_Y: 170,
+
+    /** トップバーの高さ */
+    TOP_BAR_HEIGHT: 80,
+    /** トップバーの背景色 */
+    TOP_BAR_COLOR: 0x000000,
+    /** トップバーの背景透明度 */
+    TOP_BAR_ALPHA: 0.7,
+    /** トップバーの枠の色 */
+    TOP_BAR_BORDER_COLOR: 0xffffff,
+    /** トップバーの枠の太さ */
+    TOP_BAR_BORDER_WIDTH: 2,
+    /** トップバーのパディング */
+    TOP_BAR_PADDING: 10,
+    /** 一時停止ボタンの幅 */
+    PAUSE_BUTTON_WIDTH: 120,
+    /** 一時停止ボタンの高さ */
+    PAUSE_BUTTON_HEIGHT: 50,
+    /** アップグレードボタンの幅 */
+    UPGRADE_BUTTON_WIDTH: 150,
+    /** アップグレードボタンの高さ */
+    UPGRADE_BUTTON_HEIGHT: 50,
+
+    /** 一時停止モーダルの幅 */
+    PAUSE_MODAL_WIDTH: 600,
+    /** 一時停止モーダルの高さ */
+    PAUSE_MODAL_HEIGHT: 500,
+
+    /** アップグレードモーダルの幅 */
+    UPGRADE_MODAL_WIDTH: 700,
+    /** アップグレードモーダルの高さ */
+    UPGRADE_MODAL_HEIGHT: 600,
 };
 
 /**
@@ -261,5 +292,35 @@ export const UI_TEXT = {
     LETTER: {
         READ_BUTTON: { JP: "手紙を読む", EN: "Letters" },
         LETTER_PREFIX: { JP: "手紙 ", EN: "Letter " },
+    },
+    /** 一時停止モーダルのテキスト */
+    PAUSE_MODAL: {
+        TITLE: { JP: "設定", EN: "Settings" },
+        BGM_VOLUME: { JP: "BGM音量", EN: "BGM Volume" },
+        SE_VOLUME: { JP: "SE音量", EN: "SE Volume" },
+        BACKGROUND_COLOR: { JP: "背景色の変化", EN: "Background Color" },
+        PLAYER_ANIMATION: { JP: "プレイヤーアニメーション", EN: "Player Animation" },
+        STATUS_CHANGE: { JP: "ステータス変化", EN: "Status Change" },
+        AUTO_FISHING: { JP: "釣り全自動化", EN: "Auto Fishing" },
+        RESUME: { JP: "再開", EN: "Resume" },
+    },
+    /** アップグレードモーダルのテキスト */
+    UPGRADE_MODAL: {
+        TITLE: { JP: "アップグレード", EN: "Upgrades" },
+        FISH_CATCH_RATE: { JP: "魚の釣れやすさ", EN: "Fish Catch Rate" },
+        LINE_POWER: { JP: "釣り糸引っ張り力", EN: "Line Power" },
+        FISH_VALUE: { JP: "魚の価値上昇", EN: "Fish Value" },
+        AUTO_FISHING: { JP: "釣り全自動化", EN: "Auto Fishing" },
+        LEVEL: { JP: "レベル", EN: "Level" },
+        MAX_LEVEL: { JP: "最大レベル", EN: "Max Level" },
+        COST: { JP: "コスト:", EN: "Cost:" },
+        UPGRADE: { JP: "アップグレード", EN: "Upgrade" },
+        NOT_ENOUGH_COINS: { JP: "コイン不足", EN: "Not Enough Coins" },
+        CLOSE: { JP: "閉じる", EN: "Close" },
+    },
+    /** トップバーのテキスト */
+    TOP_BAR: {
+        PAUSE: { JP: "一時停止", EN: "Pause" },
+        UPGRADE: { JP: "アップグレード", EN: "Upgrade" },
     },
 };

@@ -62,67 +62,8 @@ export class GameInfoUI {
         // メインカメラから除外
         this.scene.cameras.main.ignore(this.background);
 
-        // 日数テキスト
-        this.dayText = this.scene.add
-            .text(UI_CONST.GAME_INFO_PADDING, UI_CONST.GAME_INFO_PADDING, "", {
-                fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
-                color: UI_CONST.GAME_INFO_FONT_COLOR,
-                fontFamily: FONT_NAME.MELONANO,
-            })
-            .setOrigin(0, 0);
-        this.infoContainer.add(this.dayText);
-        this.scene.cameras.main.ignore(this.dayText);
-
-        // 時刻テキスト（24時間表記）
-        this.timeText = this.scene.add
-            .text(
-                UI_CONST.GAME_INFO_PADDING,
-                UI_CONST.GAME_INFO_PADDING + UI_CONST.GAME_INFO_LINE_SPACING,
-                "",
-                {
-                    fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
-                    color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
-                }
-            )
-            .setOrigin(0, 0);
-        this.infoContainer.add(this.timeText);
-        this.scene.cameras.main.ignore(this.timeText);
-
-        // 数直線表示（全言語共通）
-        const lineY =
-            UI_CONST.GAME_INFO_PADDING * 2 +
-            UI_CONST.GAME_INFO_LINE_SPACING * 2 +
-            60;
-
-        // 数直線用のGraphicsオブジェクト
-        this.timeLineGraphics = this.scene.add.graphics();
-        this.infoContainer.add(this.timeLineGraphics);
-        this.scene.cameras.main.ignore(this.timeLineGraphics);
-
-        // 数直線の位置を保存
-        this.lineX = UI_CONST.GAME_INFO_WIDTH / 2;
-        this.lineY = lineY;
-
-        // 現在の言語を取得
-        const currentLang = getCurrentLanguage() || "JP";
-
-        // 時間帯テキスト（数直線の上）
-        this.timePeriodText = this.scene.add
-            .text(this.lineX, lineY - 20, "", {
-                fontSize:
-                    currentLang === "EN"
-                        ? "16px"
-                        : `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
-                color: UI_CONST.GAME_INFO_FONT_COLOR,
-                fontFamily: FONT_NAME.MELONANO,
-            })
-            .setOrigin(0.5, 0.5);
-        this.infoContainer.add(this.timePeriodText);
-        this.scene.cameras.main.ignore(this.timePeriodText);
-
         // ステータスとコインの縦並び表示（左寄せ）
-        const itemsStartY = this.lineY + 60;
+        const itemsStartY = UI_CONST.GAME_INFO_PADDING + 20;
         const leftMargin = UI_CONST.GAME_INFO_PADDING + 5;
 
         // プレイヤーステータスアイコン（左寄せ）
@@ -177,37 +118,51 @@ export class GameInfoUI {
             .setOrigin(0, 0.5);
         this.infoContainer.add(this.coinText);
         this.scene.cameras.main.ignore(this.coinText);
+
+        // アップグレードボタン（コインの下）
+        const upgradeButtonY = coinY + 50;
+        const upgradeButtonX =
+            (UI_CONST.GAME_INFO_WIDTH - UI_CONST.UPGRADE_BUTTON_WIDTH) / 2;
+        this.upgradeButton = this.scene.add
+            .rectangle(
+                upgradeButtonX,
+                upgradeButtonY,
+                UI_CONST.UPGRADE_BUTTON_WIDTH,
+                UI_CONST.UPGRADE_BUTTON_HEIGHT,
+                0x00cc00
+            )
+            .setOrigin(0, 0)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        this.infoContainer.add(this.upgradeButton);
+        this.scene.cameras.main.ignore(this.upgradeButton);
+
+        this.upgradeButtonText = this.scene.add
+            .text(
+                upgradeButtonX + UI_CONST.UPGRADE_BUTTON_WIDTH / 2,
+                upgradeButtonY + UI_CONST.UPGRADE_BUTTON_HEIGHT / 2,
+                getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE),
+                {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "18px",
+                    color: "#FFFFFF",
+                    align: "center",
+                }
+            )
+            .setOrigin(0.5, 0.5);
+        this.infoContainer.add(this.upgradeButtonText);
+        this.scene.cameras.main.ignore(this.upgradeButtonText);
+
+        // アップグレードボタンのクリックイベント
+        this.upgradeButton.on("pointerdown", () => {
+            this.scene.showUpgradeModal();
+        });
     }
 
     /**
      * UIの更新
      */
     update() {
-        // 日数を更新
-        const day = this.gameTimeManager.currentTime.day;
-        this.dayText.setText(`DAY ${day}`);
-
-        // 時刻を更新（24時間表記）
-        const hour = this.gameTimeManager.currentTime.hour;
-        const minute = this.gameTimeManager.currentTime.minute;
-        const timeString = `${hour.toString().padStart(2, "0")}:${minute
-            .toString()
-            .padStart(2, "0")}`;
-        this.timeText.setText(timeString);
-
-        // 時間帯と進行度を取得
-        const timePeriod = this.gameTimeManager.getTimePeriod();
-        const progress = this.gameTimeManager.getTimePeriodProgress();
-
-        // 時間帯テキストを更新
-        const timePeriodDisplay =
-            getLocalizedText(TIME_PERIOD_DISPLAY_NAME[timePeriod]) ||
-            timePeriod;
-        this.timePeriodText.setText(timePeriodDisplay);
-
-        // 数直線を描画
-        this.drawTimeLine(timePeriod, progress);
-
         // ステータステキストを更新
         if (this.statusText) {
             const statusName =
@@ -301,34 +256,5 @@ export class GameInfoUI {
             return true;
         }
         return false;
-    }
-
-    /**
-     * 時間の数直線を描画
-     * @param {string} timePeriod - 現在の時間帯
-     * @param {number} progress - 時間帯内での進行度（0.0-1.0）
-     */
-    drawTimeLine(timePeriod, progress) {
-        this.timeLineGraphics.clear();
-
-        const width = UI_CONST.TIME_LINE_WIDTH;
-        const height = UI_CONST.TIME_LINE_HEIGHT;
-        const color = UI_CONST.TIME_PERIOD_COLORS[timePeriod];
-        const x = this.lineX - width / 2;
-        const y = this.lineY - height / 2;
-
-        // 背景の長方形（グレー）
-        this.timeLineGraphics.fillStyle(0x333333, 1);
-        this.timeLineGraphics.fillRect(x, y, width, height);
-
-        // 進行度の長方形（時間帯の色）
-        if (progress > 0) {
-            this.timeLineGraphics.fillStyle(color, 1);
-            this.timeLineGraphics.fillRect(x, y, width * progress, height);
-        }
-
-        // 枚線
-        this.timeLineGraphics.lineStyle(2, 0xffffff, 1);
-        this.timeLineGraphics.strokeRect(x, y, width, height);
     }
 }
