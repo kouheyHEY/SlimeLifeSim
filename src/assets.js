@@ -42,6 +42,10 @@ export default {
             key: "coin",
             args: ["assets/coin.png"],
         },
+        rod: {
+            key: "rod",
+            args: ["assets/rod.png"],
+        },
         status_bad: {
             key: "status_bad",
             args: ["assets/status_bad.png"],

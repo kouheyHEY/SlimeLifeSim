@@ -14,6 +14,22 @@ export const UI_CONST = {
     /** 釣りゲームUIの長方形の枠の太さ */
     FISHING_RECTANGLE_LINE_WIDTH: 2,
 
+    /** 魚ヒットインジケーターのテキスト */
+    FISH_HIT_TEXT: {
+        JP: "ヒット!!",
+        EN: "Hit!!",
+    },
+    /** 魚ヒットテキストのフォントサイズ */
+    FISH_HIT_TEXT_FONT_SIZE: 24,
+    /** 魚ヒットテキストの色 */
+    FISH_HIT_TEXT_COLOR: "#ffffff",
+    /** 魚ヒットテキストの縁取り色 */
+    FISH_HIT_TEXT_STROKE_COLOR: "#000000",
+    /** 魚ヒットテキストの縁取り太さ */
+    FISH_HIT_TEXT_STROKE_THICKNESS: 4,
+    /** 魚ヒットテキストのXオフセット */
+    FISH_HIT_TEXT_OFFSET_X: 40,
+
     /** 成功ゲージの長さ */
     FISHING_SUCCESS_GAUGE_LENGTH: 600,
     /** 成功ゲージのy座標 */

@@ -14,6 +14,11 @@ import { GAME_CONST } from "../const/GameConst.js";
 import { UI_CONST } from "../const/UIConst.js";
 import assets from "../assets.js";
 import { TimeOfDayManager } from "../managers/TimeOfDayManager.js";
+import {
+    FONT_NAME,
+    getCurrentLanguage,
+    getLocalizedText,
+} from "../const/CommonConst.js";
 
 export class Game extends Phaser.Scene {
     constructor() {
@@ -295,23 +300,54 @@ export class Game extends Phaser.Scene {
     showFishHitIndicator() {
         if (this.fishHitIndicator) {
             this.fishHitIndicator.setVisible(true);
+            if (this.fishHitText) {
+                this.fishHitText.setVisible(true);
+            }
             return;
         }
 
-        // プレイヤーの上に釣りアイコンを表示
+        // プレイヤーの上に釣りアイコンを表示（一旦仮配置）
         this.fishHitIndicator = this.add
-            .text(0, -40, "🎣", {
-                fontSize: "32px",
-                align: "center",
-            })
-            .setOrigin(0.5, 0.5);
+            .image(0, 0, assets.image.rod.key)
+            .setOrigin(0.5, 0.5)
+            .setScale(0.5);
 
         // UIカメラから除外（プレイヤーと一緒に動く）
         this.uiCamera.ignore(this.fishHitIndicator);
 
+        // アイコンの右に「Hit!!」テキストを表示（一旦仮配置）
+        this.fishHitText = this.add
+            .text(0, 0, getLocalizedText(UI_CONST.FISH_HIT_TEXT), {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `${UI_CONST.FISH_HIT_TEXT_FONT_SIZE}px`,
+                color: UI_CONST.FISH_HIT_TEXT_COLOR,
+                stroke: UI_CONST.FISH_HIT_TEXT_STROKE_COLOR,
+                strokeThickness: UI_CONST.FISH_HIT_TEXT_STROKE_THICKNESS,
+            })
+            .setOrigin(0, 0.5);
+
+        // UIカメラから除外（プレイヤーと一緒に動く）
+        this.uiCamera.ignore(this.fishHitText);
+
+        // アイコンとテキストの合計幅を計算して中央配置
+        const iconWidth = this.fishHitIndicator.displayWidth;
+        const textWidth = this.fishHitText.width;
+        const totalWidth =
+            iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X + textWidth;
+        const startX = this.player.x - totalWidth / 2;
+
+        this.fishHitIndicator.setPosition(
+            startX + iconWidth / 2,
+            this.player.y - 120
+        );
+        this.fishHitText.setPosition(
+            startX + iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X,
+            this.player.y - 120
+        );
+
         // 点滅アニメーションを追加
         this.tweens.add({
-            targets: this.fishHitIndicator,
+            targets: [this.fishHitIndicator, this.fishHitText],
             alpha: 0.3,
             duration: 500,
             yoyo: true,
@@ -326,6 +362,9 @@ export class Game extends Phaser.Scene {
         if (this.fishHitIndicator) {
             this.fishHitIndicator.setVisible(false);
         }
+        if (this.fishHitText) {
+            this.fishHitText.setVisible(false);
+        }
     }
 
     /**
@@ -333,10 +372,24 @@ export class Game extends Phaser.Scene {
      */
     updateFishHitIndicator() {
         if (this.fishHitIndicator && this.fishHitIndicator.visible) {
+            // アイコンとテキストの合計幅を計算して中央配置
+            const iconWidth = this.fishHitIndicator.displayWidth;
+            const textWidth = this.fishHitText ? this.fishHitText.width : 0;
+            const totalWidth =
+                iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X + textWidth;
+            const startX = this.player.x - totalWidth / 2;
+
             this.fishHitIndicator.setPosition(
-                this.player.x,
-                this.player.y - 40
+                startX + iconWidth / 2,
+                this.player.y - 120
             );
+
+            if (this.fishHitText && this.fishHitText.visible) {
+                this.fishHitText.setPosition(
+                    startX + iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X,
+                    this.player.y - 120
+                );
+            }
         }
     }
 
