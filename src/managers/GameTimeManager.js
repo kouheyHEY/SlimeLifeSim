@@ -225,18 +225,18 @@ export class GameTimeManager {
 
     /**
      * 現在の時間帯を取得
-     * @returns {string} 時間帯 ("朝", "昼", "夕方", "夜")
+     * @returns {string} 時間帯 ("MORNING", "DAY", "EVENING", "NIGHT")
      */
     getTimePeriod() {
         const hour = this.currentTime.hour;
         if (hour >= 6 && hour < 12) {
-            return "朝"; // Morning: 6:00-11:59
-        } else if (hour >= 12 && hour < 18) {
-            return "昼"; // Day: 12:00-17:59
-        } else if (hour >= 18 && hour < 21) {
-            return "夕方"; // Evening: 18:00-20:59
+            return "MORNING"; // Morning: 6:00-11:59
+        } else if (hour >= 12 && hour < 16) {
+            return "DAY"; // Day: 12:00-15:59
+        } else if (hour >= 16 && hour < 19) {
+            return "EVENING"; // Evening: 16:00-18:59
         } else {
-            return "夜"; // Night: 21:00-5:59
+            return "NIGHT"; // Night: 19:00-5:59
         }
     }
 
@@ -259,25 +259,25 @@ export class GameTimeManager {
                 (totalMinutes - periodStart) /
                 (periods.MORNING * timeUnits.MINUTES_PER_HOUR)
             );
-        } else if (hour >= 12 && hour < 18) {
+        } else if (hour >= 12 && hour < 16) {
             // 昼
             const periodStart = 12 * timeUnits.MINUTES_PER_HOUR;
             return (
                 (totalMinutes - periodStart) /
                 (periods.DAY * timeUnits.MINUTES_PER_HOUR)
             );
-        } else if (hour >= 18 && hour < 21) {
+        } else if (hour >= 16 && hour < 19) {
             // 夕方
-            const periodStart = 18 * timeUnits.MINUTES_PER_HOUR;
+            const periodStart = 16 * timeUnits.MINUTES_PER_HOUR;
             return (
                 (totalMinutes - periodStart) /
                 (periods.EVENING * timeUnits.MINUTES_PER_HOUR)
             );
         } else {
-            // 夜: 21:00-5:59 (9時間 = 540分)
-            if (hour >= 21) {
-                // 21:00-23:59
-                const periodStart = 21 * timeUnits.MINUTES_PER_HOUR;
+            // 夜: 19:00-5:59 (11時間 = 660分)
+            if (hour >= 19) {
+                // 19:00-23:59
+                const periodStart = 19 * timeUnits.MINUTES_PER_HOUR;
                 return (
                     (totalMinutes - periodStart) /
                     (periods.NIGHT * timeUnits.MINUTES_PER_HOUR)
@@ -286,7 +286,7 @@ export class GameTimeManager {
                 // 0:00-5:59
                 const adjustedMinutes =
                     totalMinutes +
-                    (timeUnits.HOURS_PER_DAY - 21) * timeUnits.MINUTES_PER_HOUR;
+                    (timeUnits.HOURS_PER_DAY - 19) * timeUnits.MINUTES_PER_HOUR;
                 return (
                     adjustedMinutes /
                     (periods.NIGHT * timeUnits.MINUTES_PER_HOUR)
@@ -337,25 +337,47 @@ export class GameTimeManager {
     }
 
     /**
-     * 時間帯が変わったかチェック
+     * 背景色用の細かい時間帯が変わったかチェック
      * @returns {boolean} 時間帯が変わったか
      */
-    hasTimeOfDayChanged() {
+    hasBackgroundTimeChanged() {
         const currentTimeOfDay = this.getCurrentTimeOfDay();
-        if (!this.previousTimeOfDay) {
-            this.previousTimeOfDay = currentTimeOfDay;
+        if (!this.previousBackgroundTime) {
+            this.previousBackgroundTime = currentTimeOfDay;
             return false;
         }
 
-        if (this.previousTimeOfDay !== currentTimeOfDay) {
-            const previousPeriod = this.previousTimeOfDay;
-            this.previousTimeOfDay = currentTimeOfDay;
+        if (this.previousBackgroundTime !== currentTimeOfDay) {
+            this.previousBackgroundTime = currentTimeOfDay;
+            return true;
+        }
 
-            // 朝の終了（昭開始）または夕方の終了（夜開始）時にイベント発火
+        return false;
+    }
+
+    /**
+     * 時間帯が変わったかチェック（円グラフ・ステータス管理用）
+     * @returns {boolean} 時間帯が変わったか
+     */
+    hasTimeOfDayChanged() {
+        const currentTimePeriod = this.getTimePeriod();
+        if (!this.previousTimePeriod) {
+            this.previousTimePeriod = currentTimePeriod;
+            return false;
+        }
+
+        if (this.previousTimePeriod !== currentTimePeriod) {
+            const previousPeriod = this.previousTimePeriod;
+            this.previousTimePeriod = currentTimePeriod;
+
+            console.log(`時間帯変更: ${previousPeriod} → ${currentTimePeriod}`);
+
+            // 朝の終了（昼開始）または夕方の終了（夜開始）時にイベント発火
             if (
-                (previousPeriod === "朝" && currentTimeOfDay === "昭") ||
-                (previousPeriod === "夕方" && currentTimeOfDay === "夜")
+                (previousPeriod === "MORNING" && currentTimePeriod === "DAY") ||
+                (previousPeriod === "EVENING" && currentTimePeriod === "NIGHT")
             ) {
+                console.log("ステータス低下イベントを発火");
                 this.scene.events.emit("statusDecreaseTime");
             }
 

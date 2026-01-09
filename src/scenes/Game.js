@@ -52,10 +52,13 @@ export class Game extends Phaser.Scene {
             this.gameTimeManager.update();
             this.topBarUI.update();
 
-            // 時間帯が変わったかチェック
-            if (this.gameTimeManager.hasTimeOfDayChanged()) {
+            // 背景色用の細かい時間帯が変わったかチェック
+            if (this.gameTimeManager.hasBackgroundTimeChanged()) {
                 this.timeOfDayManager.updateBackgroundColor();
             }
+
+            // ステータス管理用の時間帯が変わったかチェック
+            this.gameTimeManager.hasTimeOfDayChanged();
         }
         console.log(this.gameTimeManager.isPausedFlag);
 
@@ -412,7 +415,9 @@ export class Game extends Phaser.Scene {
      * ステータス低下処理
      */
     handleStatusDecrease() {
+        console.log("handleStatusDecreaseが呼ばれました");
         const canDecrease = this.topBarUI.gameInfoUI.decreasePlayerStatus();
+        console.log(`ステータス低下結果: ${canDecrease}`);
 
         if (!canDecrease) {
             // これ以上下がらない（status_bad）

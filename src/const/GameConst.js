@@ -139,14 +139,34 @@ export const GAME_CONST = {
 };
 
 /**
+ * 時間帯の定数
+ */
+export const TIME_PERIOD = {
+    MORNING: "MORNING",
+    DAY: "DAY",
+    EVENING: "EVENING",
+    NIGHT: "NIGHT",
+};
+
+/**
+ * 時間帯の表示名
+ */
+export const TIME_PERIOD_DISPLAY_NAME = {
+    MORNING: "朝",
+    DAY: "昼",
+    EVENING: "夕方",
+    NIGHT: "夜",
+};
+
+/**
  * ゲーム内時間に関する定数
  */
 export const GAME_TIME_CONST = {
     /** ゲーム時間のスケール: 実時間1秒 = ゲーム内N分 */
-    TIME_SCALE_MINUTES_PER_REAL_SECOND: 2,
+    TIME_SCALE_MINUTES_PER_REAL_SECOND: 5,
 
     /** ゲーム時間の更新判定時間（秒） */
-    UPDATE_THRESHOLD_SECONDS: 0.5,
+    UPDATE_THRESHOLD_SECONDS: 0.2,
 
     /** ゲーム開始時の初期時刻 */
     GAME_START_TIME: {
@@ -172,9 +192,9 @@ export const GAME_TIME_CONST = {
     /** 時間帯ごとの長さ（時） */
     TIME_PERIOD_LENGTHS: {
         MORNING: 6, // 朝: 6:00-11:59 (6時間)
-        DAY: 6, // 昼: 12:00-17:59 (6時間)
-        EVENING: 3, // 夕方: 18:00-20:59 (3時間)
-        NIGHT: 9, // 夜: 21:00-5:59 (9時間)
+        DAY: 4, // 昼: 12:00-15:59 (4時間)
+        EVENING: 3, // 夕方: 16:00-18:59 (3時間)
+        NIGHT: 11, // 夜: 19:00-5:59 (11時間)
     },
 };
 

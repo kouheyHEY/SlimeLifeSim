@@ -178,10 +178,10 @@ export const UI_CONST = {
     COIN_ICON_SIZE: 40,
     /** 時間帯の色 */
     TIME_PERIOD_COLORS: {
-        朝: 0xffeb3b, // 黄色 (morning)
-        昼: 0xff9800, // オレンジ (day)
-        夕方: 0xff5722, // 赤オレンジ (evening)
-        夜: 0x3f51b5, // 青 (night)
+        MORNING: 0xffeb3b, // 黄色 (morning)
+        DAY: 0xff9800, // オレンジ (day)
+        EVENING: 0xff5722, // 赤オレンジ (evening)
+        NIGHT: 0x3f51b5, // 青 (night)
     },
 
     /** サイドバーUIの幅 */

@@ -1,7 +1,7 @@
 import { GameTimeManager } from "../managers/GameTimeManager.js";
 import { UI_CONST } from "../const/UIConst.js";
 import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
-import { GAME_CONST } from "../const/GameConst.js";
+import { GAME_CONST, TIME_PERIOD_DISPLAY_NAME } from "../const/GameConst.js";
 
 /**
  * ゲーム情報表示UI
@@ -195,11 +195,20 @@ export class GameInfoUI {
         const timePeriod = this.gameTimeManager.getTimePeriod();
         const progress = this.gameTimeManager.getTimePeriodProgress();
 
-        // 時間帯テキストを更新
-        this.timePeriodText.setText(timePeriod);
+        // 時間帯テキストを更新（日本語表示）
+        const timePeriodDisplay =
+            TIME_PERIOD_DISPLAY_NAME[timePeriod] || timePeriod;
+        this.timePeriodText.setText(timePeriodDisplay);
 
         // 円グラフを描画
         this.drawTimeCircle(timePeriod, progress);
+
+        // ステータステキストを更新
+        if (this.statusText) {
+            this.statusText.setText(
+                GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[this.playerStatus] || ""
+            );
+        }
 
         // コイン枚数を更新
         this.coinText.setText(`${this.coins}`);
@@ -210,14 +219,17 @@ export class GameInfoUI {
      * @param {string} status - 新しい状態のキー（例: "status_smile", "status_normal", "status_bad"）
      */
     setPlayerStatus(status) {
+        console.log(`setPlayerStatus: ${this.playerStatus} → ${status}`);
         this.playerStatus = status;
         if (this.playerStatusSprite) {
             this.playerStatusSprite.setTexture(status);
+            console.log(`スプライトを更新: ${status}`);
         }
         if (this.statusText) {
-            this.statusText.setText(
-                GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[status] || ""
-            );
+            const displayName =
+                GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[status] || "";
+            this.statusText.setText(displayName);
+            console.log(`テキストを更新: ${displayName}`);
         }
     }
 
@@ -240,6 +252,9 @@ export class GameInfoUI {
      * @returns {boolean} - これ以上下がらない場合false
      */
     decreasePlayerStatus() {
+        console.log(
+            `decreasePlayerStatus: 現在のステータス = ${this.playerStatus}`
+        );
         if (this.playerStatus === "status_smile") {
             this.setPlayerStatus("status_normal");
             return true;
@@ -248,6 +263,7 @@ export class GameInfoUI {
             return true;
         }
         // status_badの場合はこれ以上下がらない
+        console.log("これ以上ステータスを下げられません");
         return false;
     }
 

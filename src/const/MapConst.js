@@ -36,21 +36,25 @@ export const MAP_CONST = {
             color: 0x87ceeb, // 明るい空色
         },
         AFTERNOON: {
-            time: 14, // 14:00
+            time: 13, // 13:00
             color: 0x87ceeb, // 昼間の空色
         },
         EVENING: {
+            time: 16, // 16:00
+            color: 0xff8c42, // オレンジ（夕方開始）
+        },
+        DUSK: {
             time: 18, // 18:00
             color: 0xff6b6b, // 赤オレンジ（夕焼け）
         },
-        DUSK: {
-            time: 20, // 20:00
+        NIGHT_TRANSITION: {
+            time: 19, // 19:00
             color: 0x1a1a2e, // 深い濃紺（夜へ）
         },
     },
 
     /** 色の遷移時間（ミリ秒） */
-    COLOR_TRANSITION_DURATION: 3000, // 3秒かけてゆっくり色が変わる
+    COLOR_TRANSITION_DURATION: 2000, // 2秒かけてゆっくり色が変わる
 
     /** Tween用イージング関数 */
     COLOR_TRANSITION_EASE: "Linear",
@@ -60,8 +64,8 @@ export const MAP_CONST = {
         EARLY_MORNING_START: 4, // 深夜から早朝への切り替え時刻
         MORNING_START: 6, // 早朝から朝への切り替え時刻
         DAY_START: 9, // 朝から昼への切り替え時刻
-        EVENING_START: 18, // 昼から夕方への切り替え時刻
-        DUSK_START: 20, // 夕方から夜への切り替え時刻
+        EVENING_START: 16, // 昼から夕方への切り替え時刻
+        DUSK_START: 19, // 夕方から夜への切り替え時刻
         NIGHT_START: 24, // 夜から次の日への切り替え時刻（常に24時間制で使用）
     },
 
