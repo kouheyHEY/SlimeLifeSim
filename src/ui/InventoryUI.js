@@ -11,6 +11,7 @@ export class InventoryUI {
      * @param {Phaser.Scene} scene - 所属するシーン
      * @param {InventoryManager} inventoryManager - インベントリマネージャー
      * @param {GameTimeManager} gameTimeManager - ゲーム時間マネージャー
+     * @param {GameInfoUI} gameInfoUI - ゲーム情報UI
      * @param {number} x - X座標（親コンテナ内での相対位置）
      * @param {number} y - Y座標（親コンテナ内での相対位置）
      */
@@ -18,12 +19,14 @@ export class InventoryUI {
         scene,
         inventoryManager,
         gameTimeManager,
+        gameInfoUI,
         x = UI_CONST.INVENTORY_X,
         y = UI_CONST.INVENTORY_Y
     ) {
         this.scene = scene;
         this.inventoryManager = inventoryManager;
         this.gameTimeManager = gameTimeManager;
+        this.gameInfoUI = gameInfoUI;
         this.inventoryFrameGroup = this.scene.add.group();
         this.x = x;
         this.y = y;
@@ -261,7 +264,16 @@ export class InventoryUI {
         this.itemDetailModal.add(eatText);
 
         eatButton.on("pointerdown", () => {
-            console.log("食べる（ダミー）:", item.itemKey);
+            // 魚を食べる処理
+            if (this.inventoryManager.removeItem(item.itemKey, 1)) {
+                console.log("食べる:", item.itemKey);
+                // ステータスを1段階向上
+                if (this.gameInfoUI) {
+                    this.gameInfoUI.improvePlayerStatus();
+                }
+                // インベントリを更新
+                this.update();
+            }
             this.closeItemDetail();
         });
 
@@ -289,7 +301,16 @@ export class InventoryUI {
         this.itemDetailModal.add(sellText);
 
         sellButton.on("pointerdown", () => {
-            console.log("売る（ダミー）:", item.itemKey, value);
+            // 魚を売る処理
+            if (this.inventoryManager.removeItem(item.itemKey, 1)) {
+                console.log("売る:", item.itemKey, value);
+                // コインを追加
+                if (this.gameInfoUI) {
+                    this.gameInfoUI.addCoins(value);
+                }
+                // インベントリを更新
+                this.update();
+            }
             this.closeItemDetail();
         });
 
@@ -333,6 +354,137 @@ export class InventoryUI {
         if (this.itemDetailModal) {
             this.itemDetailModal.destroy();
             this.itemDetailModal = null;
+        }
+
+        // ゲーム時間を再開
+        if (this.gameTimeManager) {
+            this.gameTimeManager.resume();
+            this.gameTimeManager.resumeFishSystem();
+        }
+    }
+
+    /**
+     * 魚選択モーダルを表示（ステータス低下時に使用）
+     * @param {Function} onSelectCallback - 魚が選ばれたときのコールバック
+     */
+    showFishSelectionModal(onSelectCallback) {
+        // ゲーム時間を一時停止
+        if (this.gameTimeManager) {
+            this.gameTimeManager.pause();
+            this.gameTimeManager.pauseFishSystem();
+        }
+
+        // 既存のモーダルがあれば削除
+        if (this.fishSelectionModal) {
+            this.fishSelectionModal.destroy();
+        }
+
+        // モーダル用のコンテナを作成（画面中央）
+        const centerX = this.scene.cameras.main.width / 2;
+        const centerY = this.scene.cameras.main.height / 2;
+        this.fishSelectionModal = this.scene.add.container(centerX, centerY);
+
+        // 背景
+        const bg = this.scene.add
+            .rectangle(
+                0,
+                0,
+                UI_CONST.ITEM_DETAIL_WIDTH,
+                UI_CONST.ITEM_DETAIL_HEIGHT,
+                UI_CONST.ITEM_DETAIL_BG_COLOR
+            )
+            .setStrokeStyle(
+                UI_CONST.ITEM_DETAIL_BORDER_WIDTH,
+                UI_CONST.ITEM_DETAIL_BORDER_COLOR
+            );
+        this.fishSelectionModal.add(bg);
+
+        // タイトル
+        const titleText = this.scene.add
+            .text(0, -220, "体力が低下しています\n魚を食べて回復してください", {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `20px`,
+                color: "#FF6666",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5);
+        this.fishSelectionModal.add(titleText);
+
+        // 魚のリストを取得
+        const fishItems = this.inventoryManager.items.filter(
+            (item) => item.itemKey && item.itemKey.startsWith("fish_")
+        );
+
+        // 魚アイテムを表示
+        const startY = -140;
+        const itemHeight = 80;
+        fishItems.forEach((item, index) => {
+            const y = startY + index * itemHeight;
+
+            // アイテム背景
+            const itemBg = this.scene.add
+                .rectangle(0, y, 400, 70, 0x334455)
+                .setStrokeStyle(2, 0xffffff)
+                .setInteractive({ useHandCursor: true });
+            this.fishSelectionModal.add(itemBg);
+
+            // アイテム画像
+            const sprite = this.scene.add
+                .sprite(-150, y, item.itemKey)
+                .setOrigin(0.5, 0.5);
+            sprite.setScale(50 / sprite.width);
+            this.fishSelectionModal.add(sprite);
+
+            // アイテム名
+            const itemName =
+                GAME_CONST.FISH_DISPLAY_NAME[item.itemKey] || item.itemKey;
+            const nameText = this.scene.add
+                .text(-50, y, itemName.split("\n")[0], {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "18px",
+                    color: "#FFFFFF",
+                })
+                .setOrigin(0, 0.5);
+            this.fishSelectionModal.add(nameText);
+
+            // 数量
+            const quantityText = this.scene.add
+                .text(150, y, `x${item.stock}`, {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "18px",
+                    color: "#FFFF00",
+                })
+                .setOrigin(0.5, 0.5);
+            this.fishSelectionModal.add(quantityText);
+
+            // クリック時の処理
+            itemBg.on("pointerdown", () => {
+                if (this.inventoryManager.removeItem(item.itemKey, 1)) {
+                    if (this.gameInfoUI) {
+                        this.gameInfoUI.improvePlayerStatus();
+                    }
+                    this.update();
+                    if (onSelectCallback) {
+                        onSelectCallback();
+                    }
+                }
+                this.closeFishSelectionModal();
+            });
+        });
+
+        // メインカメラから除外
+        this.fishSelectionModal.each((child) => {
+            this.scene.cameras.main.ignore(child);
+        });
+    }
+
+    /**
+     * 魚選択モーダルを閉じる
+     */
+    closeFishSelectionModal() {
+        if (this.fishSelectionModal) {
+            this.fishSelectionModal.destroy();
+            this.fishSelectionModal = null;
         }
 
         // ゲーム時間を再開

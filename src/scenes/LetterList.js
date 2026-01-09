@@ -48,17 +48,6 @@ export class LetterList extends Phaser.Scene {
             );
         this.letterListContainer.add(uiRectangle);
 
-        // タイトルを表示
-        const titleText = this.add
-            .text(0, -UI_CONST.LETTER_WINDOW_HEIGHT / 2 + 40, "手紙リスト", {
-                fontFamily: FONT_NAME.MELONANO,
-                fontSize: "28px",
-                color: UI_CONST.LETTER_TEXT_COLOR,
-                align: "center",
-            })
-            .setOrigin(0.5, 0.5);
-        this.letterListContainer.add(titleText);
-
         // カテゴリ別に手紙を表示
         const categories = this.letterManager.getAllCategories();
         const startY = -150;

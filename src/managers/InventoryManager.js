@@ -26,6 +26,16 @@ export class InventoryManager {
         }
     }
 
+    /** インベントリの総スロット数を返す */
+    getTotalSlots() {
+        return this.size;
+    }
+
+    /** 使用中のスロット数を返す */
+    getUsedSlots() {
+        return this.items.filter((item) => item.itemKey !== null).length;
+    }
+
     /** アイテムをインベントリに追加する */
     addItem(itemKey, itemName, quantity) {
         // 既に同じアイテムがあるか確認
@@ -56,5 +66,25 @@ export class InventoryManager {
         } else {
             console.log("インベントリがいっぱいです。");
         }
+    }
+
+    /**
+     * アイテムを減らす
+     * @param {string} itemKey - アイテムキー
+     * @param {number} quantity - 減らす数
+     * @return {boolean} - 成功したかどうか
+     */
+    removeItem(itemKey, quantity = 1) {
+        const item = this.items.find((item) => item.itemKey === itemKey);
+        if (item && item.stock >= quantity) {
+            item.stock -= quantity;
+            // ストックが0になったらスロットを空にする
+            if (item.stock === 0) {
+                item.itemKey = null;
+                item.itemName = null;
+            }
+            return true;
+        }
+        return false;
     }
 }

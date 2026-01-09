@@ -63,7 +63,7 @@ export const UI_CONST = {
     FISHING_RESULT_BUTTON_Y: 140,
 
     /** インベントリの行数 */
-    INVENTORY_ROWS: 4,
+    INVENTORY_ROWS: 3,
     /** インベントリの列数 */
     INVENTORY_COLUMNS: 2,
     /** インベントリのアイテムの枠のサイズ */
@@ -149,7 +149,7 @@ export const UI_CONST = {
     /** ゲーム情報UIの幅 */
     GAME_INFO_WIDTH: 192,
     /** ゲーム情報UIの高さ */
-    GAME_INFO_HEIGHT: 190,
+    GAME_INFO_HEIGHT: 288,
     /** ゲーム情報UIのX座標（トップバー内での相対位置） */
     GAME_INFO_X: 20,
     /** ゲーム情報UIのY座標（トップバー内での相対位置） */
@@ -161,17 +161,21 @@ export const UI_CONST = {
     /** ゲーム情報UIの枠の太さ */
     GAME_INFO_BORDER_WIDTH: 2,
     /** ゲーム情報UIのフォントサイズ */
-    GAME_INFO_FONT_SIZE: 16,
+    GAME_INFO_FONT_SIZE: 20,
     /** ゲーム情報UIのフォント色 */
     GAME_INFO_FONT_COLOR: "#FFFFFF",
     /** ゲーム情報UIの行間 */
-    GAME_INFO_LINE_SPACING: 24,
+    GAME_INFO_LINE_SPACING: 28,
     /** ゲーム情報UIの内部パディング */
     GAME_INFO_PADDING: 10,
     /** 時間円グラフの半径 */
     TIME_CIRCLE_RADIUS: 50,
     /** 時間円グラフの線の太さ */
     TIME_CIRCLE_LINE_WIDTH: 10,
+    /** プレイヤー状態アイコンのサイズ */
+    PLAYER_STATUS_ICON_SIZE: 40,
+    /** コインアイコンのサイズ */
+    COIN_ICON_SIZE: 40,
     /** 時間帯の色 */
     TIME_PERIOD_COLORS: {
         朝: 0xffeb3b, // 黄色 (morning)

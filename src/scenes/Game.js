@@ -197,6 +197,9 @@ export class Game extends Phaser.Scene {
                 this.hideFishHitIndicator();
             }
         });
+
+        // ステータス低下イベントを購読
+        this.events.on("statusDecreaseTime", this.handleStatusDecrease, this);
     }
 
     /**
@@ -403,6 +406,45 @@ export class Game extends Phaser.Scene {
 
         // フォールバック（通常は到達しない）
         return targets[0];
+    }
+
+    /**
+     * ステータス低下処理
+     */
+    handleStatusDecrease() {
+        const canDecrease = this.topBarUI.gameInfoUI.decreasePlayerStatus();
+
+        if (!canDecrease) {
+            // これ以上下がらない（status_bad）
+            // 魚があるか確認
+            const fishItems = this.inventoryManager.items.filter(
+                (item) => item.itemKey && item.itemKey.startsWith("fish_")
+            );
+
+            if (fishItems.length > 0) {
+                // 魚がある場合は選択モーダルを表示
+                this.topBarUI.inventoryUI.showFishSelectionModal(() => {
+                    // 魚を食べた後の処理
+                    console.log("魚を食べて体力回復");
+                });
+            } else {
+                // 魚がない場合はゲームオーバー
+                this.triggerGameOver();
+            }
+        }
+    }
+
+    /**
+     * ゲームオーバー処理
+     */
+    triggerGameOver() {
+        console.log("ゲームオーバー: 体力が尽きました");
+        // ゲーム時間を停止
+        this.gameTimeManager.pause();
+        this.gameTimeManager.pauseFishSystem();
+
+        // ゲームオーバーシーンへ移行
+        this.scene.start("GameOver");
     }
 
     GameOver() {

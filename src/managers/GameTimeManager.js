@@ -348,7 +348,17 @@ export class GameTimeManager {
         }
 
         if (this.previousTimeOfDay !== currentTimeOfDay) {
+            const previousPeriod = this.previousTimeOfDay;
             this.previousTimeOfDay = currentTimeOfDay;
+
+            // 朝の終了（昭開始）または夕方の終了（夜開始）時にイベント発火
+            if (
+                (previousPeriod === "朝" && currentTimeOfDay === "昭") ||
+                (previousPeriod === "夕方" && currentTimeOfDay === "夜")
+            ) {
+                this.scene.events.emit("statusDecreaseTime");
+            }
+
             return true;
         }
 

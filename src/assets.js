@@ -38,6 +38,22 @@ export default {
             key: "bottle_letter",
             args: ["assets/bottle_letter.png"],
         },
+        coin: {
+            key: "coin",
+            args: ["assets/coin.png"],
+        },
+        status_bad: {
+            key: "status_bad",
+            args: ["assets/status_bad.png"],
+        },
+        status_normal: {
+            key: "status_normal",
+            args: ["assets/status_normal.png"],
+        },
+        status_smile: {
+            key: "status_smile",
+            args: ["assets/status_smile.png"],
+        },
     },
     spritesheet: {
         bat: {

@@ -4,6 +4,17 @@ export const GAME_CONST = {
     /** プレイヤーの高さ */
     PLAYER_HEIGHT: 192,
 
+    /** プレイヤーの初期状態 */
+    PLAYER_INITIAL_STATUS: "status_normal",
+    /** プレイヤーの初期コイン数 */
+    PLAYER_INITIAL_COINS: 0,
+    /** プレイヤー状態の表示名 */
+    PLAYER_STATUS_DISPLAY_NAME: {
+        status_smile: "健康",
+        status_normal: "普通",
+        status_bad: "不調",
+    },
+
     /** 魚の名前 */
     FISH_NAME: {
         /** フナ */
@@ -38,22 +49,22 @@ export const GAME_CONST = {
 
     /** アイテムの説明 */
     ITEM_DESCRIPTION: {
-        fish_funa: "淡水に生息する魚。\n食用に適している。",
-        fish_nijimasu: "美しい虹色の魚。\n高級食材として人気。",
-        fish_tai: "縁起の良い魚。\nとても美味しい。",
-        fish_tuna: "海の王者。\n最高級の食材。",
-        fish_ebi: "小さな甲殻類。\n料理の素材に使える。",
+        fish_funa: "淡水に生息する普通の魚。\nどこでも釣れる。",
+        fish_ebi: "小さな甲殻類。\n比較的よく釣れる。",
+        fish_nijimasu: "美しい虹色の魚。\n人気の食材。",
+        fish_tuna: "海の王者。\n希少で高級な食材。",
+        fish_tai: "縁起の良い魚。\n最高級の食材で大変レア。",
         bottle_letter: "海を漂う手紙入りの瓶。\n誰かのメッセージが入っている。",
     },
 
     /** アイテムの価値（コイン） */
     ITEM_VALUE: {
-        fish_funa: 10,
-        fish_nijimasu: 30,
-        fish_tai: 100,
-        fish_tuna: 200,
-        fish_ebi: 5,
-        bottle_letter: 0,
+        fish_funa: 10, // 重み40: 期待値 4.0
+        fish_ebi: 30, // 重み15: 期待値 4.5
+        fish_nijimasu: 50, // 重み25: 期待値 12.5
+        fish_tuna: 150, // 重み10: 期待値 15.0
+        fish_tai: 400, // 重み5:  期待値 20.0
+        bottle_letter: 0, // 売れない
     },
 
     /** 釣れる対象の確率重み */
@@ -115,7 +126,7 @@ export const GAME_CONST = {
     SUCCESS_SCENE_FADE_TIME: 500,
 
     /** インベントリのサイズ */
-    INVENTORY_SIZE: 8,
+    INVENTORY_SIZE: 6,
     /** インベントリの一つのアイテムのストック数 */
     INVENTORY_ITEM_STOCK: 5,
 
