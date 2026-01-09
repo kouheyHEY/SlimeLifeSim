@@ -6,12 +6,14 @@ import ASSETS from "../assets.js";
 import ANIMATION from "../animation.js";
 import { MapManager } from "../managers/MapManager.js";
 import { InventoryManager } from "../managers/InventoryManager.js";
+import { LetterManager } from "../managers/LetterManager.js";
 import { GameTimeManager } from "../managers/GameTimeManager.js";
 import { TopBarUI } from "../ui/TopBarUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
 import { UI_CONST } from "../const/UIConst.js";
 import assets from "../assets.js";
+import { TimeOfDayManager } from "../managers/TimeOfDayManager.js";
 
 export class Game extends Phaser.Scene {
     constructor() {
@@ -19,7 +21,9 @@ export class Game extends Phaser.Scene {
     }
 
     create() {
-        this.cameras.main.setBackgroundColor(0x00ff00);
+        this.cameras.main.setBackgroundColor(
+            MAP_CONST.INITIAL_BACKGROUND_COLOR
+        );
 
         this.initCameras();
         this.initAnimations();
@@ -28,6 +32,7 @@ export class Game extends Phaser.Scene {
         this.initInput();
         this.initEvents();
         this.initInventory();
+        this.initLetter();
         this.initGameTime();
 
         // ゲーム開始前はゲーム時間を一時停止
@@ -46,6 +51,11 @@ export class Game extends Phaser.Scene {
         if (this.topBarUI) {
             this.gameTimeManager.update();
             this.topBarUI.update();
+
+            // 時間帯が変わったかチェック
+            if (this.gameTimeManager.hasTimeOfDayChanged()) {
+                this.timeOfDayManager.updateBackgroundColor();
+            }
         }
         console.log(this.gameTimeManager.isPausedFlag);
 
@@ -161,8 +171,17 @@ export class Game extends Phaser.Scene {
             // ゲーム時間を再開
             this.gameTimeManager.resume();
 
+            // dataがundefinedの場合は早期リターン
+            if (!data) {
+                return;
+            }
+
             if (data.from === "fishing" && data.success) {
-                this.handleFishingSuccess(data.fishName);
+                this.handleFishingSuccess(
+                    data.fishName,
+                    data.letterIndex,
+                    data.letterCategory
+                );
             }
             // 釣りゲームから戻ってきた時、魚ヒットシステムを再開
             if (data.from === "fishing") {
@@ -206,10 +225,21 @@ export class Game extends Phaser.Scene {
     }
 
     /**
+     * 手紙管理初期化
+     */
+    initLetter() {
+        this.letterManager = new LetterManager(this);
+    }
+
+    /**
      * ゲーム時間初期化
      */
     initGameTime() {
         this.gameTimeManager = new GameTimeManager(this);
+        this.timeOfDayManager = new TimeOfDayManager(
+            this,
+            this.gameTimeManager
+        );
 
         // トップバーUIを作成（ゲーム情報とインベントリを統合）
         this.topBarUI = new TopBarUI(
@@ -220,21 +250,37 @@ export class Game extends Phaser.Scene {
 
         // 初期表示のためにUIを更新
         this.topBarUI.update();
+
+        // 初期時間帯の背景色を設定
+        this.timeOfDayManager.updateBackgroundColor();
     }
 
     /**
      * 釣り成功時の処理
      */
-    handleFishingSuccess(fishName) {
+    handleFishingSuccess(fishName, letterIndex, letterCategory) {
         console.log(`釣り成功: ${fishName}`);
-        // ここに釣り成功時の処理を追加
-        this.inventoryManager.addItem(
-            fishName,
-            GAME_CONST.FISH_DISPLAY_NAME[fishName],
-            1
-        );
-        // インベントリUIの更新
-        this.topBarUI.updateInventory();
+        // メッセージボトルの場合はインベントリに追加しない
+        if (fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
+            // 手紙を読んだことを記録
+            if (letterIndex !== undefined && letterCategory) {
+                this.letterManager.markLetterAsRead(
+                    letterCategory,
+                    letterIndex
+                );
+                // UIを更新（手紙ボタンの表示）
+                this.topBarUI.updateLetterButton();
+            }
+        } else {
+            // ここに釣り成功時の処理を追加
+            this.inventoryManager.addItem(
+                fishName,
+                GAME_CONST.FISH_DISPLAY_NAME[fishName],
+                1
+            );
+            // インベントリUIの更新
+            this.topBarUI.updateInventory();
+        }
     }
 
     /**
@@ -308,9 +354,20 @@ export class Game extends Phaser.Scene {
         this.scene.pause("Game");
         // ゲーム時間を一時停止
         this.gameTimeManager.pause();
+        // 魚ヒットシステムを停止（釣り中や手紙読み中に重複しないように）
+        this.gameTimeManager.pauseFishSystem();
         // 確率をもとに対象を選択（重み付けランダム）
         const target = this.selectFishByWeight();
-        this.scene.launch("Fishing", { fishName: target });
+        // メッセージボトルの場合は次の手紙のインデックスを渡す
+        const params = { fishName: target };
+        if (target === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
+            // 現在はstory_planetのみ、将来的には確率で選択するなど
+            const letterCategory = "story_planet";
+            params.letterIndex =
+                this.letterManager.getNextLetterIndex(letterCategory);
+            params.letterCategory = letterCategory;
+        }
+        this.scene.launch("Fishing", params);
     }
 
     /**
@@ -318,7 +375,13 @@ export class Game extends Phaser.Scene {
      * @returns {string} 選択された魚またはボトルの名前
      */
     selectFishByWeight() {
-        const weights = GAME_CONST.FISH_WEIGHT;
+        const weights = { ...GAME_CONST.FISH_WEIGHT };
+
+        // 未読の手紙がない場合はメッセージボトルを除外
+        if (!this.letterManager.hasAnyUnreadLetters(this)) {
+            delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
+        }
+
         const targets = Object.keys(weights);
 
         // 総重みを計算

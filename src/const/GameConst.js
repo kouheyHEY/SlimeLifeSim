@@ -16,6 +16,8 @@ export const GAME_CONST = {
         TUNA: "fish_tuna",
         /** エビ */
         EBI: "fish_ebi",
+        /** メッセージボトル */
+        BOTTLE_LETTER: "bottle_letter",
     },
 
     /** 魚の表示名 */
@@ -47,7 +49,7 @@ export const GAME_CONST = {
         /** タイ */
         fish_tai: 5,
         /** メッセージボトル */
-        bottle_letter: 5,
+        bottle_letter: 500,
     },
 
     /** 成功ゲージの最大値 */
@@ -98,11 +100,51 @@ export const GAME_CONST = {
     INVENTORY_ITEM_STOCK: 5,
 
     /** 魚ヒット抽選の確率 (1/この値) */
-    FISH_HIT_LOTTERY_PROBABILITY: 30,
+    FISH_HIT_LOTTERY_PROBABILITY: 3,
     /** 魚ヒットの最小持続時間（ゲーム内分） */
     FISH_HIT_DURATION_MIN: 10,
     /** 魚ヒットの最大持続時間（ゲーム内分） */
     FISH_HIT_DURATION_MAX: 20,
+};
+
+/**
+ * ゲーム内時間に関する定数
+ */
+export const GAME_TIME_CONST = {
+    /** ゲーム時間のスケール: 実時間1秒 = ゲーム内N分 */
+    TIME_SCALE_MINUTES_PER_REAL_SECOND: 2,
+
+    /** ゲーム時間の更新判定時間（秒） */
+    UPDATE_THRESHOLD_SECONDS: 0.5,
+
+    /** ゲーム開始時の初期時刻 */
+    GAME_START_TIME: {
+        month: 4,
+        day: 1,
+        hour: 6,
+        minute: 0,
+    },
+
+    /** 時間単位の進行定数 */
+    TIME_UNITS: {
+        MINUTES_PER_HOUR: 60, // 1時間は60分
+        HOURS_PER_DAY: 24, // 1日は24時間
+        DAYS_PER_MONTH: 30, // 1月は30日（簡易版）
+        MONTHS_PER_YEAR: 12, // 1年は12ヶ月
+    },
+
+    /** 実時間への変換係数 */
+    REAL_TIME_CONVERSION: {
+        SECONDS_PER_MILLISECOND: 1000, // 1000ミリ秒 = 1秒
+    },
+
+    /** 時間帯ごとの長さ（時） */
+    TIME_PERIOD_LENGTHS: {
+        MORNING: 6, // 朝: 6:00-11:59 (6時間)
+        DAY: 6, // 昼: 12:00-17:59 (6時間)
+        EVENING: 3, // 夕方: 18:00-20:59 (3時間)
+        NIGHT: 9, // 夜: 21:00-5:59 (9時間)
+    },
 };
 
 export const EVENT_CONST = {

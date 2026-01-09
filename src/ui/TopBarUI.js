@@ -1,7 +1,7 @@
 import { GameInfoUI } from "./GameInfoUI.js";
 import { InventoryUI } from "./InventoryUI.js";
 import { UI_CONST } from "../const/UIConst.js";
-import { COMMON_CONST } from "../const/CommonConst.js";
+import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
 
 /**
  * 画面右側の統合サイドバー
@@ -75,8 +75,64 @@ export class TopBarUI {
         );
         this.topBarContainer.add(this.inventoryUI.inventoryContainer);
 
+        // 手紙ボタンを作成（インベントリの下に配置）
+        const letterButtonY =
+            inventoryY +
+            UI_CONST.INVENTORY_ROWS * UI_CONST.INVENTORY_ITEM_FRAME_SIZE +
+            20;
+        this.createLetterButton(inventoryX, letterButtonY, inventoryWidth);
+
         // サイドバー全体をメインカメラから除外（UIはカメラの移動に追従しない）
         this.scene.cameras.main.ignore(this.topBarContainer);
+    }
+
+    /**
+     * 手紙ボタンを作成
+     */
+    createLetterButton(x, y, width) {
+        this.letterButton = this.scene.add
+            .rectangle(x, y, width, 40, 0x3366cc)
+            .setOrigin(0, 0)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true })
+            .setVisible(false); // 初期状態では非表示
+
+        this.letterButtonText = this.scene.add
+            .text(x + width / 2, y + 20, "手紙を読む", {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: "20px",
+                color: "#FFFFFF",
+                align: "center",
+            })
+            .setOrigin(0.5, 0.5)
+            .setVisible(false);
+
+        this.topBarContainer.add(this.letterButton);
+        this.topBarContainer.add(this.letterButtonText);
+
+        this.letterButton.on("pointerdown", () => {
+            // ゲーム時間を一時停止（手紙を読んでいる間は時間が進まない）
+            this.scene.gameTimeManager.pause();
+            // 魚ヒットシステムを一時停止（手紙を読んでいる間は釣りが発生しないように）
+            this.scene.gameTimeManager.pauseFishSystem();
+            // 手紙リストモーダルを表示
+            this.scene.scene.launch("LetterList");
+            this.scene.scene.pause("Game");
+        });
+    }
+
+    /**
+     * 手紙ボタンの表示/非表示を更新
+     */
+    updateLetterButton() {
+        const letterManager = this.scene.letterManager;
+        if (letterManager && letterManager.hasReadAnyLetter()) {
+            this.letterButton.setVisible(true);
+            this.letterButtonText.setVisible(true);
+        } else {
+            this.letterButton.setVisible(false);
+            this.letterButtonText.setVisible(false);
+        }
     }
 
     /**

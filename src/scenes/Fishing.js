@@ -2,6 +2,7 @@ import { UI_CONST } from "../const/UIConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
 import { FONT_NAME } from "../const/CommonConst.js";
 import assets from "../assets.js";
+import { wrapText } from "../utils/TextUtils.js";
 
 /**
  * 釣り中にメインのゲームシーンの上に、ポップアップウインドウのように
@@ -16,9 +17,13 @@ export class Fishing extends Phaser.Scene {
      * 初期化
      * @param {Object} paramObj パラメータオブジェクト
      * @param {string} paramObj.fishName 釣る魚の名前
+     * @param {number} [paramObj.letterIndex] 手紙のインデックス
+     * @param {string} [paramObj.letterCategory] 手紙のカテゴリ
      */
     init(paramObj) {
         this.fishName = paramObj.fishName;
+        this.letterIndex = paramObj.letterIndex;
+        this.letterCategory = paramObj.letterCategory || "story_planet";
         // 成功ゲージの初期値を設定
         this.successGaugeValue = GAME_CONST.SUCCESS_GAUGE_INITIAL;
         // 成功ゲージの最大値を設定
@@ -409,12 +414,151 @@ export class Fishing extends Phaser.Scene {
             .setOrigin(0.5, 0.5);
         this.fishingResultContainer.add(okButtonText);
         okButton.on("pointerdown", () => {
-            // 釣りシーンを終了してメインのゲームシーンに戻る
-            this.scene.stop("Fishing");
-            this.scene.resume("Game", {
-                from: "fishing",
-                fishName: this.fishName,
-                success: true,
+            // メッセージボトルの場合は手紙表示ウィンドウを表示
+            if (this.fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
+                this.showLetterWindow();
+            } else {
+                // 釣りシーンを終了してメインのゲームシーンに戻る
+                this.scene.stop("Fishing");
+                this.scene.resume("Game", {
+                    from: "fishing",
+                    fishName: this.fishName,
+                    success: true,
+                });
+            }
+        });
+    }
+
+    /**
+     * 手紙表示ウィンドウを表示
+     */
+    showLetterWindow() {
+        // リザルトコンテナをフェードアウト
+        this.tweens.add({
+            targets: this.fishingResultContainer,
+            alpha: 0,
+            duration: 300,
+            ease: "Linear",
+        });
+
+        // 一定時間後に手紙ウィンドウを表示
+        this.time.delayedCall(300, () => {
+            // 手紙コンテナを作成
+            this.letterContainer = this.add.container(
+                this.cameras.main.width / 2,
+                this.cameras.main.height / 2
+            );
+            // UIを長方形で表示
+            const uiRectangle = this.add
+                .rectangle(
+                    0,
+                    0,
+                    UI_CONST.LETTER_WINDOW_WIDTH,
+                    UI_CONST.LETTER_WINDOW_HEIGHT,
+                    UI_CONST.LETTER_WINDOW_RECTANGLE_COLOR
+                )
+                .setStrokeStyle(
+                    UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_WIDTH,
+                    UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_COLOR
+                );
+            this.letterContainer.add(uiRectangle);
+
+            // 手紙の内容を表示
+            // story_planet.jsonから手紙の内容を取得（順番に表示）
+            const storyData = this.cache.json.get(this.letterCategory);
+            const letterMessages = storyData.messages.JP;
+            // letterIndexを使用して順番に表示（インデックスが範囲外の場合は最後の手紙）
+            const letterIndex =
+                this.letterIndex !== undefined
+                    ? Math.min(this.letterIndex, letterMessages.length - 1)
+                    : 0;
+            const letterContent = letterMessages[letterIndex];
+            // ページ番号を保存
+            this.currentLetterIndex = letterIndex;
+            this.totalLetters = letterMessages.length;
+
+            // 一時的なテキストオブジェクトを作成してテキストの幅を測定
+            const tempText = this.add.text(0, 0, "", {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: `${UI_CONST.LETTER_TEXT_FONT_SIZE}px`,
+            });
+
+            // テキストを幅に合わせて改行
+            const wrappedText = wrapText(
+                tempText,
+                letterContent,
+                UI_CONST.LETTER_TEXT_MAX_WIDTH
+            );
+            tempText.destroy();
+
+            const letterText = this.add
+                .text(0, UI_CONST.LETTER_TEXT_Y, wrappedText, {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: `${UI_CONST.LETTER_TEXT_FONT_SIZE}px`,
+                    color: UI_CONST.LETTER_TEXT_COLOR,
+                    align: "left",
+                    lineSpacing: UI_CONST.LETTER_TEXT_LINE_SPACING,
+                })
+                .setOrigin(0.5, 0);
+            this.letterContainer.add(letterText);
+
+            // ページ番号を表示（n/a形式）
+            const pageNumber = this.add
+                .text(
+                    0,
+                    UI_CONST.LETTER_WINDOW_HEIGHT / 2 - 40,
+                    `${this.currentLetterIndex + 1}/${this.totalLetters}`,
+                    {
+                        fontFamily: FONT_NAME.MELONANO,
+                        fontSize: "20px",
+                        color: UI_CONST.LETTER_TEXT_COLOR,
+                        align: "center",
+                    }
+                )
+                .setOrigin(0.5, 0.5);
+            this.letterContainer.add(pageNumber);
+
+            // 閉じるボタンを枠付きで表示
+            const closeButton = this.add
+                .rectangle(
+                    0,
+                    UI_CONST.LETTER_CLOSE_BUTTON_Y,
+                    UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
+                    UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
+                    UI_CONST.LETTER_CLOSE_BUTTON_BACKGROUND_COLOR
+                )
+                .setStrokeStyle(
+                    UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
+                    UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR
+                )
+                .setOrigin(0.5, 0.5)
+                .setInteractive({ useHandCursor: true });
+            this.letterContainer.add(closeButton);
+            // 閉じるボタンのテキストを表示
+            const closeButtonText = this.add
+                .text(
+                    0,
+                    UI_CONST.LETTER_CLOSE_BUTTON_Y,
+                    UI_CONST.LETTER_CLOSE_BUTTON_TEXT,
+                    {
+                        fontFamily: FONT_NAME.MELONANO,
+                        fontSize: `${UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE}px`,
+                        color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
+                        align: "center",
+                    }
+                )
+                .setOrigin(0.5, 0.5);
+            this.letterContainer.add(closeButtonText);
+            closeButton.on("pointerdown", () => {
+                // 釣りシーンを終了してメインのゲームシーンに戻る
+                this.scene.stop("Fishing");
+                this.scene.resume("Game", {
+                    from: "fishing",
+                    fishName: this.fishName,
+                    letterIndex: this.currentLetterIndex,
+                    letterCategory: this.letterCategory,
+                    success: true,
+                });
             });
         });
     }

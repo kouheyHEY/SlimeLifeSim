@@ -78,4 +78,10 @@ export default {
             ],
         },
     },
+    json: {
+        story_planet: {
+            key: "story_planet",
+            args: ["assets/stories/story_planet.json"],
+        },
+    },
 };

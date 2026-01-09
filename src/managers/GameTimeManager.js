@@ -1,4 +1,5 @@
-import { GAME_CONST } from "../const/GameConst.js";
+import { GAME_CONST, GAME_TIME_CONST } from "../const/GameConst.js";
+import { MAP_CONST } from "../const/MapConst.js";
 
 /**
  * ゲーム時間管理マネージャー
@@ -13,13 +14,7 @@ export class GameTimeManager {
         this.scene = scene;
 
         // ゲーム開始時刻（ゲーム内時間）
-        // 初期時刻: 6:00 AM, 1日目
-        this.gameStartTime = {
-            month: 4,
-            day: 1,
-            hour: 6,
-            minute: 0,
-        };
+        this.gameStartTime = { ...GAME_TIME_CONST.GAME_START_TIME };
 
         // 現在のゲーム時間
         this.currentTime = { ...this.gameStartTime };
@@ -56,15 +51,19 @@ export class GameTimeManager {
         }
 
         const now = Date.now();
-        const deltaSeconds = (now - this.lastUpdateTime) / 1000;
+        const deltaSeconds =
+            (now - this.lastUpdateTime) /
+            GAME_TIME_CONST.REAL_TIME_CONVERSION.SECONDS_PER_MILLISECOND;
 
         // 累積時間に加算
         this.elapsedSeconds += deltaSeconds;
 
-        // 0.5秒（ゲーム内1分）ごとに時間を進める
-        while (this.elapsedSeconds >= 0.5) {
-            this.addMinutes(1);
-            this.elapsedSeconds -= 0.5;
+        // UPDATE_THRESHOLD_SECONDS（ゲーム内1分）ごとに時間を進める
+        while (
+            this.elapsedSeconds >= GAME_TIME_CONST.UPDATE_THRESHOLD_SECONDS
+        ) {
+            this.addMinutes(GAME_TIME_CONST.TIME_SCALE_MINUTES_PER_REAL_SECOND);
+            this.elapsedSeconds -= GAME_TIME_CONST.UPDATE_THRESHOLD_SECONDS;
         }
 
         this.checkFishHitLottery();
@@ -80,21 +79,23 @@ export class GameTimeManager {
     addMinutes(minutes) {
         this.currentTime.minute += minutes;
 
+        const timeUnits = GAME_TIME_CONST.TIME_UNITS;
+
         // 時間の繰り上がり処理
-        while (this.currentTime.minute >= 60) {
-            this.currentTime.minute -= 60;
+        while (this.currentTime.minute >= timeUnits.MINUTES_PER_HOUR) {
+            this.currentTime.minute -= timeUnits.MINUTES_PER_HOUR;
             this.currentTime.hour += 1;
 
-            if (this.currentTime.hour >= 24) {
+            if (this.currentTime.hour >= timeUnits.HOURS_PER_DAY) {
                 this.currentTime.hour = 0;
                 this.currentTime.day += 1;
 
                 // 月の日数チェック（簡易版：全て30日とする）
-                if (this.currentTime.day > 30) {
+                if (this.currentTime.day > timeUnits.DAYS_PER_MONTH) {
                     this.currentTime.day = 1;
                     this.currentTime.month += 1;
 
-                    if (this.currentTime.month > 12) {
+                    if (this.currentTime.month > timeUnits.MONTHS_PER_YEAR) {
                         this.currentTime.month = 1;
                     }
                 }
@@ -133,9 +134,12 @@ export class GameTimeManager {
      * @returns {number} 合計分数
      */
     getTotalMinutes() {
+        const timeUnits = GAME_TIME_CONST.TIME_UNITS;
         return (
-            this.currentTime.day * 24 * 60 +
-            this.currentTime.hour * 60 +
+            this.currentTime.day *
+                timeUnits.HOURS_PER_DAY *
+                timeUnits.MINUTES_PER_HOUR +
+            this.currentTime.hour * timeUnits.MINUTES_PER_HOUR +
             this.currentTime.minute
         );
     }
@@ -243,30 +247,50 @@ export class GameTimeManager {
     getTimePeriodProgress() {
         const hour = this.currentTime.hour;
         const minute = this.currentTime.minute;
-        const totalMinutes = hour * 60 + minute;
+        const totalMinutes =
+            hour * GAME_TIME_CONST.TIME_UNITS.MINUTES_PER_HOUR + minute;
+        const timeUnits = GAME_TIME_CONST.TIME_UNITS;
+        const periods = GAME_TIME_CONST.TIME_PERIOD_LENGTHS;
 
         if (hour >= 6 && hour < 12) {
-            // 朝: 6:00-11:59 (6時間 = 360分)
-            const periodStart = 6 * 60; // 360分
-            return (totalMinutes - periodStart) / 360;
+            // 朝
+            const periodStart = 6 * timeUnits.MINUTES_PER_HOUR;
+            return (
+                (totalMinutes - periodStart) /
+                (periods.MORNING * timeUnits.MINUTES_PER_HOUR)
+            );
         } else if (hour >= 12 && hour < 18) {
-            // 昼: 12:00-17:59 (6時間 = 360分)
-            const periodStart = 12 * 60; // 720分
-            return (totalMinutes - periodStart) / 360;
+            // 昼
+            const periodStart = 12 * timeUnits.MINUTES_PER_HOUR;
+            return (
+                (totalMinutes - periodStart) /
+                (periods.DAY * timeUnits.MINUTES_PER_HOUR)
+            );
         } else if (hour >= 18 && hour < 21) {
-            // 夕方: 18:00-20:59 (3時間 = 180分)
-            const periodStart = 18 * 60; // 1080分
-            return (totalMinutes - periodStart) / 180;
+            // 夕方
+            const periodStart = 18 * timeUnits.MINUTES_PER_HOUR;
+            return (
+                (totalMinutes - periodStart) /
+                (periods.EVENING * timeUnits.MINUTES_PER_HOUR)
+            );
         } else {
             // 夜: 21:00-5:59 (9時間 = 540分)
             if (hour >= 21) {
                 // 21:00-23:59
-                const periodStart = 21 * 60; // 1260分
-                return (totalMinutes - periodStart) / 540;
+                const periodStart = 21 * timeUnits.MINUTES_PER_HOUR;
+                return (
+                    (totalMinutes - periodStart) /
+                    (periods.NIGHT * timeUnits.MINUTES_PER_HOUR)
+                );
             } else {
                 // 0:00-5:59
-                const adjustedMinutes = totalMinutes + (24 - 21) * 60; // 夜の開始(21:00)から経過した時間
-                return adjustedMinutes / 540;
+                const adjustedMinutes =
+                    totalMinutes +
+                    (timeUnits.HOURS_PER_DAY - 21) * timeUnits.MINUTES_PER_HOUR;
+                return (
+                    adjustedMinutes /
+                    (periods.NIGHT * timeUnits.MINUTES_PER_HOUR)
+                );
             }
         }
     }
@@ -287,5 +311,71 @@ export class GameTimeManager {
         this.isPausedFlag = false;
         // 再開時に前回の更新時刻をリセット（ポーズ中の時間差を無視する）
         this.lastUpdateTime = Date.now();
+    }
+
+    /**
+     * 現在の時間帯を取得
+     * @returns {string} 時間帯の名前
+     */
+    getCurrentTimeOfDay() {
+        const hour = this.currentTime.hour;
+        const hours = MAP_CONST.TIME_OF_DAY_HOURS;
+
+        if (hour >= hours.EARLY_MORNING_START && hour < hours.MORNING_START) {
+            return "EARLY_MORNING";
+        } else if (hour >= hours.MORNING_START && hour < hours.DAY_START) {
+            return "MORNING";
+        } else if (hour >= hours.DAY_START && hour < hours.EVENING_START) {
+            return "DAY";
+        } else if (hour >= hours.EVENING_START && hour < hours.DUSK_START) {
+            return "EVENING";
+        } else if (hour >= hours.DUSK_START && hour < hours.NIGHT_START) {
+            return "DUSK";
+        } else {
+            return "NIGHT";
+        }
+    }
+
+    /**
+     * 時間帯が変わったかチェック
+     * @returns {boolean} 時間帯が変わったか
+     */
+    hasTimeOfDayChanged() {
+        const currentTimeOfDay = this.getCurrentTimeOfDay();
+        if (!this.previousTimeOfDay) {
+            this.previousTimeOfDay = currentTimeOfDay;
+            return false;
+        }
+
+        if (this.previousTimeOfDay !== currentTimeOfDay) {
+            this.previousTimeOfDay = currentTimeOfDay;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 魚ヒットシステムを一時停止
+     * 釣り中や手紙を読んでいる間に新たな魚ヒットが発生しないようにする
+     */
+    pauseFishSystem() {
+        this.lotteryActive = false;
+        // 既存の魚ヒットをクリア
+        if (this.fishHitActive) {
+            this.fishHitActive = false;
+            this.fishHitEndTime = null;
+            // 魚ヒットインジケーターを非表示にするイベントを発行
+            this.scene.events.emit("fishHit", false);
+        }
+    }
+
+    /**
+     * 魚ヒットシステムを再開
+     */
+    resumeFishSystem() {
+        this.lotteryActive = true;
+        // 再開時に最後の抽選時刻を現在時刻に更新（すぐに抽選が始まらないようにする）
+        this.lastLotteryMinute = this.getTotalMinutes();
     }
 }

@@ -171,4 +171,43 @@ export const UI_CONST = {
     SIDEBAR_BORDER_WIDTH: 2,
     /** サイドバーUIの上下パディング */
     SIDEBAR_PADDING: 20,
+
+    /** 手紙表示ウィンドウの幅 */
+    LETTER_WINDOW_WIDTH: 700,
+    /** 手紙表示ウィンドウの高さ */
+    LETTER_WINDOW_HEIGHT: 500,
+    /** 手紙表示ウィンドウの長方形の色 */
+    LETTER_WINDOW_RECTANGLE_COLOR: 0x000000,
+    /** 手紙表示ウィンドウの長方形の枠の色 */
+    LETTER_WINDOW_RECTANGLE_LINE_COLOR: 0xffffff,
+    /** 手紙表示ウィンドウの長方形の枠の太さ */
+    LETTER_WINDOW_RECTANGLE_LINE_WIDTH: 2,
+    /** 手紙テキストのフォントサイズ */
+    LETTER_TEXT_FONT_SIZE: 24,
+    /** 手紙テキストの色 */
+    LETTER_TEXT_COLOR: "#FFFFFF",
+    /** 手紙テキストのY座標 */
+    LETTER_TEXT_Y: -230,
+    /** 手紙テキストの行間 */
+    LETTER_TEXT_LINE_SPACING: 40,
+    /** 手紙テキストのテキスト最大幅 */
+    LETTER_TEXT_MAX_WIDTH: 600,
+    /** 手紙ウィンドウの閉じるボタンのテキスト */
+    LETTER_CLOSE_BUTTON_TEXT: "OK",
+    /** 手紙ウィンドウの閉じるボタンの幅 */
+    LETTER_CLOSE_BUTTON_WIDTH: 150,
+    /** 手紙ウィンドウの閉じるボタンの高さ */
+    LETTER_CLOSE_BUTTON_HEIGHT: 50,
+    /** 手紙ウィンドウの閉じるボタンのフォントサイズ */
+    LETTER_CLOSE_BUTTON_FONT_SIZE: 24,
+    /** 手紙ウィンドウの閉じるボタンのテキスト色 */
+    LETTER_CLOSE_BUTTON_TEXT_COLOR: "#FFFFFF",
+    /** 手紙ウィンドウの閉じるボタンの背景色 */
+    LETTER_CLOSE_BUTTON_BACKGROUND_COLOR: 0x0099ff,
+    /** 手紙ウィンドウの閉じるボタンの枠色 */
+    LETTER_CLOSE_BUTTON_BORDER_COLOR: 0xffffff,
+    /** 手紙ウィンドウの閉じるボタンの枠の太さ */
+    LETTER_CLOSE_BUTTON_BORDER_WIDTH: 2,
+    /** 手紙ウィンドウの閉じるボタンのY座標 */
+    LETTER_CLOSE_BUTTON_Y: 170,
 };
