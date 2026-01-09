@@ -91,23 +91,31 @@ export class TopBarUI {
      */
     createLetterButton(x, y, width) {
         this.letterButton = this.scene.add
-            .rectangle(x, y, width, 40, 0x3366cc)
+            .rectangle(x, y, width, 50, 0x3366cc)
             .setOrigin(0, 0)
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true })
             .setVisible(false); // 初期状態では非表示
 
+        // ボトルのアイコンを追加
+        this.letterButtonIcon = this.scene.add
+            .image(x + 25, y + 25, "bottle_letter")
+            .setOrigin(0.5, 0.5)
+            .setScale(0.3)
+            .setVisible(false);
+
         this.letterButtonText = this.scene.add
-            .text(x + width / 2, y + 20, "手紙を読む", {
+            .text(x + 45, y + 25, "手紙を読む", {
                 fontFamily: FONT_NAME.MELONANO,
                 fontSize: "20px",
                 color: "#FFFFFF",
-                align: "center",
+                align: "left",
             })
-            .setOrigin(0.5, 0.5)
+            .setOrigin(0, 0.5)
             .setVisible(false);
 
         this.topBarContainer.add(this.letterButton);
+        this.topBarContainer.add(this.letterButtonIcon);
         this.topBarContainer.add(this.letterButtonText);
 
         this.letterButton.on("pointerdown", () => {
@@ -128,9 +136,11 @@ export class TopBarUI {
         const letterManager = this.scene.letterManager;
         if (letterManager && letterManager.hasReadAnyLetter()) {
             this.letterButton.setVisible(true);
+            this.letterButtonIcon.setVisible(true);
             this.letterButtonText.setVisible(true);
         } else {
             this.letterButton.setVisible(false);
+            this.letterButtonIcon.setVisible(false);
             this.letterButtonText.setVisible(false);
         }
     }
