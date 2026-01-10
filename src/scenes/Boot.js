@@ -1,10 +1,18 @@
 import { getCurrentLanguage } from "../const/CommonConst.js";
 
+/**
+ * ブートシーン
+ * ゲーム起動時に最初に実行されるシーン
+ * 初回起動時は言語選択画面へ、それ以外はプリローダーへ遷移
+ */
 export class Boot extends Phaser.Scene {
     constructor() {
         super("Boot");
     }
 
+    /**
+     * アセットのプリロード
+     */
     preload() {
         //  The Boot Scene is typically used to load in any assets you require for your Preloader, such as a game logo or background.
         //  The smaller the file size of the assets, the better, as the Boot Scene itself has no preloader.
@@ -12,6 +20,10 @@ export class Boot extends Phaser.Scene {
         this.load.image("background", "assets/background.png");
     }
 
+    /**
+     * シーンの初期化
+     * 言語設定を確認し、適切なシーンへ遷移
+     */
     create() {
         // 言語設定をチェック
         const language = getCurrentLanguage();

@@ -1,11 +1,19 @@
 import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
 import { UI_CONST } from "../const/UIConst.js";
 
+/**
+ * タイトルシーン
+ * ゲーム開始時に表示され、プレイヤーがゲームを開始するまで待機
+ */
 export class Title extends Phaser.Scene {
     constructor() {
         super("Title");
     }
 
+    /**
+     * シーンの初期化
+     * タイトル画面とスタートボタンを表示
+     */
     create() {
         // 背景全体に透過オーバーレイをかける
         const overlay = this.add

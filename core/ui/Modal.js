@@ -1,4 +1,4 @@
-import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
+import { COMMON_CONST, FONT_NAME } from "../../src/const/CommonConst.js";
 
 /**
  * モーダルダイアログクラス

@@ -6,7 +6,7 @@ import {
     getCurrentLanguage,
 } from "../const/CommonConst.js";
 import assets from "../assets.js";
-import { wrapText } from "../utils/TextUtils.js";
+import { wrapText } from "../../core/utils/TextUtils.js";
 
 /**
  * 釣り中にメインのゲームシーンの上に、ポップアップウインドウのように

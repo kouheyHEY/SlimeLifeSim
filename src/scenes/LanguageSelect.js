@@ -15,6 +15,10 @@ export class LanguageSelect extends Phaser.Scene {
         super("LanguageSelect");
     }
 
+    /**
+     * シーンの初期化
+     * 言語選択ボタンを表示
+     */
     create() {
         // 背景全体にオーバーレイをかける
         const overlay = this.add
