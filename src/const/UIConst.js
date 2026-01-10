@@ -288,6 +288,25 @@ export const UI_CONST = {
     UPGRADE_MODAL_WIDTH: 700,
     /** アップグレードモーダルの高さ */
     UPGRADE_MODAL_HEIGHT: 600,
+
+    /** モーダル表示のデプス値 */
+    MODAL_DEPTH: 2000,
+    /** オーバーレイのデプス値 */
+    OVERLAY_DEPTH: 1999,
+
+    /** 魚ヒットインジケーターのY座標オフセット（プレイヤー位置からの相対値） */
+    FISH_HIT_INDICATOR_Y_OFFSET: -120,
+
+    /** プレイヤーアニメーションの最小遅延時間（ミリ秒） */
+    PLAYER_ANIMATION_DELAY_MIN: 2000,
+    /** プレイヤーアニメーションの最大遅延時間（ミリ秒） */
+    PLAYER_ANIMATION_DELAY_MAX: 5000,
+
+    /** ゲームオーバーへの遷移遅延時間（ミリ秒） */
+    GAME_OVER_DELAY: 2000,
+
+    /** アップグレードボタンのX座標オフセット */
+    UPGRADE_BUTTON_X_OFFSET: 120,
 };
 
 /**

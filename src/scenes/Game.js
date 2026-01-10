@@ -139,8 +139,11 @@ export class Game extends Phaser.Scene {
      * スライムアニメーションをランダムにスケジュール
      */
     scheduleSlimeAnimation() {
-        // アニメーション再生間隔をランダムに設定（2～5秒）
-        const nextDelay = Phaser.Math.Between(2000, 5000);
+        // アニメーション再生間隔をランダムに設定
+        const nextDelay = Phaser.Math.Between(
+            UI_CONST.PLAYER_ANIMATION_DELAY_MIN,
+            UI_CONST.PLAYER_ANIMATION_DELAY_MAX
+        );
 
         this.time.delayedCall(nextDelay, () => {
             // 設定でアニメーションが無効化されている場合はスキップ
@@ -384,11 +387,11 @@ export class Game extends Phaser.Scene {
 
         this.fishHitIndicator.setPosition(
             startX + iconWidth / 2,
-            this.player.y - 120
+            this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
         );
         this.fishHitText.setPosition(
             startX + iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X,
-            this.player.y - 120
+            this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
         );
 
         // 点滅アニメーションを追加
@@ -427,13 +430,13 @@ export class Game extends Phaser.Scene {
 
             this.fishHitIndicator.setPosition(
                 startX + iconWidth / 2,
-                this.player.y - 120
+                this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
             );
 
             if (this.fishHitText && this.fishHitText.visible) {
                 this.fishHitText.setPosition(
                     startX + iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X,
-                    this.player.y - 120
+                    this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
                 );
             }
         }
@@ -652,7 +655,7 @@ export class Game extends Phaser.Scene {
     }
 
     GameOver() {
-        this.time.delayedCall(2000, () => {
+        this.time.delayedCall(UI_CONST.GAME_OVER_DELAY, () => {
             this.scene.start("GameOver");
         });
     }
@@ -682,7 +685,7 @@ export class Game extends Phaser.Scene {
             )
             .setOrigin(0.5, 0.5)
             .setScrollFactor(0)
-            .setDepth(1999);
+            .setDepth(UI_CONST.OVERLAY_DEPTH);
         this.cameras.main.ignore(overlay);
 
         // モーダル用のシーンを作成（簡易実装）
@@ -690,7 +693,7 @@ export class Game extends Phaser.Scene {
             this.sys.game.config.width / 2,
             this.sys.game.config.height / 2
         );
-        pauseContainer.setDepth(2000);
+        pauseContainer.setDepth(UI_CONST.MODAL_DEPTH);
         this.cameras.main.ignore(pauseContainer);
 
         // モーダル背景
@@ -895,7 +898,7 @@ export class Game extends Phaser.Scene {
             this.sys.game.config.width / 2,
             this.sys.game.config.height / 2
         );
-        upgradeContainer.setDepth(2000);
+        upgradeContainer.setDepth(UI_CONST.MODAL_DEPTH);
         this.cameras.main.ignore(upgradeContainer);
 
         // 背景オーバーレイ
@@ -1142,7 +1145,8 @@ export class Game extends Phaser.Scene {
                 if (newCanUpgrade) {
                     const button = this.add
                         .rectangle(
-                            UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120,
+                            UI_CONST.UPGRADE_MODAL_WIDTH / 2 -
+                                UI_CONST.UPGRADE_BUTTON_X_OFFSET,
                             0,
                             100,
                             40,
@@ -1154,7 +1158,8 @@ export class Game extends Phaser.Scene {
 
                     const buttonText = this.add
                         .text(
-                            UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120,
+                            UI_CONST.UPGRADE_MODAL_WIDTH / 2 -
+                                UI_CONST.UPGRADE_BUTTON_X_OFFSET,
                             0,
                             `${newCost}`,
                             {
