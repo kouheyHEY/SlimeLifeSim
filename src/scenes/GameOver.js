@@ -1,8 +1,16 @@
+/**
+ * ゲームオーバーシーン
+ * プレイヤーの体力が尽きた時に表示
+ */
 export class GameOver extends Phaser.Scene {
     constructor() {
         super('GameOver');
     }
 
+    /**
+     * シーンの初期化
+     * ゲームオーバー画面を表示
+     */
     create() {
         this.background1 = this.add.image(0, 0, 'background').setOrigin(0);
 

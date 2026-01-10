@@ -8,12 +8,17 @@ import { wrapText } from "../utils/TextUtils.js";
 
 /**
  * 手紙リスト表示シーン
+ * 読んだ手紙の一覧を表示し、再読可能にする
  */
 export class LetterList extends Phaser.Scene {
     constructor() {
         super("LetterList");
     }
 
+    /**
+     * シーンの初期化
+     * 手紙リストの表示
+     */
     create() {
         // ゲームシーンへの参照を取得
         this.gameScene = this.scene.get("Game");

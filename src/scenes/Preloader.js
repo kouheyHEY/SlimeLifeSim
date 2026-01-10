@@ -2,11 +2,18 @@ import ASSETS from "../assets.js";
 import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
 import { MAP_CONST } from "../const/MapConst.js";
 
+/**
+ * プリローダーシーン
+ * ゲームアセットの読み込みとロード画面の表示
+ */
 export class Preloader extends Phaser.Scene {
     constructor() {
         super("Preloader");
     }
 
+    /**
+     * ローディングバーの初期化
+     */
     init() {
         //  We loaded this image in our Boot Scene, so we can display it here
         // this.add.image(512, 384, 'background');

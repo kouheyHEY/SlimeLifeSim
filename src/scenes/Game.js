@@ -24,11 +24,19 @@ import {
 import assets from "../assets.js";
 import { TimeOfDayManager } from "../managers/TimeOfDayManager.js";
 
+/**
+ * メインゲームシーン
+ * プレイヤーの操作、釣り、インベントリ、時間経過などを管理
+ */
 export class Game extends Phaser.Scene {
     constructor() {
         super("Game");
     }
 
+    /**
+     * シーンの初期化
+     * 各種マネージャーとUIの初期化
+     */
     create() {
         this.cameras.main.setBackgroundColor(
             MAP_CONST.INITIAL_BACKGROUND_COLOR
@@ -56,6 +64,10 @@ export class Game extends Phaser.Scene {
         });
     }
 
+    /**
+     * フレームごとの更新処理
+     * ゲーム時間、UI、魚ヒットインジケーターの更新
+     */
     update() {
         // ゲーム時間とUIの更新（シーンが動いている時のみ）
         if (this.topBarUI && this.sidebarUI) {
@@ -83,6 +95,10 @@ export class Game extends Phaser.Scene {
         this.updateFishHitIndicator();
     }
 
+    /**
+     * アニメーションの初期化
+     * プレイヤーキャラクターのアニメーションを作成
+     */
     initAnimations() {
         this.anims.create({
             key: ANIMATION.bat.key,
@@ -170,6 +186,10 @@ export class Game extends Phaser.Scene {
         });
     }
 
+    /**
+     * 入力の初期化
+     * クリック/タップでゲーム開始
+     */
     initInput() {
         this.input.once("pointerdown", () => {
             this.startGame();
