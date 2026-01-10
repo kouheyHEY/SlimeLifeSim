@@ -68,38 +68,77 @@ export class TopBarUI {
         const pauseSectionCenter = (pauseSectionStart + pauseSectionEnd) / 2;
 
         // 左側: 一時停止ボタン（中央揃え）
-        this.pauseButton = this.scene.add
+        // 外枠（暗め）
+        this.pauseButtonOuter = this.scene.add
             .rectangle(
                 pauseSectionCenter,
                 UI_CONST.TOP_BAR_HEIGHT / 2,
                 UI_CONST.PAUSE_BUTTON_WIDTH,
                 UI_CONST.PAUSE_BUTTON_HEIGHT,
-                0x3366cc
+                0x1e3a8a
+            )
+            .setOrigin(0.5, 0.5);
+        this.topBarContainer.add(this.pauseButtonOuter);
+        this.scene.cameras.main.ignore(this.pauseButtonOuter);
+
+        // 内側（明るめ）
+        this.pauseButton = this.scene.add
+            .rectangle(
+                pauseSectionCenter,
+                UI_CONST.TOP_BAR_HEIGHT / 2,
+                UI_CONST.PAUSE_BUTTON_WIDTH - 6,
+                UI_CONST.PAUSE_BUTTON_HEIGHT - 6,
+                0x3b82f6
             )
             .setOrigin(0.5, 0.5)
-            .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
         this.topBarContainer.add(this.pauseButton);
         this.scene.cameras.main.ignore(this.pauseButton);
 
-        this.pauseButtonText = this.scene.add
-            .text(
-                pauseSectionCenter,
-                UI_CONST.TOP_BAR_HEIGHT / 2,
-                getLocalizedText(UI_TEXT.TOP_BAR.PAUSE),
-                {
-                    fontFamily: FONT_NAME.MELONANO,
-                    fontSize: "20px",
-                    color: "#FFFFFF",
-                    align: "center",
-                }
-            )
-            .setOrigin(0.5, 0.5);
-        this.topBarContainer.add(this.pauseButtonText);
-        this.scene.cameras.main.ignore(this.pauseButtonText);
+        // 一時停止アイコン（2本の縦線）を図形で描画
+        const pauseIconWidth = 5; // 各線の幅
+        const pauseIconHeight = 24; // 線の高さ
+        const pauseIconGap = 6; // 線の間隔
+
+        this.pauseIcon = this.scene.add.graphics();
+        this.pauseIcon.fillStyle(0xffffff, 1);
+
+        // 左の縦線
+        const leftBarX = pauseSectionCenter - pauseIconGap / 2 - pauseIconWidth;
+        const barY = UI_CONST.TOP_BAR_HEIGHT / 2 - pauseIconHeight / 2;
+        this.pauseIcon.fillRect(
+            leftBarX,
+            barY,
+            pauseIconWidth,
+            pauseIconHeight
+        );
+
+        // 右の縦線
+        const rightBarX = pauseSectionCenter + pauseIconGap / 2;
+        this.pauseIcon.fillRect(
+            rightBarX,
+            barY,
+            pauseIconWidth,
+            pauseIconHeight
+        );
+
+        this.topBarContainer.add(this.pauseIcon);
+        this.scene.cameras.main.ignore(this.pauseIcon);
 
         this.pauseButton.on("pointerdown", () => {
+            // プレス効果
+            this.pauseButtonOuter.y += 2;
+            this.pauseButton.y += 2;
+            this.pauseIcon.y += 2;
+
             this.scene.showPauseModal();
+
+            // 少し遅延してから元に戻す
+            this.scene.time.delayedCall(100, () => {
+                this.pauseButtonOuter.y -= 2;
+                this.pauseButton.y -= 2;
+                this.pauseIcon.y -= 2;
+            });
         });
 
         // 左中央: 時間帯テキスト（一時停止ボタンと右側要素の間）

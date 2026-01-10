@@ -69,7 +69,7 @@ export class GameInfoUI {
         this.rodSprite = this.scene.add
             .sprite(centerX, currentY, "rod")
             .setOrigin(0.5, 0)
-            .setScale(0.5);
+            .setScale(0.35);
         this.infoContainer.add(this.rodSprite);
         this.scene.cameras.main.ignore(this.rodSprite);
 
@@ -93,38 +93,86 @@ export class GameInfoUI {
         // アップグレードボタン（レベルテキストの下、中央揃え）
         const upgradeButtonX =
             (UI_CONST.GAME_INFO_WIDTH - UI_CONST.UPGRADE_BUTTON_WIDTH) / 2;
-        this.upgradeButton = this.scene.add
+
+        // 外枠（暗め）
+        this.upgradeButtonOuter = this.scene.add
             .rectangle(
                 upgradeButtonX,
                 currentY,
                 UI_CONST.UPGRADE_BUTTON_WIDTH,
                 UI_CONST.UPGRADE_BUTTON_HEIGHT,
-                0x00cc00
+                0x008800
+            )
+            .setOrigin(0, 0);
+        this.infoContainer.add(this.upgradeButtonOuter);
+        this.scene.cameras.main.ignore(this.upgradeButtonOuter);
+
+        // 内側（明るめ）
+        this.upgradeButton = this.scene.add
+            .rectangle(
+                upgradeButtonX + 3,
+                currentY + 3,
+                UI_CONST.UPGRADE_BUTTON_WIDTH - 6,
+                UI_CONST.UPGRADE_BUTTON_HEIGHT - 6,
+                0x00dd00
             )
             .setOrigin(0, 0)
-            .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
         this.infoContainer.add(this.upgradeButton);
         this.scene.cameras.main.ignore(this.upgradeButton);
 
+        // ボタン内容用のコンテナ
+        this.upgradeButtonContentContainer = this.scene.add.container(
+            upgradeButtonX + UI_CONST.UPGRADE_BUTTON_WIDTH / 2,
+            currentY + UI_CONST.UPGRADE_BUTTON_HEIGHT / 2
+        );
+        this.infoContainer.add(this.upgradeButtonContentContainer);
+        this.scene.cameras.main.ignore(this.upgradeButtonContentContainer);
+
+        // アップグレードテキスト（コンテナ内の座標）
         this.upgradeButtonText = this.scene.add
-            .text(
-                upgradeButtonX + UI_CONST.UPGRADE_BUTTON_WIDTH / 2,
-                currentY + UI_CONST.UPGRADE_BUTTON_HEIGHT / 2,
-                getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE),
-                {
-                    fontFamily: FONT_NAME.MELONANO,
-                    fontSize: "18px",
-                    color: "#FFFFFF",
-                    align: "center",
-                }
-            )
+            .text(0, -12, getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE), {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: "16px",
+                color: "#FFFFFF",
+                align: "center",
+            })
             .setOrigin(0.5, 0.5);
-        this.infoContainer.add(this.upgradeButtonText);
+        this.upgradeButtonContentContainer.add(this.upgradeButtonText);
         this.scene.cameras.main.ignore(this.upgradeButtonText);
+
+        // コスト表示用のコンテナ（コインアイコン+テキスト）
+        this.upgradeCostContainer = this.scene.add.container(0, 11);
+        this.upgradeButtonContentContainer.add(this.upgradeCostContainer);
+        this.scene.cameras.main.ignore(this.upgradeCostContainer);
+
+        // コインアイコン（コストコンテナ内）
+        this.upgradeCoinIcon = this.scene.add
+            .sprite(-16, 2, "coin")
+            .setOrigin(1, 0.5)
+            .setScale(0.4);
+        this.upgradeCostContainer.add(this.upgradeCoinIcon);
+        this.scene.cameras.main.ignore(this.upgradeCoinIcon);
+
+        // コストテキスト（コストコンテナ内）
+        this.upgradeCostText = this.scene.add
+            .text(-12, 0, "0", {
+                fontFamily: FONT_NAME.MELONANO,
+                fontSize: "16px",
+                color: "#FFFFFF",
+                align: "left",
+            })
+            .setOrigin(0, 0.5);
+        this.upgradeCostContainer.add(this.upgradeCostText);
+        this.scene.cameras.main.ignore(this.upgradeCostText);
 
         // アップグレードボタンのクリックイベント（簡略化版）
         this.upgradeButton.on("pointerdown", () => {
+            // プレス効果
+            this.upgradeButtonOuter.y += 2;
+            this.upgradeButton.y += 2;
+            this.upgradeButtonContentContainer.y += 2;
+
             // アップグレードマネージャーを使用して総合アップグレードを実行
             const upgradeManager = this.scene.upgradeManager;
             const cost = upgradeManager.getTotalUpgradeCost();
@@ -141,6 +189,13 @@ export class GameInfoUI {
             } else {
                 console.log(`コイン不足: 必要${cost}, 所持${this.coins}`);
             }
+
+            // 少し遅延してから元に戻す
+            this.scene.time.delayedCall(100, () => {
+                this.upgradeButtonOuter.y -= 2;
+                this.upgradeButton.y -= 2;
+                this.upgradeButtonContentContainer.y -= 2;
+            });
         });
     }
 
@@ -165,14 +220,29 @@ export class GameInfoUI {
                 this.upgradeButtonText.setText(
                     getLocalizedText({ JP: "MAX", EN: "MAX" })
                 );
-                this.upgradeButton.setFillStyle(0x666666);
+                this.upgradeCostContainer.setVisible(false);
+                this.upgradeButton.setFillStyle(0x00dd00);
+                this.upgradeButtonOuter.setFillStyle(0x008800);
             } else {
                 this.upgradeButtonText.setText(
                     getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE)
                 );
-                this.upgradeButton.setFillStyle(
-                    this.coins >= cost ? 0x00cc00 : 0x666666
-                );
+                this.upgradeCostContainer.setVisible(true);
+                this.upgradeCostText.setText(`${cost}`);
+
+                // コストコンテナの幅を計算して中央揃えに調整
+                const costTextWidth = this.upgradeCostText.width;
+                const iconWidth = 16; // コインアイコンの幅（スケール0.4で約16px）
+                const totalWidth = iconWidth + costTextWidth;
+                this.upgradeCostContainer.x = 0; // 中央に配置
+
+                if (this.coins >= cost) {
+                    this.upgradeButton.setFillStyle(0x00dd00);
+                    this.upgradeButtonOuter.setFillStyle(0x008800);
+                } else {
+                    this.upgradeButton.setFillStyle(0x888888);
+                    this.upgradeButtonOuter.setFillStyle(0x555555);
+                }
             }
         }
     }
