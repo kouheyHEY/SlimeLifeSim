@@ -1,27 +1,24 @@
-import { GameInfoUI } from "./GameInfoUI.js";
-import { InventoryUI } from "./InventoryUI.js";
 import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
 import {
-    COMMON_CONST,
     FONT_NAME,
     getLocalizedText,
+    getCurrentLanguage,
 } from "../const/CommonConst.js";
+import { TIME_PERIOD_DISPLAY_NAME } from "../const/GameConst.js";
 
 /**
- * 画面右側の統合サイドバー
- * ゲーム情報とインベントリを含む
+ * 画面上部のトップバーUI
+ * 日数、時間、時間帯、一時停止ボタンを表示
  */
 export class TopBarUI {
     /**
      * コンストラクタ
      * @param {Phaser.Scene} scene - 所属するシーン
      * @param {GameTimeManager} gameTimeManager - ゲーム時間マネージャー
-     * @param {InventoryManager} inventoryManager - インベントリマネージャー
      */
-    constructor(scene, gameTimeManager, inventoryManager) {
+    constructor(scene, gameTimeManager) {
         this.scene = scene;
         this.gameTimeManager = gameTimeManager;
-        this.inventoryManager = inventoryManager;
         this.createUI();
     }
 
@@ -29,148 +26,178 @@ export class TopBarUI {
      * UIの作成
      */
     createUI() {
-        // サイドバーのX位置（画面右端）
-        const sidebarX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.SIDEBAR_WIDTH;
-
-        // サイドバーのコンテナを作成
-        this.topBarContainer = this.scene.add.container(sidebarX, 0);
+        // トップバーのコンテナを作成
+        this.topBarContainer = this.scene.add.container(0, 0);
 
         // 背景を作成
         this.background = this.scene.add
             .rectangle(
                 0,
                 0,
-                UI_CONST.SIDEBAR_WIDTH,
-                COMMON_CONST.SCREEN_HEIGHT,
-                UI_CONST.SIDEBAR_COLOR,
-                UI_CONST.SIDEBAR_ALPHA
+                this.scene.sys.game.config.width,
+                UI_CONST.TOP_BAR_HEIGHT,
+                UI_CONST.TOP_BAR_COLOR,
+                UI_CONST.TOP_BAR_ALPHA
             )
             .setOrigin(0, 0)
             .setStrokeStyle(
-                UI_CONST.SIDEBAR_BORDER_WIDTH,
-                UI_CONST.SIDEBAR_BORDER_COLOR
+                UI_CONST.TOP_BAR_BORDER_WIDTH,
+                UI_CONST.TOP_BAR_BORDER_COLOR
             );
         this.topBarContainer.add(this.background);
 
-        // ゲーム情報UIを作成（中央に配置）
-        const gameInfoX =
-            (UI_CONST.SIDEBAR_WIDTH - UI_CONST.GAME_INFO_WIDTH) / 2;
-        this.gameInfoUI = new GameInfoUI(
-            this.scene,
-            this.gameTimeManager,
-            gameInfoX,
-            UI_CONST.SIDEBAR_PADDING
-        );
-        this.topBarContainer.add(this.gameInfoUI.infoContainer);
+        // メインカメラから除外
+        this.scene.cameras.main.ignore(this.background);
 
-        // インベントリUIを作成（ゲーム情報の下に配置、中央に表示）
-        const inventoryY =
-            UI_CONST.SIDEBAR_PADDING +
-            UI_CONST.GAME_INFO_HEIGHT +
-            UI_CONST.SIDEBAR_PADDING;
-        const inventoryWidth =
-            UI_CONST.INVENTORY_COLUMNS * UI_CONST.INVENTORY_ITEM_FRAME_SIZE;
-        const inventoryX = (UI_CONST.SIDEBAR_WIDTH - inventoryWidth) / 2;
-        this.inventoryUI = new InventoryUI(
-            this.scene,
-            this.inventoryManager,
-            this.gameTimeManager,
-            this.gameInfoUI,
-            inventoryX,
-            inventoryY
-        );
-        this.topBarContainer.add(this.inventoryUI.inventoryContainer);
-
-        // 手紙ボタンを作成（インベントリの下に配置）
-        const letterButtonY =
-            inventoryY +
-            UI_CONST.INVENTORY_ROWS * UI_CONST.INVENTORY_ITEM_FRAME_SIZE +
-            20;
-        this.createLetterButton(inventoryX, letterButtonY, inventoryWidth);
-
-        // サイドバー全体をメインカメラから除外（UIはカメラの移動に追従しない）
-        this.scene.cameras.main.ignore(this.topBarContainer);
-    }
-
-    /**
-     * 手紙ボタンを作成
-     */
-    createLetterButton(x, y, width) {
-        this.letterButton = this.scene.add
-            .rectangle(x, y, width, 50, 0x3366cc)
-            .setOrigin(0, 0)
-            .setStrokeStyle(2, 0xffffff)
-            .setInteractive({ useHandCursor: true })
-            .setVisible(false); // 初期状態では非表示
-
-        // ボトルのアイコンを追加
-        this.letterButtonIcon = this.scene.add
-            .image(x + 25, y + 25, "bottle_letter")
-            .setOrigin(0.5, 0.5)
-            .setScale(0.3)
-            .setVisible(false);
-
-        this.letterButtonText = this.scene.add
+        // 左側: 日数テキスト
+        this.dayText = this.scene.add
             .text(
-                x + 45,
-                y + 25,
-                getLocalizedText(UI_TEXT.LETTER.READ_BUTTON),
+                UI_CONST.TOP_BAR_PADDING,
+                UI_CONST.TOP_BAR_HEIGHT / 2,
+                "",
+                {
+                    fontSize: "24px",
+                    color: UI_CONST.GAME_INFO_FONT_COLOR,
+                    fontFamily: FONT_NAME.MELONANO,
+                }
+            )
+            .setOrigin(0, 0.5);
+        this.topBarContainer.add(this.dayText);
+        this.scene.cameras.main.ignore(this.dayText);
+
+        // 日数の右: 時刻テキスト
+        this.timeText = this.scene.add
+            .text(150, UI_CONST.TOP_BAR_HEIGHT / 2, "", {
+                fontSize: "24px",
+                color: UI_CONST.GAME_INFO_FONT_COLOR,
+                fontFamily: FONT_NAME.MELONANO,
+            })
+            .setOrigin(0, 0.5);
+        this.topBarContainer.add(this.timeText);
+        this.scene.cameras.main.ignore(this.timeText);
+
+        // 中央: 時間帯テキスト
+        const centerX = this.scene.sys.game.config.width / 2;
+        const currentLang = getCurrentLanguage() || "JP";
+        this.timePeriodText = this.scene.add
+            .text(centerX, UI_CONST.TOP_BAR_HEIGHT / 2 - 15, "", {
+                fontSize:
+                    currentLang === "EN"
+                        ? "16px"
+                        : `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
+                color: UI_CONST.GAME_INFO_FONT_COLOR,
+                fontFamily: FONT_NAME.MELONANO,
+            })
+            .setOrigin(0.5, 0.5);
+        this.topBarContainer.add(this.timePeriodText);
+        this.scene.cameras.main.ignore(this.timePeriodText);
+
+        // 中央: 時間帯バー用のGraphics
+        this.timeLineGraphics = this.scene.add.graphics();
+        this.topBarContainer.add(this.timeLineGraphics);
+        this.scene.cameras.main.ignore(this.timeLineGraphics);
+
+        // 時間帯バーの位置
+        this.lineX = centerX;
+        this.lineY = UI_CONST.TOP_BAR_HEIGHT / 2 + 10;
+
+        // 右側: 一時停止ボタン
+        const pauseButtonX =
+            this.scene.sys.game.config.width -
+            UI_CONST.PAUSE_BUTTON_WIDTH -
+            UI_CONST.TOP_BAR_PADDING;
+        this.pauseButton = this.scene.add
+            .rectangle(
+                pauseButtonX,
+                UI_CONST.TOP_BAR_HEIGHT / 2,
+                UI_CONST.PAUSE_BUTTON_WIDTH,
+                UI_CONST.PAUSE_BUTTON_HEIGHT,
+                0x3366cc
+            )
+            .setOrigin(0, 0.5)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        this.topBarContainer.add(this.pauseButton);
+        this.scene.cameras.main.ignore(this.pauseButton);
+
+        this.pauseButtonText = this.scene.add
+            .text(
+                pauseButtonX + UI_CONST.PAUSE_BUTTON_WIDTH / 2,
+                UI_CONST.TOP_BAR_HEIGHT / 2,
+                getLocalizedText(UI_TEXT.TOP_BAR.PAUSE),
                 {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "20px",
                     color: "#FFFFFF",
-                    align: "left",
+                    align: "center",
                 }
             )
-            .setOrigin(0, 0.5)
-            .setVisible(false);
+            .setOrigin(0.5, 0.5);
+        this.topBarContainer.add(this.pauseButtonText);
+        this.scene.cameras.main.ignore(this.pauseButtonText);
 
-        this.topBarContainer.add(this.letterButton);
-        this.topBarContainer.add(this.letterButtonIcon);
-        this.topBarContainer.add(this.letterButtonText);
-
-        this.letterButton.on("pointerdown", () => {
-            // ゲーム時間を一時停止（手紙を読んでいる間は時間が進まない）
-            this.scene.gameTimeManager.pause();
-            // 魚ヒットシステムを一時停止（手紙を読んでいる間は釣りが発生しないように）
-            this.scene.gameTimeManager.pauseFishSystem();
-            // 手紙リストモーダルを表示
-            this.scene.scene.launch("LetterList");
-            this.scene.scene.pause("Game");
+        // 一時停止ボタンのクリックイベント
+        this.pauseButton.on("pointerdown", () => {
+            this.scene.showPauseModal();
         });
-    }
-
-    /**
-     * 手紙ボタンの表示/非表示を更新
-     */
-    updateLetterButton() {
-        const letterManager = this.scene.letterManager;
-        if (letterManager && letterManager.hasReadAnyLetter()) {
-            this.letterButton.setVisible(true);
-            this.letterButtonIcon.setVisible(true);
-            this.letterButtonText.setVisible(true);
-        } else {
-            this.letterButton.setVisible(false);
-            this.letterButtonIcon.setVisible(false);
-            this.letterButtonText.setVisible(false);
-        }
     }
 
     /**
      * UIの更新
      */
     update() {
-        // ゲーム情報UIを更新
-        this.gameInfoUI.update();
+        // 日数を更新
+        const day = this.gameTimeManager.currentTime.day;
+        this.dayText.setText(`DAY ${day}`);
 
-        // インベントリUIは必要に応じて更新
-        // (現在の実装では明示的な呼び出しが必要な場合のみ)
+        // 時刻を更新（24時間表記）
+        const hour = this.gameTimeManager.currentTime.hour;
+        const minute = this.gameTimeManager.currentTime.minute;
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute
+            .toString()
+            .padStart(2, "0")}`;
+        this.timeText.setText(timeString);
+
+        // 時間帯と進行度を取得
+        const timePeriod = this.gameTimeManager.getTimePeriod();
+        const progress = this.gameTimeManager.getTimePeriodProgress();
+
+        // 時間帯テキストを更新
+        const timePeriodDisplay =
+            getLocalizedText(TIME_PERIOD_DISPLAY_NAME[timePeriod]) ||
+            timePeriod;
+        this.timePeriodText.setText(timePeriodDisplay);
+
+        // 時間帯バーを描画
+        this.drawTimeLine(timePeriod, progress);
     }
 
     /**
-     * インベントリUIを更新（アイテム追加時など）
+     * 時間の数直線を描画
+     * @param {string} timePeriod - 現在の時間帯
+     * @param {number} progress - 時間帯内での進行度（0.0-1.0）
      */
-    updateInventory() {
-        this.inventoryUI.update();
+    drawTimeLine(timePeriod, progress) {
+        this.timeLineGraphics.clear();
+
+        const width = UI_CONST.TIME_LINE_WIDTH;
+        const height = UI_CONST.TIME_LINE_HEIGHT;
+        const color = UI_CONST.TIME_PERIOD_COLORS[timePeriod];
+        const x = this.lineX - width / 2;
+        const y = this.lineY - height / 2;
+
+        // 背景の長方形（グレー）
+        this.timeLineGraphics.fillStyle(0x333333, 1);
+        this.timeLineGraphics.fillRect(x, y, width, height);
+
+        // 進行度の長方形（時間帯の色）
+        if (progress > 0) {
+            this.timeLineGraphics.fillStyle(color, 1);
+            this.timeLineGraphics.fillRect(x, y, width * progress, height);
+        }
+
+        // 枠線
+        this.timeLineGraphics.lineStyle(2, 0xffffff, 1);
+        this.timeLineGraphics.strokeRect(x, y, width, height);
     }
 }

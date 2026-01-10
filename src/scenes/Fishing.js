@@ -23,11 +23,13 @@ export class Fishing extends Phaser.Scene {
      * @param {string} paramObj.fishName 釣る魚の名前
      * @param {number} [paramObj.letterIndex] 手紙のインデックス
      * @param {string} [paramObj.letterCategory] 手紙のカテゴリ
+     * @param {number} [paramObj.linePowerMultiplier] 釣り糸の引っ張り力倍率
      */
     init(paramObj) {
         this.fishName = paramObj.fishName;
         this.letterIndex = paramObj.letterIndex;
         this.letterCategory = paramObj.letterCategory || "story_planet";
+        this.linePowerMultiplier = paramObj.linePowerMultiplier || 1.0;
         // 成功ゲージの初期値を設定
         this.successGaugeValue = GAME_CONST.SUCCESS_GAUGE_INITIAL;
         // 成功ゲージの最大値を設定
@@ -275,8 +277,10 @@ export class Fishing extends Phaser.Scene {
             // すでに消えている場合は何もしない
             return;
         }
-        // 成功ゲージの値を増加させる
-        this.successGaugeValue += GAME_CONST.SUCCESS_GAUGE_INCREASE_ON_TAP;
+        // 成功ゲージの値を増加させる（アップグレード倍率適用）
+        const increaseAmount =
+            GAME_CONST.SUCCESS_GAUGE_INCREASE_ON_TAP * this.linePowerMultiplier;
+        this.successGaugeValue += increaseAmount;
         // 成功ゲージの値が最大値を超えないようにする
         if (this.successGaugeValue > this.successGaugeMax) {
             this.successGaugeValue = this.successGaugeMax;
