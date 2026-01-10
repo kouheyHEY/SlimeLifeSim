@@ -165,7 +165,7 @@ export const UI_CONST = {
     /** ゲーム情報UIの幅 */
     GAME_INFO_WIDTH: 192,
     /** ゲーム情報UIの高さ */
-    GAME_INFO_HEIGHT: 288,
+    GAME_INFO_HEIGHT: 190,
     /** ゲーム情報UIのX座標（トップバー内での相対位置） */
     GAME_INFO_X: 20,
     /** ゲーム情報UIのY座標（トップバー内での相対位置） */
@@ -189,7 +189,7 @@ export const UI_CONST = {
     /** 時間円グラフの線の太さ */
     TIME_CIRCLE_LINE_WIDTH: 10,
     /** 時間数直線の長さ（英語版） */
-    TIME_LINE_WIDTH: 160,
+    TIME_LINE_WIDTH: 500,
     /** 時間数直線の高さ（英語版） */
     TIME_LINE_HEIGHT: 10,
     /** プレイヤー状態アイコンのサイズ */
@@ -259,7 +259,7 @@ export const UI_CONST = {
     LETTER_CLOSE_BUTTON_Y: 170,
 
     /** トップバーの高さ */
-    TOP_BAR_HEIGHT: 80,
+    TOP_BAR_HEIGHT: 100,
     /** トップバーの背景色 */
     TOP_BAR_COLOR: 0x000000,
     /** トップバーの背景透明度 */
@@ -315,7 +315,10 @@ export const UI_TEXT = {
         BGM_VOLUME: { JP: "BGM音量", EN: "BGM Volume" },
         SE_VOLUME: { JP: "SE音量", EN: "SE Volume" },
         BACKGROUND_COLOR: { JP: "背景色の変化", EN: "Background Color" },
-        PLAYER_ANIMATION: { JP: "プレイヤーアニメーション", EN: "Player Animation" },
+        PLAYER_ANIMATION: {
+            JP: "プレイヤーアニメーション",
+            EN: "Player Animation",
+        },
         STATUS_CHANGE: { JP: "ステータス変化", EN: "Status Change" },
         AUTO_FISHING: { JP: "釣り全自動化", EN: "Auto Fishing" },
         RESUME: { JP: "再開", EN: "Resume" },

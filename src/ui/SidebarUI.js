@@ -29,19 +29,22 @@ export class SidebarUI {
      * UIの作成
      */
     createUI() {
-        // サイドバーのX位置（画面右端）
+        // サイドバーのX位置（画面右端）とY位置（トップバーの下）
         const sidebarX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.SIDEBAR_WIDTH;
+        const sidebarY = UI_CONST.TOP_BAR_HEIGHT;
 
-        // サイドバーのコンテナを作成
-        this.sidebarContainer = this.scene.add.container(sidebarX, 0);
+        // サイドバーのコンテナを作成（トップバーの下から開始）
+        this.sidebarContainer = this.scene.add.container(sidebarX, sidebarY);
 
-        // 背景を作成
+        // 背景を作成（トップバーの高さ分を引く）
+        const sidebarHeight =
+            COMMON_CONST.SCREEN_HEIGHT - UI_CONST.TOP_BAR_HEIGHT;
         this.background = this.scene.add
             .rectangle(
                 0,
                 0,
                 UI_CONST.SIDEBAR_WIDTH,
-                COMMON_CONST.SCREEN_HEIGHT,
+                sidebarHeight,
                 UI_CONST.SIDEBAR_COLOR,
                 UI_CONST.SIDEBAR_ALPHA
             )

@@ -1,5 +1,5 @@
 import { GameTimeManager } from "../managers/GameTimeManager.js";
-import { UI_CONST } from "../const/UIConst.js";
+import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
 import {
     COMMON_CONST,
     FONT_NAME,
@@ -62,71 +62,41 @@ export class GameInfoUI {
         // メインカメラから除外
         this.scene.cameras.main.ignore(this.background);
 
-        // ステータスとコインの縦並び表示（左寄せ）
-        const itemsStartY = UI_CONST.GAME_INFO_PADDING + 20;
-        const leftMargin = UI_CONST.GAME_INFO_PADDING + 5;
+        const centerX = UI_CONST.GAME_INFO_WIDTH / 2;
+        let currentY = UI_CONST.GAME_INFO_PADDING + 10;
 
-        // プレイヤーステータスアイコン（左寄せ）
-        const statusIconX = leftMargin + UI_CONST.PLAYER_STATUS_ICON_SIZE / 2;
-        this.playerStatusSprite = this.scene.add
-            .sprite(statusIconX, itemsStartY, this.playerStatus)
-            .setOrigin(0.5, 0.5);
-        const statusScale =
-            UI_CONST.PLAYER_STATUS_ICON_SIZE / this.playerStatusSprite.width;
-        this.playerStatusSprite.setScale(statusScale);
-        this.infoContainer.add(this.playerStatusSprite);
-        this.scene.cameras.main.ignore(this.playerStatusSprite);
+        // 釣竿のテクスチャ（上部、中央揃え）
+        this.rodSprite = this.scene.add
+            .sprite(centerX, currentY, "rod")
+            .setOrigin(0.5, 0)
+            .setScale(0.5);
+        this.infoContainer.add(this.rodSprite);
+        this.scene.cameras.main.ignore(this.rodSprite);
 
-        // ステータス名テキスト（アイコンの右側）
-        const statusTextX = leftMargin + UI_CONST.PLAYER_STATUS_ICON_SIZE + 8;
-        const statusName =
-            GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[this.playerStatus];
-        const statusDisplayText = statusName ? statusName.JP : "";
-        this.statusText = this.scene.add
-            .text(statusTextX, itemsStartY, statusDisplayText, {
-                fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
+        // 釣竿の高さを取得
+        const rodHeight = this.rodSprite.displayHeight;
+        currentY += rodHeight + 10;
+
+        // 釣竿レベルテキスト（釣竿の下、中央揃え）
+        this.rodLevelText = this.scene.add
+            .text(centerX, currentY, "Lv 0", {
+                fontSize: "20px",
                 color: UI_CONST.GAME_INFO_FONT_COLOR,
                 fontFamily: FONT_NAME.MELONANO,
             })
-            .setOrigin(0, 0.5);
-        this.infoContainer.add(this.statusText);
-        this.scene.cameras.main.ignore(this.statusText);
+            .setOrigin(0.5, 0);
+        this.infoContainer.add(this.rodLevelText);
+        this.scene.cameras.main.ignore(this.rodLevelText);
 
-        // コインアイコンとテキスト（ステータスの下、左寄せ）
-        const coinY = itemsStartY + UI_CONST.PLAYER_STATUS_ICON_SIZE / 2 + 30;
-        const coinIconX = leftMargin;
-        this.coinIcon = this.scene.add
-            .sprite(coinIconX, coinY, "coin")
-            .setOrigin(0, 0.5);
-        const coinScale = UI_CONST.COIN_ICON_SIZE / this.coinIcon.width;
-        this.coinIcon.setScale(coinScale);
-        this.infoContainer.add(this.coinIcon);
-        this.scene.cameras.main.ignore(this.coinIcon);
+        currentY += 30;
 
-        // コイン枚数テキスト
-        this.coinText = this.scene.add
-            .text(
-                coinIconX + UI_CONST.COIN_ICON_SIZE + 8,
-                coinY,
-                `${this.coins}`,
-                {
-                    fontSize: `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
-                    color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
-                }
-            )
-            .setOrigin(0, 0.5);
-        this.infoContainer.add(this.coinText);
-        this.scene.cameras.main.ignore(this.coinText);
-
-        // アップグレードボタン（コインの下）
-        const upgradeButtonY = coinY + 50;
+        // アップグレードボタン（レベルテキストの下、中央揃え）
         const upgradeButtonX =
             (UI_CONST.GAME_INFO_WIDTH - UI_CONST.UPGRADE_BUTTON_WIDTH) / 2;
         this.upgradeButton = this.scene.add
             .rectangle(
                 upgradeButtonX,
-                upgradeButtonY,
+                currentY,
                 UI_CONST.UPGRADE_BUTTON_WIDTH,
                 UI_CONST.UPGRADE_BUTTON_HEIGHT,
                 0x00cc00
@@ -140,7 +110,7 @@ export class GameInfoUI {
         this.upgradeButtonText = this.scene.add
             .text(
                 upgradeButtonX + UI_CONST.UPGRADE_BUTTON_WIDTH / 2,
-                upgradeButtonY + UI_CONST.UPGRADE_BUTTON_HEIGHT / 2,
+                currentY + UI_CONST.UPGRADE_BUTTON_HEIGHT / 2,
                 getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE),
                 {
                     fontFamily: FONT_NAME.MELONANO,
@@ -153,9 +123,24 @@ export class GameInfoUI {
         this.infoContainer.add(this.upgradeButtonText);
         this.scene.cameras.main.ignore(this.upgradeButtonText);
 
-        // アップグレードボタンのクリックイベント
+        // アップグレードボタンのクリックイベント（簡略化版）
         this.upgradeButton.on("pointerdown", () => {
-            this.scene.showUpgradeModal();
+            // アップグレードマネージャーを使用して総合アップグレードを実行
+            const upgradeManager = this.scene.upgradeManager;
+            const cost = upgradeManager.getTotalUpgradeCost();
+
+            if (this.coins >= cost) {
+                const result = upgradeManager.upgradeAll(this.coins);
+                if (result.success) {
+                    this.setCoins(result.newCoins);
+                    // アップグレード成功のフィードバック
+                    console.log(
+                        `アップグレード成功! 新しいレベル: ${result.newLevel}`
+                    );
+                }
+            } else {
+                console.log(`コイン不足: 必要${cost}, 所持${this.coins}`);
+            }
         });
     }
 
@@ -163,16 +148,33 @@ export class GameInfoUI {
      * UIの更新
      */
     update() {
-        // ステータステキストを更新
-        if (this.statusText) {
-            const statusName =
-                GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[this.playerStatus];
-            const statusDisplayText = getLocalizedText(statusName);
-            this.statusText.setText(statusDisplayText);
+        // 釣竿レベルを更新
+        if (this.rodLevelText && this.scene.upgradeManager) {
+            const level = this.scene.upgradeManager.getTotalLevel();
+            this.rodLevelText.setText(`Lv ${level}`);
         }
 
-        // コイン枚数を更新
-        this.coinText.setText(`${this.coins}`);
+        // アップグレードボタンのテキストを更新
+        if (this.upgradeButtonText && this.scene.upgradeManager) {
+            const upgradeManager = this.scene.upgradeManager;
+            const level = upgradeManager.getTotalLevel();
+            const cost = upgradeManager.getTotalUpgradeCost();
+            const maxLevel = upgradeManager.getTotalMaxLevel();
+
+            if (level >= maxLevel) {
+                this.upgradeButtonText.setText(
+                    getLocalizedText({ JP: "MAX", EN: "MAX" })
+                );
+                this.upgradeButton.setFillStyle(0x666666);
+            } else {
+                this.upgradeButtonText.setText(
+                    getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE)
+                );
+                this.upgradeButton.setFillStyle(
+                    this.coins >= cost ? 0x00cc00 : 0x666666
+                );
+            }
+        }
     }
 
     /**
@@ -182,16 +184,6 @@ export class GameInfoUI {
     setPlayerStatus(status) {
         console.log(`setPlayerStatus: ${this.playerStatus} → ${status}`);
         this.playerStatus = status;
-        if (this.playerStatusSprite) {
-            this.playerStatusSprite.setTexture(status);
-            console.log(`スプライトを更新: ${status}`);
-        }
-        if (this.statusText) {
-            const statusName = GAME_CONST.PLAYER_STATUS_DISPLAY_NAME[status];
-            const displayName = getLocalizedText(statusName);
-            this.statusText.setText(displayName);
-            console.log(`テキストを更新: ${displayName}`);
-        }
     }
 
     /**

@@ -15,14 +15,14 @@ import { SidebarUI } from "../ui/SidebarUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
 import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
-import { FONT_NAME, getLocalizedText } from "../const/CommonConst.js";
-import assets from "../assets.js";
-import { TimeOfDayManager } from "../managers/TimeOfDayManager.js";
 import {
     FONT_NAME,
     getCurrentLanguage,
     getLocalizedText,
+    COMMON_CONST,
 } from "../const/CommonConst.js";
+import assets from "../assets.js";
+import { TimeOfDayManager } from "../managers/TimeOfDayManager.js";
 
 export class Game extends Phaser.Scene {
     constructor() {
@@ -268,14 +268,18 @@ export class Game extends Phaser.Scene {
             this.gameTimeManager
         );
 
-        // トップバーUIを作成（画面上部）
-        this.topBarUI = new TopBarUI(this, this.gameTimeManager);
-
         // サイドバーUIを作成（ゲーム情報とインベントリを統合）
         this.sidebarUI = new SidebarUI(
             this,
             this.gameTimeManager,
             this.inventoryManager
+        );
+
+        // トップバーUIを作成（画面上部）- gameInfoUIを渡してステータスとコインを表示
+        this.topBarUI = new TopBarUI(
+            this,
+            this.gameTimeManager,
+            this.sidebarUI.gameInfoUI
         );
 
         // 初期表示のためにUIを更新
@@ -438,13 +442,81 @@ export class Game extends Phaser.Scene {
     startGame() {
         this.gameStarted = true;
         this.physics.resume();
+        this.isPaused = false; // 一時停止中フラグを追加
         // 画面タップ時の処理を設定
-        this.input.on("pointerdown", () => {
+        this.input.on("pointerdown", (pointer) => {
+            // 一時停止中は何もしない
+            if (this.isPaused) {
+                return;
+            }
+
+            // UIエリアをクリックした場合は釣りゲームを発動しない
+            if (this.isPointerOverUI(pointer)) {
+                return;
+            }
+
             // 魚がヒットしている場合のみ釣りゲームを開始
             if (this.gameTimeManager.isFishHitActive()) {
                 this.startFishing();
             }
         });
+    }
+
+    /**
+     * ポインターがUIエリア上にあるかチェック
+     * @param {Phaser.Input.Pointer} pointer - ポインター
+     * @returns {boolean} - UIエリア上の場合true
+     */
+    isPointerOverUI(pointer) {
+        const x = pointer.x;
+        const y = pointer.y;
+
+        // トップバーエリア（上部）
+        if (y < UI_CONST.TOP_BAR_HEIGHT) {
+            return true;
+        }
+
+        // サイドバーエリア（右側）
+        const sidebarX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.SIDEBAR_WIDTH;
+        if (x > sidebarX && y >= UI_CONST.TOP_BAR_HEIGHT) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * UIボタンを無効化
+     */
+    disableUIButtons() {
+        if (this.topBarUI && this.topBarUI.pauseButton) {
+            this.topBarUI.pauseButton.disableInteractive();
+        }
+        if (
+            this.sidebarUI &&
+            this.sidebarUI.gameInfoUI &&
+            this.sidebarUI.gameInfoUI.upgradeButton
+        ) {
+            this.sidebarUI.gameInfoUI.upgradeButton.disableInteractive();
+        }
+    }
+
+    /**
+     * UIボタンを有効化
+     */
+    enableUIButtons() {
+        if (this.topBarUI && this.topBarUI.pauseButton) {
+            this.topBarUI.pauseButton.setInteractive({ useHandCursor: true });
+        }
+        if (
+            this.sidebarUI &&
+            this.sidebarUI.gameInfoUI &&
+            this.sidebarUI.gameInfoUI.upgradeButton
+        ) {
+            this.sidebarUI.gameInfoUI.upgradeButton.setInteractive({
+                useHandCursor: true,
+            });
+        }
     }
 
     /**
@@ -589,8 +661,29 @@ export class Game extends Phaser.Scene {
      * 一時停止モーダルを表示
      */
     showPauseModal() {
+        // 一時停止中フラグを設定
+        this.isPaused = true;
+
+        // UIボタンを無効化
+        this.disableUIButtons();
+
         // ゲーム時間を一時停止
         this.gameTimeManager.pause();
+
+        // 背景オーバーレイ
+        const overlay = this.add
+            .rectangle(
+                this.sys.game.config.width / 2,
+                this.sys.game.config.height / 2,
+                this.sys.game.config.width,
+                this.sys.game.config.height,
+                0x000000,
+                0.7
+            )
+            .setOrigin(0.5, 0.5)
+            .setScrollFactor(0)
+            .setDepth(1999);
+        this.cameras.main.ignore(overlay);
 
         // モーダル用のシーンを作成（簡易実装）
         const pauseContainer = this.add.container(
@@ -599,20 +692,6 @@ export class Game extends Phaser.Scene {
         );
         pauseContainer.setDepth(2000);
         this.cameras.main.ignore(pauseContainer);
-
-        // 背景オーバーレイ
-        const overlay = this.add
-            .rectangle(
-                0,
-                0,
-                this.sys.game.config.width,
-                this.sys.game.config.height,
-                0x000000,
-                0.7
-            )
-            .setOrigin(0.5, 0.5)
-            .setScrollFactor(0);
-        pauseContainer.add(overlay);
 
         // モーダル背景
         const modalBg = this.add
@@ -650,7 +729,9 @@ export class Game extends Phaser.Scene {
             .text(
                 -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
                 currentY,
-                `${getLocalizedText(UI_TEXT.PAUSE_MODAL.BGM_VOLUME)}: ${Math.round(this.settingsManager.getBgmVolume() * 100)}%`,
+                `${getLocalizedText(
+                    UI_TEXT.PAUSE_MODAL.BGM_VOLUME
+                )}: ${Math.round(this.settingsManager.getBgmVolume() * 100)}%`,
                 {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "20px",
@@ -666,7 +747,9 @@ export class Game extends Phaser.Scene {
             .text(
                 -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
                 currentY,
-                `${getLocalizedText(UI_TEXT.PAUSE_MODAL.SE_VOLUME)}: ${Math.round(this.settingsManager.getSeVolume() * 100)}%`,
+                `${getLocalizedText(
+                    UI_TEXT.PAUSE_MODAL.SE_VOLUME
+                )}: ${Math.round(this.settingsManager.getSeVolume() * 100)}%`,
                 {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "20px",
@@ -733,7 +816,13 @@ export class Game extends Phaser.Scene {
 
         // 再開ボタン
         const resumeButton = this.add
-            .rectangle(0, UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60, 150, 50, 0x00cc00)
+            .rectangle(
+                0,
+                UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60,
+                150,
+                50,
+                0x00cc00
+            )
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
         pauseContainer.add(resumeButton);
@@ -753,13 +842,21 @@ export class Game extends Phaser.Scene {
         pauseContainer.add(resumeText);
 
         resumeButton.on("pointerdown", () => {
+            // 一時停止中フラグをリセット
+            this.isPaused = false;
+
+            // UIボタンを有効化
+            this.enableUIButtons();
+
             // ゲーム時間を再開
             this.gameTimeManager.resume();
-            // モーダルを削除
+            // オーバーレイとモーダルを削除
+            overlay.destroy();
             pauseContainer.destroy();
         });
 
         this.pauseContainer = pauseContainer;
+        this.pauseOverlay = overlay;
     }
 
     /**
@@ -848,7 +945,9 @@ export class Game extends Phaser.Scene {
             .text(
                 0,
                 -UI_CONST.UPGRADE_MODAL_HEIGHT / 2 + 80,
-                `${getLocalizedText({ JP: "所持コイン", EN: "Coins" })}: ${this.sidebarUI.gameInfoUI.coins}`,
+                `${getLocalizedText({ JP: "所持コイン", EN: "Coins" })}: ${
+                    this.sidebarUI.gameInfoUI.coins
+                }`,
                 {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "20px",
@@ -883,7 +982,10 @@ export class Game extends Phaser.Scene {
                 () => {
                     // アップグレード実行後、UI更新
                     coinsText.setText(
-                        `${getLocalizedText({ JP: "所持コイン", EN: "Coins" })}: ${this.sidebarUI.gameInfoUI.coins}`
+                        `${getLocalizedText({
+                            JP: "所持コイン",
+                            EN: "Coins",
+                        })}: ${this.sidebarUI.gameInfoUI.coins}`
                     );
                     upgradeElements.forEach((el) => el.update());
                 }
@@ -961,7 +1063,9 @@ export class Game extends Phaser.Scene {
                 -UI_CONST.UPGRADE_MODAL_WIDTH / 2 + 40,
                 25,
                 canUpgrade
-                    ? `${getLocalizedText(UI_TEXT.UPGRADE_MODAL.LEVEL)} ${level}/${maxLevel}`
+                    ? `${getLocalizedText(
+                          UI_TEXT.UPGRADE_MODAL.LEVEL
+                      )} ${level}/${maxLevel}`
                     : getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX_LEVEL),
                 {
                     fontFamily: FONT_NAME.MELONANO,
@@ -987,16 +1091,11 @@ export class Game extends Phaser.Scene {
             itemContainer.add(button);
 
             const buttonText = this.add
-                .text(
-                    UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120,
-                    0,
-                    `${cost}`,
-                    {
-                        fontFamily: FONT_NAME.MELONANO,
-                        fontSize: "18px",
-                        color: "#ffffff",
-                    }
-                )
+                .text(UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120, 0, `${cost}`, {
+                    fontFamily: FONT_NAME.MELONANO,
+                    fontSize: "18px",
+                    color: "#ffffff",
+                })
                 .setOrigin(0.5);
             itemContainer.add(buttonText);
 
@@ -1029,7 +1128,9 @@ export class Game extends Phaser.Scene {
 
                 levelLabel.setText(
                     newCanUpgrade
-                        ? `${getLocalizedText(UI_TEXT.UPGRADE_MODAL.LEVEL)} ${newLevel}/${newMaxLevel}`
+                        ? `${getLocalizedText(
+                              UI_TEXT.UPGRADE_MODAL.LEVEL
+                          )} ${newLevel}/${newMaxLevel}`
                         : getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX_LEVEL)
                 );
 

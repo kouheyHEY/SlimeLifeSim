@@ -98,7 +98,7 @@ export const GAME_CONST = {
         /** タイ */
         fish_tai: 5,
         /** メッセージボトル */
-        bottle_letter: 5000,
+        bottle_letter: 5,
     },
 
     /** 成功ゲージの最大値 */
