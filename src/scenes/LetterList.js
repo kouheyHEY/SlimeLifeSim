@@ -4,7 +4,7 @@ import {
     getLocalizedText,
     getCurrentLanguage,
 } from "../const/CommonConst.js";
-import { wrapText } from "../utils/TextUtils.js";
+import { wrapText } from "../../core/utils/TextUtils.js";
 
 /**
  * 手紙リスト表示シーン
