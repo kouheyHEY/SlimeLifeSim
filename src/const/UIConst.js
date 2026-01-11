@@ -307,6 +307,67 @@ export const UI_CONST = {
 
     /** アップグレードボタンのX座標オフセット */
     UPGRADE_BUTTON_X_OFFSET: 120,
+
+    /** トップバー: セクション間の境界マージン */
+    TOP_BAR_SECTION_MARGIN: 20,
+    /** トップバー: 一時停止ボタンの外枠の色 */
+    TOP_BAR_PAUSE_BUTTON_OUTER_COLOR: 0x1e3a8a,
+    /** トップバー: 一時停止ボタンの内側の色 */
+    TOP_BAR_PAUSE_BUTTON_INNER_COLOR: 0x3b82f6,
+    /** トップバー: 一時停止ボタンの内側のサイズオフセット */
+    TOP_BAR_PAUSE_BUTTON_INNER_OFFSET: 6,
+    /** トップバー: 一時停止アイコンの線の幅 */
+    TOP_BAR_PAUSE_ICON_WIDTH: 5,
+    /** トップバー: 一時停止アイコンの線の高さ */
+    TOP_BAR_PAUSE_ICON_HEIGHT: 24,
+    /** トップバー: 一時停止アイコンの線の間隔 */
+    TOP_BAR_PAUSE_ICON_GAP: 6,
+    /** トップバー: 一時停止アイコンの色 */
+    TOP_BAR_PAUSE_ICON_COLOR: 0xffffff,
+    /** トップバー: ボタン押下時のY座標オフセット */
+    TOP_BAR_BUTTON_PRESS_OFFSET: 2,
+    /** トップバー: ボタン押下後の復元遅延（ミリ秒） */
+    TOP_BAR_BUTTON_PRESS_DELAY: 100,
+    /** トップバー: 時間帯テキストのY座標オフセット（上） */
+    TOP_BAR_TIME_PERIOD_TEXT_Y_OFFSET: 25,
+    /** トップバー: 時間帯テキストのフォントサイズ（日本語） */
+    TOP_BAR_TIME_PERIOD_FONT_SIZE_JP: "22px",
+    /** トップバー: 時間帯テキストのフォントサイズ（英語） */
+    TOP_BAR_TIME_PERIOD_FONT_SIZE_EN: "20px",
+    /** トップバー: 時間帯バーのY座標オフセット（下） */
+    TOP_BAR_TIME_LINE_Y_OFFSET: 15,
+    /** トップバー: ステータス/コイン表示のX座標オフセット（アイコン） */
+    TOP_BAR_STATUS_ICON_X_OFFSET: 35,
+    /** トップバー: ステータス/コイン表示のX座標オフセット（テキスト） */
+    TOP_BAR_STATUS_TEXT_X_OFFSET: 10,
+    /** トップバー: ステータス/コイン表示のY座標オフセット（上段） */
+    TOP_BAR_STATUS_TOP_Y_OFFSET: 20,
+    /** トップバー: ステータス/コイン表示のY座標オフセット（下段） */
+    TOP_BAR_STATUS_BOTTOM_Y_OFFSET: 20,
+    /** トップバー: ステータス/コインアイコンのスケール */
+    TOP_BAR_STATUS_ICON_SCALE: 0.6,
+    /** トップバー: ステータス/コインテキストのフォントサイズ */
+    TOP_BAR_STATUS_TEXT_FONT_SIZE: "20px",
+    /** トップバー: 日数/時刻テキストのフォントサイズ */
+    TOP_BAR_DAY_TIME_FONT_SIZE: "24px",
+    /** トップバー: 日数/時刻テキストのY座標オフセット（上段） */
+    TOP_BAR_DAY_TIME_TOP_Y_OFFSET: 20,
+    /** トップバー: 日数/時刻テキストのY座標オフセット（下段） */
+    TOP_BAR_DAY_TIME_BOTTOM_Y_OFFSET: 20,
+    /** トップバー: セクション境界線の上下マージン */
+    TOP_BAR_SEPARATOR_MARGIN: 10,
+    /** トップバー: セクション境界線の色 */
+    TOP_BAR_SEPARATOR_COLOR: 0x666666,
+    /** トップバー: セクション境界線の太さ */
+    TOP_BAR_SEPARATOR_WIDTH: 2,
+    /** トップバー: セクション境界線の透明度 */
+    TOP_BAR_SEPARATOR_ALPHA: 0.6,
+    /** トップバー: 時間帯バーの背景色 */
+    TOP_BAR_TIME_LINE_BG_COLOR: 0x333333,
+    /** トップバー: 時間帯バーの枠の色 */
+    TOP_BAR_TIME_LINE_BORDER_COLOR: 0xffffff,
+    /** トップバー: 時間帯バーの枠の太さ */
+    TOP_BAR_TIME_LINE_BORDER_WIDTH: 2,
 };
 
 /**
@@ -363,5 +424,11 @@ export const UI_TEXT = {
     TOP_BAR: {
         PAUSE: { JP: "一時停止", EN: "Pause" },
         UPGRADE: { JP: "アップグレード", EN: "Upgrade" },
+        DAY_PREFIX: "DAY ",
+        TIME_SEPARATOR: ":",
+        INITIAL_COIN_COUNT: "0",
+        STATUS_SMILE: { JP: "元気", EN: "Happy" },
+        STATUS_NORMAL: { JP: "普通", EN: "Normal" },
+        STATUS_BAD: { JP: "不機嫌", EN: "Unhappy" },
     },
 };

@@ -64,7 +64,9 @@ export class TopBarUI {
         // 各セクションの境界を計算
         const pauseSectionStart = 0;
         const pauseSectionEnd =
-            UI_CONST.TOP_BAR_PADDING + UI_CONST.PAUSE_BUTTON_WIDTH + 20;
+            UI_CONST.TOP_BAR_PADDING +
+            UI_CONST.PAUSE_BUTTON_WIDTH +
+            UI_CONST.TOP_BAR_SECTION_MARGIN;
         const pauseSectionCenter = (pauseSectionStart + pauseSectionEnd) / 2;
 
         // 左側: 一時停止ボタン（中央揃え）
@@ -75,7 +77,7 @@ export class TopBarUI {
                 UI_CONST.TOP_BAR_HEIGHT / 2,
                 UI_CONST.PAUSE_BUTTON_WIDTH,
                 UI_CONST.PAUSE_BUTTON_HEIGHT,
-                0x1e3a8a
+                UI_CONST.TOP_BAR_PAUSE_BUTTON_OUTER_COLOR
             )
             .setOrigin(0.5, 0.5);
         this.topBarContainer.add(this.pauseButtonOuter);
@@ -86,9 +88,11 @@ export class TopBarUI {
             .rectangle(
                 pauseSectionCenter,
                 UI_CONST.TOP_BAR_HEIGHT / 2,
-                UI_CONST.PAUSE_BUTTON_WIDTH - 6,
-                UI_CONST.PAUSE_BUTTON_HEIGHT - 6,
-                0x3b82f6
+                UI_CONST.PAUSE_BUTTON_WIDTH -
+                    UI_CONST.TOP_BAR_PAUSE_BUTTON_INNER_OFFSET,
+                UI_CONST.PAUSE_BUTTON_HEIGHT -
+                    UI_CONST.TOP_BAR_PAUSE_BUTTON_INNER_OFFSET,
+                UI_CONST.TOP_BAR_PAUSE_BUTTON_INNER_COLOR
             )
             .setOrigin(0.5, 0.5)
             .setInteractive({ useHandCursor: true });
@@ -96,12 +100,12 @@ export class TopBarUI {
         this.scene.cameras.main.ignore(this.pauseButton);
 
         // 一時停止アイコン（2本の縦線）を図形で描画
-        const pauseIconWidth = 5; // 各線の幅
-        const pauseIconHeight = 24; // 線の高さ
-        const pauseIconGap = 6; // 線の間隔
+        const pauseIconWidth = UI_CONST.TOP_BAR_PAUSE_ICON_WIDTH;
+        const pauseIconHeight = UI_CONST.TOP_BAR_PAUSE_ICON_HEIGHT;
+        const pauseIconGap = UI_CONST.TOP_BAR_PAUSE_ICON_GAP;
 
         this.pauseIcon = this.scene.add.graphics();
-        this.pauseIcon.fillStyle(0xffffff, 1);
+        this.pauseIcon.fillStyle(UI_CONST.TOP_BAR_PAUSE_ICON_COLOR, 1);
 
         // 左の縦線
         const leftBarX = pauseSectionCenter - pauseIconGap / 2 - pauseIconWidth;
@@ -127,9 +131,9 @@ export class TopBarUI {
 
         this.pauseButton.on("pointerdown", () => {
             // プレス効果
-            this.pauseButtonOuter.y += 2;
-            this.pauseButton.y += 2;
-            this.pauseIcon.y += 2;
+            this.pauseButtonOuter.y += UI_CONST.TOP_BAR_BUTTON_PRESS_OFFSET;
+            this.pauseButton.y += UI_CONST.TOP_BAR_BUTTON_PRESS_OFFSET;
+            this.pauseIcon.y += UI_CONST.TOP_BAR_BUTTON_PRESS_OFFSET;
 
             // Pauseシーンを起動してGameシーンを一時停止
             this.scene.scene.pause();
@@ -137,16 +141,22 @@ export class TopBarUI {
             this.scene.gameTimeManager.pause();
 
             // 少し遅延してから元に戻す
-            this.scene.time.delayedCall(100, () => {
-                this.pauseButtonOuter.y -= 2;
-                this.pauseButton.y -= 2;
-                this.pauseIcon.y -= 2;
-            });
+            this.scene.time.delayedCall(
+                UI_CONST.TOP_BAR_BUTTON_PRESS_DELAY,
+                () => {
+                    this.pauseButtonOuter.y -=
+                        UI_CONST.TOP_BAR_BUTTON_PRESS_OFFSET;
+                    this.pauseButton.y -= UI_CONST.TOP_BAR_BUTTON_PRESS_OFFSET;
+                    this.pauseIcon.y -= UI_CONST.TOP_BAR_BUTTON_PRESS_OFFSET;
+                }
+            );
         });
 
         // 左中央: 時間帯テキスト（一時停止ボタンと右側要素の間）
         const pauseEndX =
-            UI_CONST.TOP_BAR_PADDING + UI_CONST.PAUSE_BUTTON_WIDTH + 20;
+            UI_CONST.TOP_BAR_PADDING +
+            UI_CONST.PAUSE_BUTTON_WIDTH +
+            UI_CONST.TOP_BAR_SECTION_MARGIN;
 
         // 各セクションの開始位置を計算
         const daySectionStart = topBarWidth - TopBarUI.SECTION_WIDTHS.DAY_TIME;
@@ -161,10 +171,14 @@ export class TopBarUI {
         this.timePeriodText = this.scene.add
             .text(
                 timePeriodSectionCenter,
-                UI_CONST.TOP_BAR_HEIGHT / 2 - 25,
+                UI_CONST.TOP_BAR_HEIGHT / 2 -
+                    UI_CONST.TOP_BAR_TIME_PERIOD_TEXT_Y_OFFSET,
                 "",
                 {
-                    fontSize: currentLang === "EN" ? "20px" : "22px",
+                    fontSize:
+                        currentLang === "EN"
+                            ? UI_CONST.TOP_BAR_TIME_PERIOD_FONT_SIZE_EN
+                            : UI_CONST.TOP_BAR_TIME_PERIOD_FONT_SIZE_JP,
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
                     fontFamily: FONT_NAME.MELONANO,
                 }
@@ -180,7 +194,8 @@ export class TopBarUI {
 
         // 時間帯バーの位置
         this.lineX = timePeriodSectionCenter;
-        this.lineY = UI_CONST.TOP_BAR_HEIGHT / 2 + 15;
+        this.lineY =
+            UI_CONST.TOP_BAR_HEIGHT / 2 + UI_CONST.TOP_BAR_TIME_LINE_Y_OFFSET;
 
         // 縦線描画用のGraphics
         this.separatorGraphics = this.scene.add.graphics();
@@ -196,23 +211,25 @@ export class TopBarUI {
         // ステータスアイコン（上段）
         this.statusSprite = this.scene.add
             .sprite(
-                statusSectionCenterX - 35,
-                UI_CONST.TOP_BAR_HEIGHT / 2 - 20,
+                statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_ICON_X_OFFSET,
+                UI_CONST.TOP_BAR_HEIGHT / 2 -
+                    UI_CONST.TOP_BAR_STATUS_TOP_Y_OFFSET,
                 this.gameInfoUI ? this.gameInfoUI.playerStatus : "status_normal"
             )
             .setOrigin(0.5, 0.5)
-            .setScale(0.6);
+            .setScale(UI_CONST.TOP_BAR_STATUS_ICON_SCALE);
         this.topBarContainer.add(this.statusSprite);
         this.scene.cameras.main.ignore(this.statusSprite);
 
         // ステータステキスト（上段）
         this.statusText = this.scene.add
             .text(
-                statusSectionCenterX - 10,
-                UI_CONST.TOP_BAR_HEIGHT / 2 - 20,
+                statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_TEXT_X_OFFSET,
+                UI_CONST.TOP_BAR_HEIGHT / 2 -
+                    UI_CONST.TOP_BAR_STATUS_TOP_Y_OFFSET,
                 "",
                 {
-                    fontSize: "20px",
+                    fontSize: UI_CONST.TOP_BAR_STATUS_TEXT_FONT_SIZE,
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
                     fontFamily: FONT_NAME.MELONANO,
                 }
@@ -224,23 +241,25 @@ export class TopBarUI {
         // コインアイコン（下段）
         this.coinSprite = this.scene.add
             .sprite(
-                statusSectionCenterX - 35,
-                UI_CONST.TOP_BAR_HEIGHT / 2 + 20,
+                statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_ICON_X_OFFSET,
+                UI_CONST.TOP_BAR_HEIGHT / 2 +
+                    UI_CONST.TOP_BAR_STATUS_BOTTOM_Y_OFFSET,
                 "coin"
             )
             .setOrigin(0.5, 0.5)
-            .setScale(0.6);
+            .setScale(UI_CONST.TOP_BAR_STATUS_ICON_SCALE);
         this.topBarContainer.add(this.coinSprite);
         this.scene.cameras.main.ignore(this.coinSprite);
 
         // コイン数テキスト（下段）
         this.coinCountText = this.scene.add
             .text(
-                statusSectionCenterX - 10,
-                UI_CONST.TOP_BAR_HEIGHT / 2 + 20,
-                "0",
+                statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_TEXT_X_OFFSET,
+                UI_CONST.TOP_BAR_HEIGHT / 2 +
+                    UI_CONST.TOP_BAR_STATUS_BOTTOM_Y_OFFSET,
+                UI_TEXT.TOP_BAR.INITIAL_COIN_COUNT,
                 {
-                    fontSize: "20px",
+                    fontSize: UI_CONST.TOP_BAR_STATUS_TEXT_FONT_SIZE,
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
                     fontFamily: FONT_NAME.MELONANO,
                 }
@@ -257,22 +276,34 @@ export class TopBarUI {
         const rightSectionEnd = topBarWidth - UI_CONST.TOP_BAR_PADDING;
         const dayTimeX = (rightSectionStart + rightSectionEnd) / 2;
         this.dayText = this.scene.add
-            .text(dayTimeX, UI_CONST.TOP_BAR_HEIGHT / 2 - 20, "", {
-                fontSize: "24px",
-                color: UI_CONST.GAME_INFO_FONT_COLOR,
-                fontFamily: FONT_NAME.MELONANO,
-            })
+            .text(
+                dayTimeX,
+                UI_CONST.TOP_BAR_HEIGHT / 2 -
+                    UI_CONST.TOP_BAR_DAY_TIME_TOP_Y_OFFSET,
+                "",
+                {
+                    fontSize: UI_CONST.TOP_BAR_DAY_TIME_FONT_SIZE,
+                    color: UI_CONST.GAME_INFO_FONT_COLOR,
+                    fontFamily: FONT_NAME.MELONANO,
+                }
+            )
             .setOrigin(0.5, 0.5);
         this.topBarContainer.add(this.dayText);
         this.scene.cameras.main.ignore(this.dayText);
 
         // 右側: 時刻テキスト（下段・日数の真下・中央揃え）
         this.timeText = this.scene.add
-            .text(dayTimeX, UI_CONST.TOP_BAR_HEIGHT / 2 + 20, "", {
-                fontSize: "24px",
-                color: UI_CONST.GAME_INFO_FONT_COLOR,
-                fontFamily: FONT_NAME.MELONANO,
-            })
+            .text(
+                dayTimeX,
+                UI_CONST.TOP_BAR_HEIGHT / 2 +
+                    UI_CONST.TOP_BAR_DAY_TIME_BOTTOM_Y_OFFSET,
+                "",
+                {
+                    fontSize: UI_CONST.TOP_BAR_DAY_TIME_FONT_SIZE,
+                    color: UI_CONST.GAME_INFO_FONT_COLOR,
+                    fontFamily: FONT_NAME.MELONANO,
+                }
+            )
             .setOrigin(0.5, 0.5);
         this.topBarContainer.add(this.timeText);
         this.scene.cameras.main.ignore(this.timeText);
@@ -284,14 +315,14 @@ export class TopBarUI {
     update() {
         // 日数を更新
         const day = this.gameTimeManager.currentTime.day;
-        this.dayText.setText(`DAY ${day}`);
+        this.dayText.setText(`${UI_TEXT.TOP_BAR.DAY_PREFIX}${day}`);
 
         // 時刻を更新（24時間表記）
         const hour = this.gameTimeManager.currentTime.hour;
         const minute = this.gameTimeManager.currentTime.minute;
-        const timeString = `${hour.toString().padStart(2, "0")}:${minute
-            .toString()
-            .padStart(2, "0")}`;
+        const timeString = `${hour.toString().padStart(2, "0")}${
+            UI_TEXT.TOP_BAR.TIME_SEPARATOR
+        }${minute.toString().padStart(2, "0")}`;
         this.timeText.setText(timeString);
 
         // 時間帯と進行度を取得
@@ -316,9 +347,13 @@ export class TopBarUI {
             // ステータステキストの更新
             if (this.statusText) {
                 const statusTextMap = {
-                    status_smile: getLocalizedText("元気"),
-                    status_normal: getLocalizedText("普通"),
-                    status_bad: getLocalizedText("不機嫌"),
+                    status_smile: getLocalizedText(
+                        UI_TEXT.TOP_BAR.STATUS_SMILE
+                    ),
+                    status_normal: getLocalizedText(
+                        UI_TEXT.TOP_BAR.STATUS_NORMAL
+                    ),
+                    status_bad: getLocalizedText(UI_TEXT.TOP_BAR.STATUS_BAD),
                 };
                 this.statusText.setText(
                     statusTextMap[this.gameInfoUI.playerStatus] || ""
@@ -337,15 +372,21 @@ export class TopBarUI {
      * @param {number} daySectionStart - 日数表示の開始位置
      */
     drawSeparators(topBarWidth, daySectionStart) {
-        const margin = 10; // 上下の余白
-        const lineColor = 0x666666;
-        const lineWidth = 2;
+        const margin = UI_CONST.TOP_BAR_SEPARATOR_MARGIN;
+        const lineColor = UI_CONST.TOP_BAR_SEPARATOR_COLOR;
+        const lineWidth = UI_CONST.TOP_BAR_SEPARATOR_WIDTH;
 
-        this.separatorGraphics.lineStyle(lineWidth, lineColor, 0.6);
+        this.separatorGraphics.lineStyle(
+            lineWidth,
+            lineColor,
+            UI_CONST.TOP_BAR_SEPARATOR_ALPHA
+        );
 
         // 一時停止ボタンセクションと時間帯セクションの境界線
         const pauseEndX =
-            UI_CONST.TOP_BAR_PADDING + UI_CONST.PAUSE_BUTTON_WIDTH + 20;
+            UI_CONST.TOP_BAR_PADDING +
+            UI_CONST.PAUSE_BUTTON_WIDTH +
+            UI_CONST.TOP_BAR_SECTION_MARGIN;
         this.separatorGraphics.lineBetween(
             pauseEndX,
             margin,
@@ -387,7 +428,7 @@ export class TopBarUI {
         const y = this.lineY - height / 2;
 
         // 背景の長方形（グレー）
-        this.timeLineGraphics.fillStyle(0x333333, 1);
+        this.timeLineGraphics.fillStyle(UI_CONST.TOP_BAR_TIME_LINE_BG_COLOR, 1);
         this.timeLineGraphics.fillRect(x, y, width, height);
 
         // 進行度の長方形（時間帯の色）
@@ -397,7 +438,11 @@ export class TopBarUI {
         }
 
         // 枠線
-        this.timeLineGraphics.lineStyle(2, 0xffffff, 1);
+        this.timeLineGraphics.lineStyle(
+            UI_CONST.TOP_BAR_TIME_LINE_BORDER_WIDTH,
+            UI_CONST.TOP_BAR_TIME_LINE_BORDER_COLOR,
+            1
+        );
         this.timeLineGraphics.strokeRect(x, y, width, height);
     }
 }
