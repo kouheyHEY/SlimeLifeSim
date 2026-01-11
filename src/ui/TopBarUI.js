@@ -164,10 +164,7 @@ export class TopBarUI {
                 UI_CONST.TOP_BAR_HEIGHT / 2 - 25,
                 "",
                 {
-                    fontSize:
-                        currentLang === "EN"
-                            ? "16px"
-                            : `${UI_CONST.GAME_INFO_FONT_SIZE}px`,
+                    fontSize: currentLang === "EN" ? "20px" : "22px",
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
                     fontFamily: FONT_NAME.MELONANO,
                 }

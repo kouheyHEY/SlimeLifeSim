@@ -4,7 +4,7 @@
  */
 export class GameOver extends Phaser.Scene {
     constructor() {
-        super('GameOver');
+        super("GameOver");
     }
 
     /**
@@ -12,13 +12,26 @@ export class GameOver extends Phaser.Scene {
      * ゲームオーバー画面を表示
      */
     create() {
-        this.background1 = this.add.image(0, 0, 'background').setOrigin(0);
+        // 黒い背景オーバーレイ
+        this.add
+            .rectangle(0, 0, this.scale.width, this.scale.height, 0x000000, 0.8)
+            .setOrigin(0);
 
-        this.add.text(this.scale.width * 0.5, this.scale.height * 0.5, 'Game Over', {
-            fontFamily: 'Arial Black', fontSize: 64, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5);
-
+        // Game Overテキスト
+        this.add
+            .text(
+                this.scale.width * 0.5,
+                this.scale.height * 0.5,
+                "Game Over",
+                {
+                    fontFamily: "Arial Black",
+                    fontSize: 64,
+                    color: "#ffffff",
+                    stroke: "#000000",
+                    strokeThickness: 8,
+                    align: "center",
+                }
+            )
+            .setOrigin(0.5);
     }
 }

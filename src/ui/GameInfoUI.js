@@ -136,6 +136,8 @@ export class GameInfoUI {
                 fontSize: "16px",
                 color: "#FFFFFF",
                 align: "center",
+                stroke: "#000000",
+                strokeThickness: 2,
             })
             .setOrigin(0.5, 0.5);
         this.upgradeButtonContentContainer.add(this.upgradeButtonText);
@@ -161,6 +163,8 @@ export class GameInfoUI {
                 fontSize: "16px",
                 color: "#FFFFFF",
                 align: "left",
+                stroke: "#000000",
+                strokeThickness: 2,
             })
             .setOrigin(0, 0.5);
         this.upgradeCostContainer.add(this.upgradeCostText);
