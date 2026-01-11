@@ -280,6 +280,8 @@ export class InventoryUI {
                     fontSize: "20px",
                     color: "#FFFFFF",
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 }
             )
             .setOrigin(0.5, 0.5);
@@ -322,6 +324,8 @@ export class InventoryUI {
                     fontSize: "20px",
                     color: "#FFFFFF",
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 }
             )
             .setOrigin(0.5, 0.5);
@@ -364,6 +368,8 @@ export class InventoryUI {
                     fontSize: "32px",
                     color: "#FFFFFF",
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 }
             )
             .setOrigin(0.5, 0.5);

@@ -341,6 +341,9 @@ export const UI_TEXT = {
         STATUS_CHANGE: { JP: "ステータス変化", EN: "Status Change" },
         AUTO_FISHING: { JP: "釣り全自動化", EN: "Auto Fishing" },
         RESUME: { JP: "再開", EN: "Resume" },
+        CLOSE: { JP: "閉じる", EN: "Close" },
+        SETTINGS: { JP: "設定", EN: "Settings" },
+        UPGRADE: { JP: "アップグレード", EN: "Upgrade" },
     },
     /** アップグレードモーダルのテキスト */
     UPGRADE_MODAL: {

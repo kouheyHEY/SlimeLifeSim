@@ -69,6 +69,8 @@ export class Title extends Phaser.Scene {
                 fontSize: UI_CONST.TITLE_BUTTON_TEXT_FONT_SIZE,
                 color: UI_CONST.TITLE_BUTTON_TEXT_COLOR,
                 align: "center",
+                stroke: "#000000",
+                strokeThickness: 3,
             })
             .setOrigin(0.5, 0.5);
 
@@ -97,6 +99,8 @@ export class Title extends Phaser.Scene {
                     fontSize: UI_CONST.TITLE_BUTTON_TEXT_FONT_SIZE,
                     color: UI_CONST.TITLE_BUTTON_TEXT_COLOR,
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 3,
                 }
             )
             .setOrigin(0.5, 0.5);

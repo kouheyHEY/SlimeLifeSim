@@ -73,6 +73,8 @@ export class LetterList extends Phaser.Scene {
                     fontSize: "22px",
                     color: "#FFDD00",
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 })
                 .setOrigin(0.5, 0.5);
             this.letterListContainer.add(categoryTitle);
@@ -109,6 +111,8 @@ export class LetterList extends Phaser.Scene {
                             fontSize: "18px",
                             color: UI_CONST.LETTER_TEXT_COLOR,
                             align: "center",
+                            stroke: "#000000",
+                            strokeThickness: 2,
                         }
                     )
                     .setOrigin(0.5, 0.5);
@@ -148,6 +152,8 @@ export class LetterList extends Phaser.Scene {
                 fontSize: "32px",
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",
+                stroke: "#000000",
+                strokeThickness: 2,
             })
             .setOrigin(0.5, 0.5);
         this.letterListContainer.add(closeButtonText);
@@ -223,6 +229,8 @@ export class LetterList extends Phaser.Scene {
                 color: UI_CONST.LETTER_TEXT_COLOR,
                 align: "left",
                 lineSpacing: UI_CONST.LETTER_TEXT_LINE_SPACING,
+                stroke: "#000000",
+                strokeThickness: 1,
             })
             .setOrigin(0.5, 0);
         this.letterContentContainer.add(letterText);
@@ -239,6 +247,8 @@ export class LetterList extends Phaser.Scene {
                     fontSize: "20px",
                     color: UI_CONST.LETTER_TEXT_COLOR,
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 1,
                 }
             )
             .setOrigin(0.5, 0.5);
@@ -272,6 +282,8 @@ export class LetterList extends Phaser.Scene {
                     fontSize: "32px",
                     color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 })
                 .setOrigin(0.5, 0.5);
             this.letterContentContainer.add(prevButtonText);
@@ -308,6 +320,8 @@ export class LetterList extends Phaser.Scene {
                     fontSize: "32px",
                     color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 })
                 .setOrigin(0.5, 0.5);
             this.letterContentContainer.add(nextButtonText);
@@ -343,6 +357,8 @@ export class LetterList extends Phaser.Scene {
                 fontSize: "32px",
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",
+                stroke: "#000000",
+                strokeThickness: 2,
             })
             .setOrigin(0.5, 0.5);
         this.letterContentContainer.add(backButtonText);

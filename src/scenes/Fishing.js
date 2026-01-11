@@ -415,6 +415,8 @@ export class Fishing extends Phaser.Scene {
                     fontSize: `${UI_CONST.FISHING_RESULT_BUTTON_FONT_SIZE}px`,
                     color: UI_CONST.FISHING_RESULT_BUTTON_TEXT_COLOR,
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 }
             )
             .setOrigin(0.5, 0.5);

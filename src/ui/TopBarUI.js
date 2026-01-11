@@ -131,7 +131,10 @@ export class TopBarUI {
             this.pauseButton.y += 2;
             this.pauseIcon.y += 2;
 
-            this.scene.showPauseModal();
+            // Pauseシーンを起動してGameシーンを一時停止
+            this.scene.scene.pause();
+            this.scene.scene.launch("Pause");
+            this.scene.gameTimeManager.pause();
 
             // 少し遅延してから元に戻す
             this.scene.time.delayedCall(100, () => {

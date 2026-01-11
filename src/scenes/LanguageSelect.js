@@ -78,6 +78,8 @@ export class LanguageSelect extends Phaser.Scene {
                     fontSize: "36px",
                     color: "#FFFFFF",
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 3,
                 }
             )
             .setOrigin(0.5, 0.5);
@@ -104,6 +106,8 @@ export class LanguageSelect extends Phaser.Scene {
                     fontSize: "36px",
                     color: "#FFFFFF",
                     align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 3,
                 }
             )
             .setOrigin(0.5, 0.5);

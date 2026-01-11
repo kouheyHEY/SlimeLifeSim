@@ -1068,6 +1068,8 @@ export class Game extends Phaser.Scene {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "32px",
                     color: "#ffff00",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 }
             )
             .setOrigin(0.5);
@@ -1085,6 +1087,8 @@ export class Game extends Phaser.Scene {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "20px",
                     color: "#ffffff",
+                    stroke: "#000000",
+                    strokeThickness: 1,
                 }
             )
             .setOrigin(0.5);
@@ -1149,6 +1153,8 @@ export class Game extends Phaser.Scene {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "20px",
                     color: "#ffffff",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 }
             )
             .setOrigin(0.5);
@@ -1186,6 +1192,8 @@ export class Game extends Phaser.Scene {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "18px",
                     color: "#ffffff",
+                    stroke: "#000000",
+                    strokeThickness: 1,
                 }
             )
             .setOrigin(0, 0.5);
@@ -1204,6 +1212,8 @@ export class Game extends Phaser.Scene {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "16px",
                     color: "#aaaaaa",
+                    stroke: "#000000",
+                    strokeThickness: 1,
                 }
             )
             .setOrigin(0, 0.5);
@@ -1228,6 +1238,8 @@ export class Game extends Phaser.Scene {
                     fontFamily: FONT_NAME.MELONANO,
                     fontSize: "18px",
                     color: "#ffffff",
+                    stroke: "#000000",
+                    strokeThickness: 2,
                 })
                 .setOrigin(0.5);
             itemContainer.add(buttonText);
@@ -1296,6 +1308,8 @@ export class Game extends Phaser.Scene {
                                 fontFamily: FONT_NAME.MELONANO,
                                 fontSize: "18px",
                                 color: "#ffffff",
+                                stroke: "#000000",
+                                strokeThickness: 2,
                             }
                         )
                         .setOrigin(0.5);

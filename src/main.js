@@ -6,6 +6,7 @@ import { Fishing } from "./scenes/Fishing.js";
 import { Title } from "./scenes/Title.js";
 import { LetterList } from "./scenes/LetterList.js";
 import { LanguageSelect } from "./scenes/LanguageSelect.js";
+import { Pause } from "./scenes/Pause.js";
 import { COMMON_CONST } from "./const/CommonConst.js";
 
 const config = {
@@ -32,6 +33,7 @@ const config = {
         Game,
         Title,
         Fishing,
+        Pause,
         LetterList,
         GameOver,
     ],
