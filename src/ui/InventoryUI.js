@@ -159,6 +159,13 @@ export class InventoryUI {
             this.itemDetailModal.destroy();
         }
 
+        // チュートリアルステップ3をトリガー
+        if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === 2) {
+            this.scene.time.delayedCall(300, () => {
+                this.scene.tutorialManager.showStep3EatFish();
+            });
+        }
+
         // モーダル用のコンテナを作成（画面中央）
         const centerX = this.scene.cameras.main.width / 2;
         const centerY = this.scene.cameras.main.height / 2;
@@ -297,6 +304,13 @@ export class InventoryUI {
                 }
                 // インベントリを更新
                 this.update();
+                
+                // チュートリアルステップ4をトリガー
+                if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === 3) {
+                    this.scene.time.delayedCall(500, () => {
+                        this.scene.tutorialManager.showStep4StatusExplanation();
+                    });
+                }
             }
             this.closeItemDetail();
         });
