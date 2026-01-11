@@ -218,6 +218,13 @@ export class GameTimeManager {
     }
 
     /**
+     * 魚ヒットを強制的に発生させる（チュートリアル用）
+     */
+    forceFishHit() {
+        this.triggerFishHit();
+    }
+
+    /**
      * 魚がヒットしているかどうかを取得
      * @returns {boolean} ヒット状態
      */

@@ -2,6 +2,7 @@ import { InventoryManager } from "../managers/InventoryManager.js";
 import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
 import { FONT_NAME, getLocalizedText } from "../const/CommonConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
+import { TUTORIAL_STEP } from "../managers/TutorialManager.js";
 /**
  * インベントリのUI
  */
@@ -159,6 +160,13 @@ export class InventoryUI {
             this.itemDetailModal.destroy();
         }
 
+        // チュートリアルステップ3をトリガー
+        if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === TUTORIAL_STEP.CLICK_FISH) {
+            this.scene.time.delayedCall(300, () => {
+                this.scene.tutorialManager.showStep3EatFish();
+            });
+        }
+
         // モーダル用のコンテナを作成（画面中央）
         const centerX = this.scene.cameras.main.width / 2;
         const centerY = this.scene.cameras.main.height / 2;
@@ -297,6 +305,13 @@ export class InventoryUI {
                 }
                 // インベントリを更新
                 this.update();
+                
+                // チュートリアルステップ4をトリガー
+                if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === TUTORIAL_STEP.EAT_FISH) {
+                    this.scene.time.delayedCall(500, () => {
+                        this.scene.tutorialManager.showStep4StatusExplanation();
+                    });
+                }
             }
             this.closeItemDetail();
         });

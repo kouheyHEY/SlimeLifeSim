@@ -10,6 +10,7 @@ import { LetterManager } from "../managers/LetterManager.js";
 import { GameTimeManager } from "../managers/GameTimeManager.js";
 import { UpgradeManager } from "../managers/UpgradeManager.js";
 import { SettingsManager } from "../managers/SettingsManager.js";
+import { TutorialManager, TUTORIAL_STEP } from "../managers/TutorialManager.js";
 import { TopBarUI } from "../ui/TopBarUI.js";
 import { SidebarUI } from "../ui/SidebarUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
@@ -53,6 +54,7 @@ export class Game extends Phaser.Scene {
         this.initLetter();
         this.initGameTime();
         this.initUpgradesAndSettings();
+        this.initTutorial();
 
         // ゲーム開始前はゲーム時間を一時停止
         this.gameTimeManager.pause();
@@ -437,6 +439,13 @@ export class Game extends Phaser.Scene {
     }
 
     /**
+     * チュートリアルの初期化
+     */
+    initTutorial() {
+        this.tutorialManager = new TutorialManager(this);
+    }
+
+    /**
      * 釣り成功時の処理
      */
     handleFishingSuccess(fishName, letterIndex, letterCategory) {
@@ -470,6 +479,13 @@ export class Game extends Phaser.Scene {
             );
             // インベントリUIの更新
             this.sidebarUI.updateInventory();
+            
+            // チュートリアルステップ2をトリガー
+            if (this.tutorialManager && this.tutorialManager.getCurrentStep() === TUTORIAL_STEP.FISH_HIT) {
+                this.time.delayedCall(500, () => {
+                    this.tutorialManager.showStep2ClickFish();
+                });
+            }
         }
     }
 
@@ -576,6 +592,14 @@ export class Game extends Phaser.Scene {
         this.gameStarted = true;
         this.physics.resume();
         this.isPaused = false; // 一時停止中フラグを追加
+        
+        // チュートリアルを開始
+        if (this.tutorialManager && !this.tutorialManager.isTutorialCompleted()) {
+            this.time.delayedCall(500, () => {
+                this.tutorialManager.startTutorial();
+            });
+        }
+        
         // 画面タップ時の処理を設定
         this.input.on("pointerdown", (pointer) => {
             // 一時停止中は何もしない
