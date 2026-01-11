@@ -1,5 +1,4 @@
 import { Modal } from "../../core/ui/Modal.js";
-import { GAME_CONST } from "../const/GameConst.js";
 import { getCurrentLanguage } from "../const/CommonConst.js";
 
 /**
@@ -23,6 +22,8 @@ export class TutorialManager {
         this.highlightGraphics = null;
         // ハイライトターゲット
         this.highlightTarget = null;
+        // ハイライトアニメーションタイマー
+        this.highlightTimer = null;
     }
 
     /**
@@ -213,7 +214,7 @@ export class TutorialManager {
         this.highlightTarget = { frame, index };
 
         // 点滅アニメーション
-        this.scene.time.addEvent({
+        this.highlightTimer = this.scene.time.addEvent({
             delay: 500,
             callback: () => {
                 if (this.highlightGraphics && this.tutorialStep === 2) {
@@ -280,7 +281,7 @@ export class TutorialManager {
         this.highlightTarget = { statusSprite, topBarUI };
 
         // 点滅アニメーション
-        this.scene.time.addEvent({
+        this.highlightTimer = this.scene.time.addEvent({
             delay: 500,
             callback: () => {
                 if (this.highlightGraphics && this.tutorialStep === 4) {
@@ -328,6 +329,10 @@ export class TutorialManager {
         if (this.highlightGraphics) {
             this.highlightGraphics.destroy();
             this.highlightGraphics = null;
+        }
+        if (this.highlightTimer) {
+            this.highlightTimer.remove();
+            this.highlightTimer = null;
         }
         this.highlightTarget = null;
     }
