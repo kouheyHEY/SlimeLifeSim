@@ -45,6 +45,7 @@ export class Game extends Phaser.Scene {
         this.initCameras();
         this.initAnimations();
         this.initMaps();
+        this.initClouds();
         this.initPlayer();
         this.initInput();
         this.initEvents();
@@ -66,7 +67,7 @@ export class Game extends Phaser.Scene {
 
     /**
      * フレームごとの更新処理
-     * ゲーム時間、UI、魚ヒットインジケーターの更新
+     * ゲーム時間、UI、魚ヒットインジケーター、雲の更新
      */
     update() {
         // ゲーム時間とUIの更新（シーンが動いている時のみ）
@@ -88,6 +89,9 @@ export class Game extends Phaser.Scene {
                 this.gameTimeManager.hasTimeOfDayChanged();
             }
         }
+
+        // 雲の更新
+        this.updateClouds();
 
         if (!this.gameStarted) return;
 
@@ -207,6 +211,112 @@ export class Game extends Phaser.Scene {
             MAP_CONST.MAP_SEASIDE_KEY,
             ASSETS.spritesheet.sheet_seaside.key
         );
+    }
+
+    /**
+     * 雲の初期化
+     */
+    initClouds() {
+        this.clouds = [];
+        this.cloudSpawnTimer = 0;
+        this.cloudSpawnInterval = Phaser.Math.Between(3000, 6000); // 3-6秒ごとに生成
+
+        // マップの高さを取得して、表示範囲（下端から720px）内にレーンを配置
+        const mapHeight = this.mapManager.mapData.heightInPixels;
+        const visibleRangeTop = mapHeight - 720;
+        const visibleRangeBottom = mapHeight;
+
+        // 表示範囲内に4つのレーンを配置
+        this.cloudLanes = [
+            visibleRangeTop + 80,
+            visibleRangeTop + 200,
+            visibleRangeTop + 320,
+            visibleRangeTop + 440,
+        ];
+        this.cloudLaneOccupied = [false, false, false, false]; // 各レーンの占有状態
+
+        // 初期の雲を数個配置
+        for (let i = 0; i < 3; i++) {
+            this.spawnCloud(Phaser.Math.Between(0, COMMON_CONST.SCREEN_WIDTH));
+        }
+    }
+
+    /**
+     * 雲を生成
+     * @param {number} startX - 生成位置のX座標（省略時は画面右端外）
+     */
+    spawnCloud(startX = null) {
+        // 空いているレーンを探す
+        const availableLanes = this.cloudLaneOccupied
+            .map((occupied, index) => (!occupied ? index : null))
+            .filter((index) => index !== null);
+
+        // 全レーンが占有されている場合は生成しない
+        if (availableLanes.length === 0) return;
+
+        // ランダムに空いているレーンを選択
+        const laneIndex =
+            availableLanes[Phaser.Math.Between(0, availableLanes.length - 1)];
+        const y = this.cloudLanes[laneIndex];
+
+        // レーンを占有状態に
+        this.cloudLaneOccupied[laneIndex] = true;
+
+        // ランダムな雲パターン（0-3）
+        const cloudFrame = Phaser.Math.Between(0, 3);
+
+        // 生成位置
+        const x = startX !== null ? startX : COMMON_CONST.SCREEN_WIDTH + 150;
+
+        // スケール（遠近法: 0.2〜1.0、より大きな差）
+        const scale = Phaser.Math.FloatBetween(0.1, 1.0);
+
+        // 雲のスプライトを作成
+        const cloud = this.add.sprite(x, y, "cloud_sheet", cloudFrame);
+        cloud.setDepth(-10); // 最背面に配置
+        cloud.setAlpha(0.25 + scale * 0.65); // 遠いほど薄く（0.38〜0.9）
+        cloud.setScale(scale);
+
+        // 移動速度をスケールに比例させる（遠近法: 小さい雲は遅く、大きい雲は速く）
+        cloud.speed = 5 + scale * 85; // 約5〜90の範囲（より大きな差）
+
+        // レーン情報を保存
+        cloud.laneIndex = laneIndex;
+
+        // UIカメラから除外（メインカメラにのみ表示）
+        this.uiCamera.ignore(cloud);
+
+        this.clouds.push(cloud);
+    }
+
+    /**
+     * 雲の更新
+     */
+    updateClouds() {
+        if (!this.clouds) return;
+
+        const deltaTime = this.game.loop.delta;
+
+        // 各雲を左に移動
+        for (let i = this.clouds.length - 1; i >= 0; i--) {
+            const cloud = this.clouds[i];
+            cloud.x -= cloud.speed * (deltaTime / 1000);
+
+            // 画面外に出た雲を削除してレーンを解放
+            if (cloud.x < -200) {
+                this.cloudLaneOccupied[cloud.laneIndex] = false;
+                cloud.destroy();
+                this.clouds.splice(i, 1);
+            }
+        }
+
+        // 新しい雲を生成
+        this.cloudSpawnTimer += deltaTime;
+        if (this.cloudSpawnTimer >= this.cloudSpawnInterval) {
+            this.spawnCloud();
+            this.cloudSpawnTimer = 0;
+            this.cloudSpawnInterval = Phaser.Math.Between(3000, 6000); // 3-6秒
+        }
     }
 
     /**

@@ -97,6 +97,13 @@ export default {
                 { frameWidth: 32, frameHeight: 32 },
             ],
         },
+        cloud_sheet: {
+            key: "cloud_sheet",
+            args: [
+                "assets/cloud_sheet.png",
+                { frameWidth: 256, frameHeight: 256 },
+            ],
+        },
     },
     json: {
         story_planet: {
