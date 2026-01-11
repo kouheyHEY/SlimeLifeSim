@@ -2,6 +2,7 @@ import { InventoryManager } from "../managers/InventoryManager.js";
 import { UI_CONST, UI_TEXT } from "../const/UIConst.js";
 import { FONT_NAME, getLocalizedText } from "../const/CommonConst.js";
 import { GAME_CONST } from "../const/GameConst.js";
+import { TUTORIAL_STEP } from "../managers/TutorialManager.js";
 /**
  * インベントリのUI
  */
@@ -160,7 +161,7 @@ export class InventoryUI {
         }
 
         // チュートリアルステップ3をトリガー
-        if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === 2) {
+        if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === TUTORIAL_STEP.CLICK_FISH) {
             this.scene.time.delayedCall(300, () => {
                 this.scene.tutorialManager.showStep3EatFish();
             });
@@ -306,7 +307,7 @@ export class InventoryUI {
                 this.update();
                 
                 // チュートリアルステップ4をトリガー
-                if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === 3) {
+                if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === TUTORIAL_STEP.EAT_FISH) {
                     this.scene.time.delayedCall(500, () => {
                         this.scene.tutorialManager.showStep4StatusExplanation();
                     });

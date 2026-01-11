@@ -10,7 +10,7 @@ import { LetterManager } from "../managers/LetterManager.js";
 import { GameTimeManager } from "../managers/GameTimeManager.js";
 import { UpgradeManager } from "../managers/UpgradeManager.js";
 import { SettingsManager } from "../managers/SettingsManager.js";
-import { TutorialManager } from "../managers/TutorialManager.js";
+import { TutorialManager, TUTORIAL_STEP } from "../managers/TutorialManager.js";
 import { TopBarUI } from "../ui/TopBarUI.js";
 import { SidebarUI } from "../ui/SidebarUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
@@ -481,7 +481,7 @@ export class Game extends Phaser.Scene {
             this.sidebarUI.updateInventory();
             
             // チュートリアルステップ2をトリガー
-            if (this.tutorialManager && this.tutorialManager.getCurrentStep() === 1) {
+            if (this.tutorialManager && this.tutorialManager.getCurrentStep() === TUTORIAL_STEP.FISH_HIT) {
                 this.time.delayedCall(500, () => {
                     this.tutorialManager.showStep2ClickFish();
                 });

@@ -2,6 +2,18 @@ import { Modal } from "../../core/ui/Modal.js";
 import { getCurrentLanguage } from "../const/CommonConst.js";
 
 /**
+ * チュートリアルステップの定数
+ */
+export const TUTORIAL_STEP = {
+    NOT_STARTED: 0,
+    FISH_HIT: 1,
+    CLICK_FISH: 2,
+    EAT_FISH: 3,
+    STATUS_EXPLANATION: 4,
+    COMPLETED: 5,
+};
+
+/**
  * チュートリアルマネージャー
  * チュートリアルの進行状態を管理し、適切なタイミングでチュートリアルモーダルを表示する
  */
@@ -34,7 +46,7 @@ export class TutorialManager {
         const tutorialCompleted = localStorage.getItem("tutorialCompleted");
         if (tutorialCompleted === "true") {
             this.tutorialCompleted = true;
-            this.tutorialStep = 5;
+            this.tutorialStep = TUTORIAL_STEP.COMPLETED;
             return;
         }
 
@@ -46,7 +58,7 @@ export class TutorialManager {
      * ステップ1: 魚がヒットしました
      */
     showStep1FishHit() {
-        this.tutorialStep = 1;
+        this.tutorialStep = TUTORIAL_STEP.FISH_HIT;
         
         // 魚ヒットを強制的にトリガー
         if (this.scene.gameTimeManager) {
@@ -84,8 +96,8 @@ export class TutorialManager {
      * ステップ2: 釣り上げた魚をクリックさせる
      */
     showStep2ClickFish() {
-        if (this.tutorialStep !== 1) return;
-        this.tutorialStep = 2;
+        if (this.tutorialStep !== TUTORIAL_STEP.FISH_HIT) return;
+        this.tutorialStep = TUTORIAL_STEP.CLICK_FISH;
 
         // インベントリの最初のアイテムをハイライト
         this.highlightInventoryItem(0);
@@ -115,8 +127,8 @@ export class TutorialManager {
      * ステップ3: 魚を食べる
      */
     showStep3EatFish() {
-        if (this.tutorialStep !== 2) return;
-        this.tutorialStep = 3;
+        if (this.tutorialStep !== TUTORIAL_STEP.CLICK_FISH) return;
+        this.tutorialStep = TUTORIAL_STEP.EAT_FISH;
 
         // ハイライトをクリア
         this.clearHighlight();
@@ -146,8 +158,8 @@ export class TutorialManager {
      * ステップ4: ステータスの説明
      */
     showStep4StatusExplanation() {
-        if (this.tutorialStep !== 3) return;
-        this.tutorialStep = 4;
+        if (this.tutorialStep !== TUTORIAL_STEP.EAT_FISH) return;
+        this.tutorialStep = TUTORIAL_STEP.STATUS_EXPLANATION;
 
         // ステータス表示をハイライト
         this.highlightStatus();
@@ -177,7 +189,7 @@ export class TutorialManager {
      * チュートリアル完了
      */
     completeTutorial() {
-        this.tutorialStep = 5;
+        this.tutorialStep = TUTORIAL_STEP.COMPLETED;
         this.tutorialCompleted = true;
         this.currentModal = null;
         
@@ -217,7 +229,7 @@ export class TutorialManager {
         this.highlightTimer = this.scene.time.addEvent({
             delay: 500,
             callback: () => {
-                if (this.highlightGraphics && this.tutorialStep === 2) {
+                if (this.highlightGraphics && this.tutorialStep === TUTORIAL_STEP.CLICK_FISH) {
                     this.updateHighlight();
                 }
             },
@@ -284,7 +296,7 @@ export class TutorialManager {
         this.highlightTimer = this.scene.time.addEvent({
             delay: 500,
             callback: () => {
-                if (this.highlightGraphics && this.tutorialStep === 4) {
+                if (this.highlightGraphics && this.tutorialStep === TUTORIAL_STEP.STATUS_EXPLANATION) {
                     this.updateStatusHighlight();
                 }
             },
