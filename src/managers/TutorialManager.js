@@ -262,11 +262,11 @@ export class TutorialManager {
         // 既存のハイライトをクリア
         this.clearHighlight();
 
-        const gameInfoUI = this.scene.sidebarUI?.gameInfoUI;
-        if (!gameInfoUI) return;
+        const topBarUI = this.scene.topBarUI;
+        if (!topBarUI) return;
 
         // ステータス表示の位置を取得
-        const statusSprite = gameInfoUI.playerStatusSprite;
+        const statusSprite = topBarUI.statusSprite;
         if (!statusSprite) return;
 
         // ハイライト用のグラフィックスを作成
@@ -277,7 +277,7 @@ export class TutorialManager {
         this.scene.cameras.main.ignore(this.highlightGraphics);
 
         // ハイライト対象を保存
-        this.highlightTarget = { statusSprite };
+        this.highlightTarget = { statusSprite, topBarUI };
 
         // 点滅アニメーション
         this.scene.time.addEvent({
@@ -299,18 +299,15 @@ export class TutorialManager {
     updateStatusHighlight() {
         if (!this.highlightGraphics || !this.highlightTarget) return;
 
-        const { statusSprite } = this.highlightTarget;
-        const gameInfoUI = this.scene.sidebarUI?.gameInfoUI;
-        if (!gameInfoUI) return;
+        const { statusSprite, topBarUI } = this.highlightTarget;
+        if (!statusSprite || !topBarUI) return;
 
         // UIカメラの座標系でハイライトを描画
-        const sidebarX = this.scene.sidebarUI.x;
-        const sidebarY = this.scene.sidebarUI.y;
-        const infoX = gameInfoUI.x;
-        const infoY = gameInfoUI.y;
+        const topBarX = topBarUI.x;
+        const topBarY = topBarUI.y;
 
-        const x = sidebarX + infoX + statusSprite.x;
-        const y = sidebarY + infoY + statusSprite.y;
+        const x = topBarX + statusSprite.x;
+        const y = topBarY + statusSprite.y;
 
         const size = statusSprite.displayWidth;
 
