@@ -280,9 +280,9 @@ export const UI_CONST = {
     UPGRADE_BUTTON_HEIGHT: 60,
 
     /** 一時停止モーダルの幅 */
-    PAUSE_MODAL_WIDTH: 600,
+    PAUSE_MODAL_WIDTH: 450,
     /** 一時停止モーダルの高さ */
-    PAUSE_MODAL_HEIGHT: 500,
+    PAUSE_MODAL_HEIGHT: 320,
 
     /** アップグレードモーダルの幅 */
     UPGRADE_MODAL_WIDTH: 700,

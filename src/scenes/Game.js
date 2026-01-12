@@ -93,6 +93,11 @@ export class Game extends Phaser.Scene {
             }
         }
 
+        // 一時停止中は背景・プレイヤー等の変化を止める
+        if (this.isPaused) {
+            return;
+        }
+
         // 雲の更新
         this.updateClouds();
 
@@ -203,7 +208,13 @@ export class Game extends Phaser.Scene {
             UI_CONST.PLAYER_ANIMATION_DELAY_MAX
         );
 
-        this.time.delayedCall(nextDelay, () => {
+        // タイマーを保持してポーズ時に停止できるようにする
+        this.slimeAnimationTimer = this.time.delayedCall(nextDelay, () => {
+            // 一時停止中はアニメーションを開始せずに次回へ
+            if (this.isPaused) {
+                this.scheduleSlimeAnimation();
+                return;
+            }
             // 設定でアニメーションが無効化されている場合はスキップ
             if (!this.settingsManager.isPlayerAnimationEnabled()) {
                 this.scheduleSlimeAnimation();
@@ -941,6 +952,16 @@ export class Game extends Phaser.Scene {
         // ゲーム時間を一時停止
         this.gameTimeManager.pause();
 
+        // 物理・アニメーション・Tweenを一時停止
+        this.physics.pause();
+        this.tweens.pauseAll();
+        if (this.player && this.player.anims) {
+            this.player.anims.pause();
+        }
+        if (this.slimeAnimationTimer) {
+            this.slimeAnimationTimer.paused = true;
+        }
+
         // 背景オーバーレイ
         const overlay = this.add
             .rectangle(
@@ -985,7 +1006,7 @@ export class Game extends Phaser.Scene {
                 getLocalizedText(UI_TEXT.PAUSE_MODAL.TITLE),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "32px",
+                    fontSize: "28px",
                     color: "#ffff00",
                 }
             )
@@ -994,68 +1015,6 @@ export class Game extends Phaser.Scene {
 
         let currentY = -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 100;
         const lineHeight = 50;
-
-        // BGM音量スライダー（簡易版：クリックで切り替え）
-        const bgmText = this.add
-            .text(
-                -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-                currentY,
-                `${getLocalizedText(
-                    UI_TEXT.PAUSE_MODAL.BGM_VOLUME
-                )}: ${Math.round(this.settingsManager.getBgmVolume() * 100)}%`,
-                {
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "20px",
-                    color: "#ffffff",
-                }
-            )
-            .setOrigin(0, 0.5);
-        pauseContainer.add(bgmText);
-        currentY += lineHeight;
-
-        // SE音量スライダー（簡易版）
-        const seText = this.add
-            .text(
-                -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-                currentY,
-                `${getLocalizedText(
-                    UI_TEXT.PAUSE_MODAL.SE_VOLUME
-                )}: ${Math.round(this.settingsManager.getSeVolume() * 100)}%`,
-                {
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "20px",
-                    color: "#ffffff",
-                }
-            )
-            .setOrigin(0, 0.5);
-        pauseContainer.add(seText);
-        currentY += lineHeight;
-
-        // 背景色変化トグル
-        const bgColorToggle = this.createToggle(
-            pauseContainer,
-            -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-            currentY,
-            getLocalizedText(UI_TEXT.PAUSE_MODAL.BACKGROUND_COLOR),
-            this.settingsManager.isBackgroundColorChangeEnabled(),
-            (enabled) => {
-                this.settingsManager.setBackgroundColorChange(enabled);
-            }
-        );
-        currentY += lineHeight;
-
-        // プレイヤーアニメーショントグル
-        const animToggle = this.createToggle(
-            pauseContainer,
-            -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-            currentY,
-            getLocalizedText(UI_TEXT.PAUSE_MODAL.PLAYER_ANIMATION),
-            this.settingsManager.isPlayerAnimationEnabled(),
-            (enabled) => {
-                this.settingsManager.setPlayerAnimation(enabled);
-            }
-        );
-        currentY += lineHeight;
 
         // ステータス変化トグル
         const statusToggle = this.createToggle(
@@ -1121,6 +1080,15 @@ export class Game extends Phaser.Scene {
 
             // ゲーム時間を再開
             this.gameTimeManager.resume();
+            // 物理・アニメーション・Tweenを再開
+            this.physics.resume();
+            this.tweens.resumeAll();
+            if (this.player && this.player.anims) {
+                this.player.anims.resume();
+            }
+            if (this.slimeAnimationTimer) {
+                this.slimeAnimationTimer.paused = false;
+            }
             // オーバーレイとモーダルを削除
             overlay.destroy();
             pauseContainer.destroy();
@@ -1137,7 +1105,7 @@ export class Game extends Phaser.Scene {
         const text = this.add
             .text(x, y, `${label}: ${initialValue ? "ON" : "OFF"}`, {
                 fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "20px",
+                fontSize: "24px",
                 color: "#ffffff",
             })
             .setOrigin(0, 0.5)

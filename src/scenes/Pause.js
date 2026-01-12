@@ -18,6 +18,19 @@ export class Pause extends Phaser.Scene {
         // Gameシーンの参照を取得
         this.gameScene = this.scene.get("Game");
 
+        // Gameシーンの各種変化を停止（保険的に明示）
+        if (this.gameScene) {
+            this.gameScene.isPaused = true;
+            this.gameScene.physics.pause();
+            this.gameScene.tweens.pauseAll();
+            if (this.gameScene.player && this.gameScene.player.anims) {
+                this.gameScene.player.anims.pause();
+            }
+            if (this.gameScene.slimeAnimationTimer) {
+                this.gameScene.slimeAnimationTimer.paused = true;
+            }
+        }
+
         // 背景全体にオーバーレイをかける
         const overlay = this.add
             .rectangle(
@@ -99,78 +112,6 @@ export class Pause extends Phaser.Scene {
         let currentY = -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 100;
         const lineHeight = 50;
 
-        // BGM音量スライダー（簡易版：クリックで切り替え）
-        const bgmText = this.add
-            .text(
-                -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-                currentY,
-                `${getLocalizedText(
-                    UI_TEXT.PAUSE_MODAL.BGM_VOLUME
-                )}: ${Math.round(
-                    this.gameScene.settingsManager.getBgmVolume() * 100
-                )}%`,
-                {
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "20px",
-                    color: "#ffffff",
-                    stroke: "#000000",
-                    strokeThickness: 1,
-                }
-            )
-            .setOrigin(0, 0.5);
-        pauseContainer.add(bgmText);
-        currentY += lineHeight;
-
-        // SE音量スライダー（簡易版）
-        const seText = this.add
-            .text(
-                -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-                currentY,
-                `${getLocalizedText(
-                    UI_TEXT.PAUSE_MODAL.SE_VOLUME
-                )}: ${Math.round(
-                    this.gameScene.settingsManager.getSeVolume() * 100
-                )}%`,
-                {
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "20px",
-                    color: "#ffffff",
-                    stroke: "#000000",
-                    strokeThickness: 1,
-                }
-            )
-            .setOrigin(0, 0.5);
-        pauseContainer.add(seText);
-        currentY += lineHeight;
-
-        // 背景色変化トグル
-        this.createToggle(
-            pauseContainer,
-            -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-            currentY,
-            getLocalizedText(UI_TEXT.PAUSE_MODAL.BACKGROUND_COLOR),
-            this.gameScene.settingsManager.isBackgroundColorChangeEnabled(),
-            (enabled) => {
-                this.gameScene.settingsManager.setBackgroundColorChange(
-                    enabled
-                );
-            }
-        );
-        currentY += lineHeight;
-
-        // プレイヤーアニメーショントグル
-        this.createToggle(
-            pauseContainer,
-            -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-            currentY,
-            getLocalizedText(UI_TEXT.PAUSE_MODAL.PLAYER_ANIMATION),
-            this.gameScene.settingsManager.isPlayerAnimationEnabled(),
-            (enabled) => {
-                this.gameScene.settingsManager.setPlayerAnimation(enabled);
-            }
-        );
-        currentY += lineHeight;
-
         // ステータス変化トグル
         this.createToggle(
             pauseContainer,
@@ -243,7 +184,7 @@ export class Pause extends Phaser.Scene {
         const text = this.add
             .text(x, y, `${label}: ${initialValue ? "ON" : "OFF"}`, {
                 fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "20px",
+                fontSize: "24px",
                 color: "#ffffff",
                 stroke: "#000000",
                 strokeThickness: 1,
@@ -278,5 +219,15 @@ export class Pause extends Phaser.Scene {
         this.scene.resume("Game");
         // ゲーム時間を再開
         this.gameScene.gameTimeManager.resume();
+        // Gameシーンの停止を解除
+        this.gameScene.isPaused = false;
+        this.gameScene.physics.resume();
+        this.gameScene.tweens.resumeAll();
+        if (this.gameScene.player && this.gameScene.player.anims) {
+            this.gameScene.player.anims.resume();
+        }
+        if (this.gameScene.slimeAnimationTimer) {
+            this.gameScene.slimeAnimationTimer.paused = false;
+        }
     }
 }
