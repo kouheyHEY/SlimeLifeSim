@@ -36,6 +36,8 @@ export const FONT_NAME = {
     MELONANO: "Melonano",
     /** チェックポイントフォント */
     CHECKPOINT: "checkPoint",
+    /** CP期間フォント */
+    CP_PERIOD: "cpPeriod",
 };
 
 /** 言語設定 */

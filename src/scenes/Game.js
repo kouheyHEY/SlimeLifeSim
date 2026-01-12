@@ -525,7 +525,7 @@ export class Game extends Phaser.Scene {
         // アイコンの右に「Hit!!」テキストを表示（一旦仮配置）
         this.fishHitText = this.add
             .text(0, 0, getLocalizedText(UI_CONST.FISH_HIT_TEXT), {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${UI_CONST.FISH_HIT_TEXT_FONT_SIZE}px`,
                 color: UI_CONST.FISH_HIT_TEXT_COLOR,
                 stroke: UI_CONST.FISH_HIT_TEXT_STROKE_COLOR,
@@ -903,7 +903,7 @@ export class Game extends Phaser.Scene {
                 -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 40,
                 getLocalizedText(UI_TEXT.PAUSE_MODAL.TITLE),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "32px",
                     color: "#ffff00",
                 }
@@ -923,7 +923,7 @@ export class Game extends Phaser.Scene {
                     UI_TEXT.PAUSE_MODAL.BGM_VOLUME
                 )}: ${Math.round(this.settingsManager.getBgmVolume() * 100)}%`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#ffffff",
                 }
@@ -941,7 +941,7 @@ export class Game extends Phaser.Scene {
                     UI_TEXT.PAUSE_MODAL.SE_VOLUME
                 )}: ${Math.round(this.settingsManager.getSeVolume() * 100)}%`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#ffffff",
                 }
@@ -1023,7 +1023,7 @@ export class Game extends Phaser.Scene {
                 UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60,
                 getLocalizedText(UI_TEXT.PAUSE_MODAL.RESUME),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#ffffff",
                 }
@@ -1055,7 +1055,7 @@ export class Game extends Phaser.Scene {
     createToggle(container, x, y, label, initialValue, callback) {
         const text = this.add
             .text(x, y, `${label}: ${initialValue ? "ON" : "OFF"}`, {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: "20px",
                 color: "#ffffff",
             })
@@ -1122,7 +1122,7 @@ export class Game extends Phaser.Scene {
                 -UI_CONST.UPGRADE_MODAL_HEIGHT / 2 + 40,
                 getLocalizedText(UI_TEXT.UPGRADE_MODAL.TITLE),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "32px",
                     color: "#ffff00",
                     stroke: "#000000",
@@ -1141,7 +1141,7 @@ export class Game extends Phaser.Scene {
                     this.sidebarUI.gameInfoUI.coins
                 }`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#ffffff",
                     stroke: "#000000",
@@ -1207,7 +1207,7 @@ export class Game extends Phaser.Scene {
                 UI_CONST.UPGRADE_MODAL_HEIGHT / 2 - 60,
                 getLocalizedText(UI_TEXT.UPGRADE_MODAL.CLOSE),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#ffffff",
                     stroke: "#000000",
@@ -1246,7 +1246,7 @@ export class Game extends Phaser.Scene {
                 0,
                 `${getLocalizedText(nameText)}`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "18px",
                     color: "#ffffff",
                     stroke: "#000000",
@@ -1266,7 +1266,7 @@ export class Game extends Phaser.Scene {
                       )} ${level}/${maxLevel}`
                     : getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX_LEVEL),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "16px",
                     color: "#aaaaaa",
                     stroke: "#000000",
@@ -1292,7 +1292,7 @@ export class Game extends Phaser.Scene {
 
             const buttonText = this.add
                 .text(UI_CONST.UPGRADE_MODAL_WIDTH / 2 - 120, 0, `${cost}`, {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "18px",
                     color: "#ffffff",
                     stroke: "#000000",
@@ -1362,7 +1362,7 @@ export class Game extends Phaser.Scene {
                             0,
                             `${newCost}`,
                             {
-                                fontFamily: FONT_NAME.MELONANO,
+                                fontFamily: FONT_NAME.CP_PERIOD,
                                 fontSize: "18px",
                                 color: "#ffffff",
                                 stroke: "#000000",

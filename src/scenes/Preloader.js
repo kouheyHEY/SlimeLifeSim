@@ -71,10 +71,7 @@ export class Preloader extends Phaser.Scene {
         }
 
         // load fonts
-        this.load.font(
-            FONT_NAME.MELONANO,
-            "assets/fonts/Melonano_Ver.1.31.ttf"
-        );
+        this.load.font(FONT_NAME.CP_PERIOD, "assets/fonts/cp_period.ttf");
     }
 
     create() {

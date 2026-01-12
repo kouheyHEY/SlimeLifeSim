@@ -16,6 +16,14 @@ export class LanguageSelect extends Phaser.Scene {
     }
 
     /**
+     * シーンのプリロード
+     * フォント読み込み
+     */
+    preload() {
+        this.load.font(FONT_NAME.CP_PERIOD, "assets/fonts/cp_period.ttf");
+    }
+
+    /**
      * シーンの初期化
      * 言語選択ボタンを表示
      */
@@ -39,7 +47,7 @@ export class LanguageSelect extends Phaser.Scene {
                 COMMON_CONST.SCREEN_HEIGHT * 0.3,
                 "Select Language\n言語を選択してください",
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "48px",
                     color: "#FFFFFF",
                     align: "center",
@@ -74,7 +82,7 @@ export class LanguageSelect extends Phaser.Scene {
                 centerY - buttonHeight / 2 - buttonSpacing / 2,
                 "日本語",
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "36px",
                     color: "#FFFFFF",
                     align: "center",
@@ -102,7 +110,7 @@ export class LanguageSelect extends Phaser.Scene {
                 centerY + buttonHeight / 2 + buttonSpacing / 2,
                 "English",
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "36px",
                     color: "#FFFFFF",
                     align: "center",

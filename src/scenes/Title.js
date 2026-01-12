@@ -34,7 +34,7 @@ export class Title extends Phaser.Scene {
                 COMMON_CONST.SCREEN_HEIGHT * UI_CONST.TITLE_TEXT_Y_RATIO,
                 "Slime Life\nSimulator",
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: UI_CONST.TITLE_TEXT_FONT_SIZE,
                     color: UI_CONST.TITLE_TEXT_COLOR,
                     align: "center",
@@ -65,7 +65,7 @@ export class Title extends Phaser.Scene {
 
         const newGameText = this.add
             .text(COMMON_CONST.SCREEN_WIDTH / 2, buttonY, "New Game", {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: UI_CONST.TITLE_BUTTON_TEXT_FONT_SIZE,
                 color: UI_CONST.TITLE_BUTTON_TEXT_COLOR,
                 align: "center",
@@ -95,7 +95,7 @@ export class Title extends Phaser.Scene {
                 buttonY + UI_CONST.TITLE_BUTTON_SPACING,
                 "Continue",
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: UI_CONST.TITLE_BUTTON_TEXT_FONT_SIZE,
                     color: UI_CONST.TITLE_BUTTON_TEXT_COLOR,
                     align: "center",

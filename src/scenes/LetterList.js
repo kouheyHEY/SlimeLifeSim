@@ -69,7 +69,7 @@ export class LetterList extends Phaser.Scene {
                 this.letterManager.getCategoryDisplayName(categoryKey);
             const categoryTitle = this.add
                 .text(0, currentY, `【${categoryName}】`, {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "22px",
                     color: "#FFDD00",
                     align: "center",
@@ -107,7 +107,7 @@ export class LetterList extends Phaser.Scene {
                             letterIndex + 1
                         }: ${previewText}`,
                         {
-                            fontFamily: FONT_NAME.MELONANO,
+                            fontFamily: FONT_NAME.CP_PERIOD,
                             fontSize: "18px",
                             color: UI_CONST.LETTER_TEXT_COLOR,
                             align: "center",
@@ -148,7 +148,7 @@ export class LetterList extends Phaser.Scene {
 
         const closeButtonText = this.add
             .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "×", {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: "32px",
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",
@@ -210,7 +210,7 @@ export class LetterList extends Phaser.Scene {
                 ? UI_CONST.LETTER_TEXT_FONT_SIZE_EN
                 : UI_CONST.LETTER_TEXT_FONT_SIZE;
         const tempText = this.add.text(0, 0, "", {
-            fontFamily: FONT_NAME.MELONANO,
+            fontFamily: FONT_NAME.CP_PERIOD,
             fontSize: `${fontSize}px`,
         });
 
@@ -224,7 +224,7 @@ export class LetterList extends Phaser.Scene {
 
         const letterText = this.add
             .text(0, UI_CONST.LETTER_TEXT_Y, wrappedText, {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${fontSize}px`,
                 color: UI_CONST.LETTER_TEXT_COLOR,
                 align: "left",
@@ -243,7 +243,7 @@ export class LetterList extends Phaser.Scene {
                 UI_CONST.LETTER_WINDOW_HEIGHT / 2 - 40,
                 `${letterIndex + 1}/${totalLetters}`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: UI_CONST.LETTER_TEXT_COLOR,
                     align: "center",
@@ -278,7 +278,7 @@ export class LetterList extends Phaser.Scene {
 
             const prevButtonText = this.add
                 .text(-200, UI_CONST.LETTER_CLOSE_BUTTON_Y, "＜", {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "32px",
                     color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                     align: "center",
@@ -316,7 +316,7 @@ export class LetterList extends Phaser.Scene {
 
             const nextButtonText = this.add
                 .text(200, UI_CONST.LETTER_CLOSE_BUTTON_Y, "＞", {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "32px",
                     color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                     align: "center",
@@ -353,7 +353,7 @@ export class LetterList extends Phaser.Scene {
 
         const backButtonText = this.add
             .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "×", {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: "32px",
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",

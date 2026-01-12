@@ -180,7 +180,7 @@ export class TopBarUI {
                             ? UI_CONST.TOP_BAR_TIME_PERIOD_FONT_SIZE_EN
                             : UI_CONST.TOP_BAR_TIME_PERIOD_FONT_SIZE_JP,
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                 }
             )
             .setOrigin(0.5, 0.5);
@@ -231,7 +231,7 @@ export class TopBarUI {
                 {
                     fontSize: UI_CONST.TOP_BAR_STATUS_TEXT_FONT_SIZE,
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                 }
             )
             .setOrigin(0, 0.5);
@@ -261,7 +261,7 @@ export class TopBarUI {
                 {
                     fontSize: UI_CONST.TOP_BAR_STATUS_TEXT_FONT_SIZE,
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                 }
             )
             .setOrigin(0, 0.5);
@@ -284,7 +284,7 @@ export class TopBarUI {
                 {
                     fontSize: UI_CONST.TOP_BAR_DAY_TIME_FONT_SIZE,
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                 }
             )
             .setOrigin(0.5, 0.5);
@@ -301,7 +301,7 @@ export class TopBarUI {
                 {
                     fontSize: UI_CONST.TOP_BAR_DAY_TIME_FONT_SIZE,
                     color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                 }
             )
             .setOrigin(0.5, 0.5);

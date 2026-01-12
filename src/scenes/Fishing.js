@@ -376,7 +376,7 @@ export class Fishing extends Phaser.Scene {
             this.fishName;
         const resultText = this.add
             .text(0, UI_CONST.FISHING_RESULT_TEXT_Y, fishDisplayName, {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${UI_CONST.FISHING_RESULT_TEXT_FONT_SIZE}px`,
                 color: UI_CONST.FISHING_RESULT_TEXT_COLOR,
                 align: "center",
@@ -411,7 +411,7 @@ export class Fishing extends Phaser.Scene {
                 UI_CONST.FISHING_RESULT_BUTTON_Y,
                 UI_CONST.FISHING_RESULT_BUTTON_TEXT,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: `${UI_CONST.FISHING_RESULT_BUTTON_FONT_SIZE}px`,
                     color: UI_CONST.FISHING_RESULT_BUTTON_TEXT_COLOR,
                     align: "center",
@@ -492,7 +492,7 @@ export class Fishing extends Phaser.Scene {
                     ? UI_CONST.LETTER_TEXT_FONT_SIZE_EN
                     : UI_CONST.LETTER_TEXT_FONT_SIZE;
             const tempText = this.add.text(0, 0, "", {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${fontSize}px`,
             });
 
@@ -506,7 +506,7 @@ export class Fishing extends Phaser.Scene {
 
             const letterText = this.add
                 .text(0, UI_CONST.LETTER_TEXT_Y, wrappedText, {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: `${fontSize}px`,
                     color: UI_CONST.LETTER_TEXT_COLOR,
                     align: "left",
@@ -522,7 +522,7 @@ export class Fishing extends Phaser.Scene {
                     UI_CONST.LETTER_WINDOW_HEIGHT / 2 - 40,
                     `${this.currentLetterIndex + 1}/${this.totalLetters}`,
                     {
-                        fontFamily: FONT_NAME.MELONANO,
+                        fontFamily: FONT_NAME.CP_PERIOD,
                         fontSize: "20px",
                         color: UI_CONST.LETTER_TEXT_COLOR,
                         align: "center",
@@ -554,7 +554,7 @@ export class Fishing extends Phaser.Scene {
                     UI_CONST.LETTER_CLOSE_BUTTON_Y,
                     UI_CONST.LETTER_CLOSE_BUTTON_TEXT,
                     {
-                        fontFamily: FONT_NAME.MELONANO,
+                        fontFamily: FONT_NAME.CP_PERIOD,
                         fontSize: `${UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE}px`,
                         color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                         align: "center",

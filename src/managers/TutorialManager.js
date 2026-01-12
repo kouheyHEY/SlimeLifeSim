@@ -280,7 +280,7 @@ export class TutorialManager {
                 {
                     text: TUTORIAL_TEXT.OK_BUTTON,
                     style: {
-                        fontFamily: FONT_NAME.MELONANO,
+                        fontFamily: FONT_NAME.CP_PERIOD,
                         fontSize: MODAL_STYLE.OK_BUTTON.FONT_SIZE,
                         backgroundColor: MODAL_STYLE.OK_BUTTON.BG_COLOR,
                         width: MODAL_STYLE.OK_BUTTON.WIDTH,
@@ -304,7 +304,7 @@ export class TutorialManager {
 
     _getStyle(size) {
         return {
-            messageFontFamily: FONT_NAME.MELONANO,
+            messageFontFamily: FONT_NAME.CP_PERIOD,
             messageFontSize: size.msgSize,
             messageColor: MODAL_STYLE.MESSAGE_COLOR,
             messageStroke: MODAL_STYLE.MESSAGE_STROKE,

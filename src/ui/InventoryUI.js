@@ -129,7 +129,7 @@ export class InventoryUI {
                         {
                             fontSize: `${UI_CONST.INVENTORY_QUANTITY_FONT_SIZE}px`,
                             color: UI_CONST.INVENTORY_FONT_COLOR,
-                            fontFamily: FONT_NAME.MELONANO,
+                            fontFamily: FONT_NAME.CP_PERIOD,
                         }
                     )
                     .setOrigin(1, 1);
@@ -208,7 +208,7 @@ export class InventoryUI {
         const displayName = getLocalizedText(itemName);
         const nameText = this.scene.add
             .text(0, -100, displayName, {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                 color: "#FFFFFF",
                 align: "center",
@@ -225,7 +225,7 @@ export class InventoryUI {
                     item.stock
                 }`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                     color: "#FFFF00",
                     align: "center",
@@ -241,7 +241,7 @@ export class InventoryUI {
         const displayDesc = getLocalizedText(description);
         const descText = this.scene.add
             .text(0, 20, displayDesc, {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${UI_CONST.ITEM_DETAIL_DESC_FONT_SIZE}px`,
                 color: "#CCCCCC",
                 align: "center",
@@ -260,7 +260,7 @@ export class InventoryUI {
                     UI_TEXT.ITEM_DETAIL.VALUE
                 )}${value}${getLocalizedText(UI_TEXT.ITEM_DETAIL.COIN)}`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                     color: "#FFD700",
                     align: "center",
@@ -291,7 +291,7 @@ export class InventoryUI {
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.EAT_BUTTON),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#FFFFFF",
                     align: "center",
@@ -361,7 +361,7 @@ export class InventoryUI {
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_BUTTON),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#FFFFFF",
                     align: "center",
@@ -405,7 +405,7 @@ export class InventoryUI {
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.CLOSE_BUTTON),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "32px",
                     color: "#FFFFFF",
                     align: "center",
@@ -481,7 +481,7 @@ export class InventoryUI {
         // タイトル
         const titleText = this.scene.add
             .text(0, -220, "体力が低下しています\n魚を食べて回復してください", {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `20px`,
                 color: "#FF6666",
                 align: "center",
@@ -519,7 +519,7 @@ export class InventoryUI {
                 GAME_CONST.FISH_DISPLAY_NAME[item.itemKey] || item.itemKey;
             const nameText = this.scene.add
                 .text(-50, y, itemName.split("\n")[0], {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "18px",
                     color: "#FFFFFF",
                 })
@@ -529,7 +529,7 @@ export class InventoryUI {
             // 数量
             const quantityText = this.scene.add
                 .text(150, y, `x${item.stock}`, {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "18px",
                     color: "#FFFF00",
                 })

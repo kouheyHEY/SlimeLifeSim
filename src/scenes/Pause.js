@@ -56,7 +56,7 @@ export class Pause extends Phaser.Scene {
                 -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 40,
                 getLocalizedText(UI_TEXT.PAUSE_MODAL.TITLE),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "32px",
                     color: "#ffff00",
                     stroke: "#000000",
@@ -73,7 +73,7 @@ export class Pause extends Phaser.Scene {
                 -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 40,
                 "×",
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "48px",
                     color: "#ffffff",
                     stroke: "#000000",
@@ -110,7 +110,7 @@ export class Pause extends Phaser.Scene {
                     this.gameScene.settingsManager.getBgmVolume() * 100
                 )}%`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#ffffff",
                     stroke: "#000000",
@@ -132,7 +132,7 @@ export class Pause extends Phaser.Scene {
                     this.gameScene.settingsManager.getSeVolume() * 100
                 )}%`,
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#ffffff",
                     stroke: "#000000",
@@ -214,7 +214,7 @@ export class Pause extends Phaser.Scene {
 
         const resumeText = this.add
             .text(0, UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60, "OK", {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: "24px",
                 color: "#ffffff",
                 stroke: "#000000",
@@ -242,7 +242,7 @@ export class Pause extends Phaser.Scene {
     createToggle(container, x, y, label, initialValue, callback) {
         const text = this.add
             .text(x, y, `${label}: ${initialValue ? "ON" : "OFF"}`, {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: "20px",
                 color: "#ffffff",
                 stroke: "#000000",

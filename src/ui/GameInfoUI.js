@@ -82,7 +82,7 @@ export class GameInfoUI {
             .text(centerX, currentY, "Lv 0", {
                 fontSize: "20px",
                 color: UI_CONST.GAME_INFO_FONT_COLOR,
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
             })
             .setOrigin(0.5, 0);
         this.infoContainer.add(this.rodLevelText);
@@ -132,7 +132,7 @@ export class GameInfoUI {
         // アップグレードテキスト（コンテナ内の座標）
         this.upgradeButtonText = this.scene.add
             .text(0, -12, getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE), {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: "16px",
                 color: "#FFFFFF",
                 align: "center",
@@ -159,7 +159,7 @@ export class GameInfoUI {
         // コストテキスト（コストコンテナ内）
         this.upgradeCostText = this.scene.add
             .text(-12, 0, "0", {
-                fontFamily: FONT_NAME.MELONANO,
+                fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: "16px",
                 color: "#FFFFFF",
                 align: "left",

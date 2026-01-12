@@ -119,7 +119,7 @@ export class SidebarUI {
                 y + 25,
                 getLocalizedText(UI_TEXT.LETTER.READ_BUTTON),
                 {
-                    fontFamily: FONT_NAME.MELONANO,
+                    fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#FFFFFF",
                     align: "left",
