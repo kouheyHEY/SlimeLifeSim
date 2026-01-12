@@ -247,6 +247,7 @@ export class TutorialManager {
 
         this.currentModal.show();
         this.currentModal.overlay?.disableInteractive();
+        this.currentModal.overlay?.setVisible(false);
     }
 
     _showLargeModal(message, callback, config = {}) {
@@ -349,16 +350,16 @@ export class TutorialManager {
             .graphics()
             .setDepth(1000)
             .setScrollFactor(0);
-        this.scene.uiCamera.ignore(this.overlayGraphics);
+        this.scene.cameras.main.ignore(this.overlayGraphics);
 
         this.highlightGraphics = this.scene.add
             .graphics()
             .setDepth(1001)
             .setScrollFactor(0);
-        this.scene.uiCamera.ignore(this.highlightGraphics);
+        this.scene.cameras.main.ignore(this.highlightGraphics);
 
         this._createBlockingArea(true);
-        this.scene.uiCamera.ignore(this.blockingArea);
+        this.scene.cameras.main.ignore(this.blockingArea);
 
         this.blockingArea.on("pointerdown", (pointer) => {
             const bounds = this._getFishHitBounds();
@@ -412,7 +413,7 @@ export class TutorialManager {
         const clickArea = this.scene.add
             .rectangle(pos.x, pos.y, frame.width, frame.height, 0x000000, 0.01)
             .setOrigin(0, 0)
-            .setDepth(2500)
+            .setDepth(999)
             .setScrollFactor(0)
             .setInteractive({ useHandCursor: true });
 
@@ -505,13 +506,13 @@ export class TutorialManager {
 
         this.overlayGraphics = this.scene.add
             .graphics()
-            .setDepth(2100)
+            .setDepth(1000)
             .setScrollFactor(0);
         this.scene.cameras.main.ignore(this.overlayGraphics);
 
         this.highlightGraphics = this.scene.add
             .graphics()
-            .setDepth(2101)
+            .setDepth(1001)
             .setScrollFactor(0);
         this.scene.cameras.main.ignore(this.highlightGraphics);
 
@@ -564,8 +565,18 @@ export class TutorialManager {
     _draw4Region(hx, hy, hw, hh) {
         const w = this.scene.sys.game.config.width;
         const h = this.scene.sys.game.config.height;
-        // オーバーレイの透明度を0.5に下げて、ハイライト領域とのコントラストを強める
-        this.overlayGraphics.fillStyle(0x000000, 0.5);
+
+        // コンソール出力：どのステップのどのオーバーレイが描画されるか
+        const stepName =
+            {
+                1: "FISH_HIT",
+                2: "CLICK_FISH",
+                3: "EAT_FISH",
+                4: "STATUS_EXPLANATION",
+            }[this.tutorialStep] || "UNKNOWN";
+        const overlayAlpha = 0.3;
+
+        this.overlayGraphics.fillStyle(0x000000, overlayAlpha);
         this.overlayGraphics.fillRect(0, 0, w, hy);
         this.overlayGraphics.fillRect(0, hy + hh, w, h - (hy + hh));
         this.overlayGraphics.fillRect(0, hy, hx, hh);
@@ -575,7 +586,7 @@ export class TutorialManager {
     _drawBorder(x, y, w, h) {
         const alpha = 0.5 + Math.abs(Math.sin(this.highlightAlpha)) * 0.5;
         this.highlightGraphics.clear();
-        // ハイライト領域を白色で塗りつぶして、暗いオーバーレイとのコントラストを強める
+
         this.highlightGraphics.fillStyle(0xffffff, 0);
         this.highlightGraphics.fillRect(x, y, w, h);
         // 枠線
@@ -594,7 +605,7 @@ export class TutorialManager {
                 0.01
             )
             .setOrigin(0, 0)
-            .setDepth(1000)
+            .setDepth(999)
             .setInteractive({ useHandCursor: false });
         if (scroll) this.blockingArea.setScrollFactor(0);
         this.blockingArea.on("pointerdown", (p, lx, ly, e) =>
@@ -661,6 +672,7 @@ export class TutorialManager {
     _getFishHitBounds() {
         const { fishHitIndicator, fishHitText } = this.highlightTarget;
         const cam = this.scene.cameras.main;
+        // ワールド座標をスクリーン座標に変換（カメラのスクロール位置を考慮）
         const sx = fishHitIndicator.x - cam.scrollX;
         const sy = fishHitIndicator.y - cam.scrollY;
         const tw = fishHitText?.width || 0;
