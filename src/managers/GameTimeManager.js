@@ -150,6 +150,33 @@ export class GameTimeManager {
     checkFishHitLottery() {
         const currentTotalMinutes = this.getTotalMinutes();
 
+        // チュートリアルのトリガーチェック（ゲーム開始10分後）
+        if (
+            this.scene.tutorialManager &&
+            !this.scene.tutorialManager.isTutorialCompleted() &&
+            !this.scene.tutorialManager.tutorialTriggered &&
+            this.scene.tutorialManager.tutorialStartGameTime !== null
+        ) {
+            const elapsedMinutes =
+                currentTotalMinutes -
+                this.scene.tutorialManager.tutorialStartGameTime;
+            console.log("チュートリアル経過時間:", elapsedMinutes, "分");
+            if (elapsedMinutes >= 10) {
+                console.log("ゲーム開始から10分経過、チュートリアルを強制開始");
+                this.scene.tutorialManager.tutorialTriggered = true;
+                this.scene.tutorialManager.startTutorial();
+                return;
+            }
+        }
+
+        // チュートリアル中は通常の抽選を無効化
+        if (
+            this.scene.tutorialManager &&
+            !this.scene.tutorialManager.isTutorialCompleted()
+        ) {
+            return;
+        }
+
         // ヒットが有効な場合、終了時刻をチェック
         if (this.fishHitActive) {
             if (currentTotalMinutes >= this.fishHitEndTime) {
@@ -185,7 +212,8 @@ export class GameTimeManager {
             const adjustedProbability = Math.max(
                 1,
                 Math.floor(
-                    GAME_CONST.FISH_HIT_LOTTERY_PROBABILITY / catchRateMultiplier
+                    GAME_CONST.FISH_HIT_LOTTERY_PROBABILITY /
+                        catchRateMultiplier
                 )
             );
 

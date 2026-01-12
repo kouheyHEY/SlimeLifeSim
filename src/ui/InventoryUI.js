@@ -160,11 +160,18 @@ export class InventoryUI {
             this.itemDetailModal.destroy();
         }
 
-        // チュートリアルステップ3をトリガー
-        if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === TUTORIAL_STEP.CLICK_FISH) {
-            this.scene.time.delayedCall(300, () => {
+        // チュートリアルステップ3をトリガー（アイテム詳細モーダルは表示せず、チュートリアルモーダルのみ表示）
+        if (
+            this.scene.tutorialManager &&
+            this.scene.tutorialManager.getCurrentStep() ===
+                TUTORIAL_STEP.CLICK_FISH
+        ) {
+            // アイテム情報を保存して、チュートリアル後に使用
+            this.pendingItemDetail = item;
+            this.scene.time.delayedCall(100, () => {
                 this.scene.tutorialManager.showStep3EatFish();
             });
+            return; // アイテム詳細モーダルは表示しない
         }
 
         // モーダル用のコンテナを作成（画面中央）
@@ -296,6 +303,21 @@ export class InventoryUI {
         this.itemDetailModal.add(eatText);
 
         eatButton.on("pointerdown", () => {
+            // チュートリアル中の場合、モーダルとハイライトをクリア
+            if (
+                this.scene.tutorialManager &&
+                this.scene.tutorialManager.getCurrentStep() ===
+                    TUTORIAL_STEP.EAT_FISH
+            ) {
+                // チュートリアルのモーダルを閉じる
+                if (this.scene.tutorialManager.currentModal) {
+                    this.scene.tutorialManager.currentModal.close();
+                    this.scene.tutorialManager.currentModal = null;
+                }
+                // ハイライトをクリア
+                this.scene.tutorialManager.clearHighlight();
+            }
+
             // 魚を食べる処理
             if (this.inventoryManager.removeItem(item.itemKey, 1)) {
                 console.log("食べる:", item.itemKey);
@@ -305,9 +327,13 @@ export class InventoryUI {
                 }
                 // インベントリを更新
                 this.update();
-                
+
                 // チュートリアルステップ4をトリガー
-                if (this.scene.tutorialManager && this.scene.tutorialManager.getCurrentStep() === TUTORIAL_STEP.EAT_FISH) {
+                if (
+                    this.scene.tutorialManager &&
+                    this.scene.tutorialManager.getCurrentStep() ===
+                        TUTORIAL_STEP.EAT_FISH
+                ) {
                     this.scene.time.delayedCall(500, () => {
                         this.scene.tutorialManager.showStep4StatusExplanation();
                     });

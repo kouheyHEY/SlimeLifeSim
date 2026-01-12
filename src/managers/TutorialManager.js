@@ -1,5 +1,5 @@
 import { Modal } from "../../core/ui/Modal.js";
-import { getCurrentLanguage } from "../const/CommonConst.js";
+import { getCurrentLanguage, FONT_NAME } from "../const/CommonConst.js";
 
 /**
  * チュートリアルステップの定数
@@ -14,354 +14,505 @@ export const TUTORIAL_STEP = {
 };
 
 /**
+ * モーダルサイズ定数
+ */
+const MODAL_SIZE = {
+    SMALL: { width: 280, height: 90, titleSize: "20px", msgSize: "14px" },
+    LARGE: { width: 380, height: 320, titleSize: "22px", msgSize: "14px" },
+};
+
+/**
  * チュートリアルマネージャー
- * チュートリアルの進行状態を管理し、適切なタイミングでチュートリアルモーダルを表示する
  */
 export class TutorialManager {
-    /**
-     * コンストラクタ
-     * @param {Phaser.Scene} scene - 所属するシーン
-     */
     constructor(scene) {
         this.scene = scene;
-        // チュートリアルの進行状態
         this.tutorialStep = 0;
-        // チュートリアル完了フラグ
         this.tutorialCompleted = false;
-        // 現在のモーダル
         this.currentModal = null;
-        // ハイライト用のグラフィックス
         this.highlightGraphics = null;
-        // ハイライトターゲット
         this.highlightTarget = null;
-        // ハイライトアニメーションタイマー
         this.highlightTimer = null;
+        this.overlayGraphics = null;
+        this.blockingArea = null;
+        this.highlightAlpha = 1;
+        this.tutorialStartGameTime = null;
+        this.tutorialTriggered = false;
     }
 
-    /**
-     * チュートリアルを開始
-     */
-    startTutorial() {
-        // ローカルストレージから完了状態を確認
-        const tutorialCompleted = localStorage.getItem("tutorialCompleted");
-        if (tutorialCompleted === "true") {
+    // ==================== 公開API ====================
+
+    scheduleTutorialStart() {
+        if (localStorage.getItem("tutorialCompleted") === "true") {
             this.tutorialCompleted = true;
             this.tutorialStep = TUTORIAL_STEP.COMPLETED;
             return;
         }
+        this.tutorialStartGameTime =
+            this.scene.gameTimeManager.getTotalMinutes();
+    }
 
-        // ステップ1: ゲーム開始直後に魚をヒットさせる
+    startTutorial() {
         this.showStep1FishHit();
     }
 
-    /**
-     * ステップ1: 魚がヒットしました
-     */
-    showStep1FishHit() {
-        this.tutorialStep = TUTORIAL_STEP.FISH_HIT;
-        
-        // 魚ヒットを強制的にトリガー
-        if (this.scene.gameTimeManager) {
-            this.scene.gameTimeManager.forceFishHit();
-        }
-
-        // モーダルを表示
-        const message = getCurrentLanguage() === "JP"
-            ? "魚がヒットしました！\n早速釣り上げてみましょう！\n\n画面をタップして釣りを開始してください。"
-            : "A fish hit!\nLet's catch it!\n\nTap the screen to start fishing.";
-
-        this.currentModal = new Modal(this.scene, {
-            title: getCurrentLanguage() === "JP" ? "チュートリアル" : "Tutorial",
-            message: message,
-            image: {
-                key: "rod",
-                scale: 0.5,
-                y: -50,
-            },
-            buttons: [
-                {
-                    text: "OK",
-                    callback: () => {
-                        this.currentModal = null;
-                    },
-                },
-            ],
-            width: 700,
-            height: 500,
-        });
-        this.currentModal.show();
+    isTutorialCompleted() {
+        return this.tutorialCompleted;
     }
 
-    /**
-     * ステップ2: 釣り上げた魚をクリックさせる
-     */
+    getCurrentStep() {
+        return this.tutorialStep;
+    }
+
+    // ==================== 各ステップ ====================
+
+    showStep1FishHit() {
+        this.tutorialStep = TUTORIAL_STEP.FISH_HIT;
+        this.scene.gameTimeManager?.forceFishHit();
+
+        this.scene.time.delayedCall(100, () =>
+            this.highlightFishHitIndicator()
+        );
+
+        const msg =
+            getCurrentLanguage() === "JP"
+                ? "魚がヒット！\nアイコンをタップ！"
+                : "Fish hit!\nTap the icon!";
+
+        this._showSmallModal(msg);
+        this.scene.gameTimeManager?.pause();
+    }
+
     showStep2ClickFish() {
         if (this.tutorialStep !== TUTORIAL_STEP.FISH_HIT) return;
         this.tutorialStep = TUTORIAL_STEP.CLICK_FISH;
 
-        // インベントリの最初のアイテムをハイライト
         this.highlightInventoryItem(0);
 
-        const message = getCurrentLanguage() === "JP"
-            ? "釣りに成功しました！\n\nインベントリに魚が追加されました。\n魚をクリックして詳細を見てみましょう。"
-            : "Fishing successful!\n\nThe fish was added to your inventory.\nClick on the fish to see details.";
+        const msg =
+            getCurrentLanguage() === "JP"
+                ? "釣り成功！\n魚をタップ！"
+                : "Caught it!\nTap the fish!";
 
-        this.currentModal = new Modal(this.scene, {
-            title: getCurrentLanguage() === "JP" ? "チュートリアル" : "Tutorial",
-            message: message,
-            buttons: [
-                {
-                    text: "OK",
-                    callback: () => {
-                        this.currentModal = null;
-                    },
-                },
-            ],
-            width: 700,
-            height: 400,
-        });
-        this.currentModal.show();
+        this._showSmallModal(msg, { x: 180 });
+        this.scene.gameTimeManager?.pause();
     }
 
-    /**
-     * ステップ3: 魚を食べる
-     */
     showStep3EatFish() {
         if (this.tutorialStep !== TUTORIAL_STEP.CLICK_FISH) return;
         this.tutorialStep = TUTORIAL_STEP.EAT_FISH;
 
-        // ハイライトをクリア
         this.clearHighlight();
 
-        const message = getCurrentLanguage() === "JP"
-            ? "魚は食べることも、売ることもできます。\n\nまずは「食べる」を選んで、\n魚を食べてみましょう！"
-            : "You can eat or sell the fish.\n\nFirst, select 'Eat' to\ntry eating the fish!";
+        const inventoryUI = this.scene.sidebarUI?.inventoryUI;
+        if (inventoryUI?.pendingItemDetail) {
+            const item = inventoryUI.pendingItemDetail;
+            inventoryUI.pendingItemDetail = null;
+            inventoryUI.showItemDetail(item);
+            this.scene.time.delayedCall(200, () => this.highlightEatButton());
+        }
 
-        this.currentModal = new Modal(this.scene, {
-            title: getCurrentLanguage() === "JP" ? "チュートリアル" : "Tutorial",
-            message: message,
-            buttons: [
-                {
-                    text: "OK",
-                    callback: () => {
-                        this.currentModal = null;
-                    },
-                },
-            ],
-            width: 700,
-            height: 400,
-        });
-        this.currentModal.show();
+        const msg =
+            getCurrentLanguage() === "JP"
+                ? "「食べる」をタップ！"
+                : "Tap 'Eat'!";
+
+        this._showSmallModal(msg);
     }
 
-    /**
-     * ステップ4: ステータスの説明
-     */
     showStep4StatusExplanation() {
         if (this.tutorialStep !== TUTORIAL_STEP.EAT_FISH) return;
         this.tutorialStep = TUTORIAL_STEP.STATUS_EXPLANATION;
 
-        // ステータス表示をハイライト
         this.highlightStatus();
 
-        const message = getCurrentLanguage() === "JP"
-            ? "魚を食べるとステータスが良くなります！\n\nステータスは朝の終了時と夕方の終了時に\n下がります。\n\nステータスが最低まで下がると\nゲームオーバーになるので、\n定期的に魚を食べましょう！"
-            : "Eating fish improves your status!\n\nYour status decreases at the end of\nmorning and evening.\n\nIf your status drops to the lowest level,\nit's game over, so eat fish regularly!";
+        const msg =
+            getCurrentLanguage() === "JP"
+                ? "魚を食べるとステータスUP！\n\n朝と夕方の終わりに\nステータスが下がります。\n\n最低になると\nゲームオーバー！\n\n定期的に魚を食べよう！"
+                : "Eating fish boosts status!\n\nStatus drops at the end\nof morning & evening.\n\nGame over if it hits zero!\n\nEat fish regularly!";
 
-        this.currentModal = new Modal(this.scene, {
-            title: getCurrentLanguage() === "JP" ? "チュートリアル" : "Tutorial",
-            message: message,
-            buttons: [
-                {
-                    text: "OK",
-                    callback: () => {
-                        this.completeTutorial();
-                    },
-                },
-            ],
-            width: 700,
-            height: 500,
-        });
-        this.currentModal.show();
+        this._showLargeModal(msg, () => this.completeTutorial());
+        this.scene.gameTimeManager?.pause();
     }
 
-    /**
-     * チュートリアル完了
-     */
     completeTutorial() {
         this.tutorialStep = TUTORIAL_STEP.COMPLETED;
         this.tutorialCompleted = true;
         this.currentModal = null;
-        
-        // ハイライトをクリア
         this.clearHighlight();
-
-        // ローカルストレージに保存
+        this.scene.gameTimeManager?.resume();
         localStorage.setItem("tutorialCompleted", "true");
     }
 
-    /**
-     * インベントリアイテムをハイライト
-     * @param {number} index - ハイライトするアイテムのインデックス
-     */
-    highlightInventoryItem(index) {
-        // 既存のハイライトをクリア
+    // ==================== モーダル表示 ====================
+
+    _showSmallModal(message, options = {}) {
+        const gameWidth = this.scene.sys.game.config.width;
+        const gameHeight = this.scene.sys.game.config.height;
+        const size = MODAL_SIZE.SMALL;
+
+        this.currentModal = new Modal(this.scene, {
+            title:
+                getCurrentLanguage() === "JP" ? "チュートリアル" : "Tutorial",
+            message: message,
+            modalStyle: this._getStyle(size),
+            buttons: [],
+            width: size.width,
+            height: size.height,
+            x: options.x || gameWidth / 2,
+            y: gameHeight - 70,
+            closeOnClickOutside: false,
+        });
+
+        this.currentModal.show();
+        this.currentModal.overlay?.disableInteractive();
+    }
+
+    _showLargeModal(message, callback) {
+        const size = MODAL_SIZE.LARGE;
+
+        this.currentModal = new Modal(this.scene, {
+            title:
+                getCurrentLanguage() === "JP" ? "チュートリアル" : "Tutorial",
+            message: message,
+            modalStyle: this._getStyle(size),
+            buttons: [
+                {
+                    text: "OK",
+                    style: {
+                        fontFamily: FONT_NAME.MELONANO,
+                        fontSize: "18px",
+                        backgroundColor: 0x00cc00,
+                        width: 100,
+                        height: 36,
+                    },
+                    callback: callback,
+                },
+            ],
+            width: size.width,
+            height: size.height,
+        });
+
+        this.currentModal.show();
+    }
+
+    _getStyle(size) {
+        return {
+            titleFontFamily: FONT_NAME.MELONANO,
+            titleFontSize: size.titleSize,
+            titleColor: "#ffff00",
+            titleStroke: "#000000",
+            titleStrokeThickness: 3,
+            messageFontFamily: FONT_NAME.MELONANO,
+            messageFontSize: size.msgSize,
+            messageColor: "#ffffff",
+            messageStroke: "#000000",
+            messageStrokeThickness: 2,
+            lineSpacing: 4,
+        };
+    }
+
+    // ==================== ハイライト ====================
+
+    clearHighlight() {
+        this.highlightGraphics?.destroy();
+        this.highlightGraphics = null;
+        this.highlightTimer?.remove();
+        this.highlightTimer = null;
+        this.overlayGraphics?.destroy();
+        this.overlayGraphics = null;
+        this.blockingArea?.destroy();
+        this.blockingArea = null;
+        this.highlightTarget?.clickableArea?.destroy();
+        this.highlightTarget = null;
+        this.highlightAlpha = 1;
+    }
+
+    highlightFishHitIndicator() {
         this.clearHighlight();
 
-        // インベントリUIの位置を取得
+        const indicator = this.scene.fishHitIndicator;
+        const text = this.scene.fishHitText;
+        if (!indicator) return;
+
+        this.highlightTarget = {
+            fishHitIndicator: indicator,
+            fishHitText: text,
+            type: "fishHit",
+        };
+
+        this.overlayGraphics = this.scene.add
+            .graphics()
+            .setDepth(1000)
+            .setScrollFactor(0);
+        this.scene.uiCamera.ignore(this.overlayGraphics);
+
+        this._createBlockingArea(true);
+        this.scene.uiCamera.ignore(this.blockingArea);
+
+        this.blockingArea.on("pointerdown", (pointer) => {
+            const bounds = this._getFishHitBounds();
+            if (this._inBounds(pointer, bounds)) {
+                this._closeModal();
+                this.scene.gameTimeManager?.resume();
+                if (this.scene.gameTimeManager.isFishHitActive()) {
+                    this.clearHighlight();
+                    this.scene.startFishing();
+                }
+            }
+        });
+
+        this._startAnimation(TUTORIAL_STEP.FISH_HIT, () =>
+            this._updateFishHit()
+        );
+        this._updateFishHit();
+    }
+
+    highlightInventoryItem(index) {
+        this.clearHighlight();
+
         const inventoryUI = this.scene.sidebarUI?.inventoryUI;
         if (!inventoryUI) return;
 
         const frame = inventoryUI.inventoryFrameGroup.getChildren()[index];
         if (!frame) return;
 
-        // ハイライト用のグラフィックスを作成
-        this.highlightGraphics = this.scene.add.graphics();
-        this.highlightGraphics.setDepth(999);
-        
-        // メインカメラから除外（UIカメラで表示）
-        this.scene.cameras.main.ignore(this.highlightGraphics);
+        this.highlightTarget = { frame, index, type: "inventory" };
 
-        // ハイライト対象を保存
-        this.highlightTarget = { frame, index };
+        this._createUIOverlay();
+        this._createHighlightGfx();
+        this._createBlockingArea(false);
+        this.scene.cameras.main.ignore(this.blockingArea);
 
-        // 点滅アニメーション
-        this.highlightTimer = this.scene.time.addEvent({
-            delay: 500,
-            callback: () => {
-                if (this.highlightGraphics && this.tutorialStep === TUTORIAL_STEP.CLICK_FISH) {
-                    this.updateHighlight();
-                }
-            },
-            loop: true,
+        const pos = this._getInvPos(frame);
+        const clickArea = this.scene.add
+            .rectangle(pos.x, pos.y, frame.width, frame.height, 0x000000, 0.01)
+            .setOrigin(0, 0)
+            .setDepth(2500)
+            .setScrollFactor(0)
+            .setInteractive({ useHandCursor: true });
+
+        clickArea.on("pointerdown", () => {
+            this._closeModal();
+            this.clearHighlight();
+            const item = this.scene.inventoryManager.items[index];
+            if (item?.itemKey) inventoryUI.showItemDetail(item);
         });
 
-        this.updateHighlight();
+        this.highlightTarget.clickableArea = clickArea;
+
+        this._startAnimation(TUTORIAL_STEP.CLICK_FISH, () => this._updateInv());
+        this._updateInv();
     }
 
-    /**
-     * ハイライトを更新
-     */
-    updateHighlight() {
-        if (!this.highlightGraphics || !this.highlightTarget) return;
-
-        const { frame } = this.highlightTarget;
-        const inventoryUI = this.scene.sidebarUI?.inventoryUI;
-        if (!inventoryUI) return;
-
-        // UIカメラの座標系でハイライトを描画
-        const sidebarX = this.scene.sidebarUI.x;
-        const sidebarY = this.scene.sidebarUI.y;
-        const inventoryX = inventoryUI.x;
-        const inventoryY = inventoryUI.y;
-
-        const x = sidebarX + inventoryX + frame.x;
-        const y = sidebarY + inventoryY + frame.y;
-
-        this.highlightGraphics.clear();
-        this.highlightGraphics.lineStyle(4, 0xffff00, 1);
-        this.highlightGraphics.strokeRect(
-            x - 2,
-            y - 2,
-            frame.width + 4,
-            frame.height + 4
-        );
-    }
-
-    /**
-     * ステータス表示をハイライト
-     */
     highlightStatus() {
-        // 既存のハイライトをクリア
         this.clearHighlight();
 
         const topBarUI = this.scene.topBarUI;
-        if (!topBarUI) return;
+        const sprite = topBarUI?.statusSprite;
+        if (!sprite) return;
 
-        // ステータス表示の位置を取得
-        const statusSprite = topBarUI.statusSprite;
-        if (!statusSprite) return;
+        this.highlightTarget = {
+            statusSprite: sprite,
+            topBarUI,
+            type: "status",
+        };
 
-        // ハイライト用のグラフィックスを作成
-        this.highlightGraphics = this.scene.add.graphics();
-        this.highlightGraphics.setDepth(999);
-        
-        // メインカメラから除外
+        this._createUIOverlay();
+        this._createHighlightGfx();
+        this._createBlockingArea(false);
+        this.scene.cameras.main.ignore(this.blockingArea);
+
+        this._startAnimation(TUTORIAL_STEP.STATUS_EXPLANATION, () =>
+            this._updateStatus()
+        );
+        this._updateStatus();
+    }
+
+    highlightEatButton() {
+        this.clearHighlight();
+
+        const inventoryUI = this.scene.sidebarUI?.inventoryUI;
+        if (!inventoryUI?.itemDetailModal) return;
+
+        const cx = this.scene.cameras.main.width / 2;
+        const cy = this.scene.cameras.main.height / 2;
+
+        this.highlightTarget = {
+            type: "eatButton",
+            x: cx - 130,
+            y: cy + 200,
+            width: 200,
+            height: 60,
+        };
+
+        this.overlayGraphics = this.scene.add
+            .graphics()
+            .setDepth(2100)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.overlayGraphics);
+
+        this.highlightGraphics = this.scene.add
+            .graphics()
+            .setDepth(2101)
+            .setScrollFactor(0);
         this.scene.cameras.main.ignore(this.highlightGraphics);
 
-        // ハイライト対象を保存
-        this.highlightTarget = { statusSprite, topBarUI };
+        this._startAnimation(TUTORIAL_STEP.EAT_FISH, () => this._updateEat());
+        this._updateEat();
+    }
 
-        // 点滅アニメーション
+    // ==================== ハイライト更新 ====================
+
+    _updateFishHit() {
+        if (!this.overlayGraphics || !this.highlightTarget) return;
+        const b = this._getFishHitBounds();
+        const alpha = 0.5 + Math.abs(Math.sin(this.highlightAlpha)) * 0.5;
+
+        this.overlayGraphics.clear();
+        this._draw4Region(b.x, b.y, b.width, b.height);
+        this.overlayGraphics.lineStyle(4, 0xffff00, alpha);
+        this.overlayGraphics.strokeRect(b.x, b.y, b.width, b.height);
+    }
+
+    _updateInv() {
+        if (!this.highlightGraphics || !this.highlightTarget) return;
+        const pos = this._getInvPos(this.highlightTarget.frame);
+        const f = this.highlightTarget.frame;
+        this._drawBorder(pos.x, pos.y, f.width, f.height);
+    }
+
+    _updateStatus() {
+        if (!this.highlightGraphics || !this.highlightTarget) return;
+        const { statusSprite, topBarUI } = this.highlightTarget;
+        const x = topBarUI.x + statusSprite.x;
+        const y = topBarUI.y + statusSprite.y;
+        const s = statusSprite.displayWidth;
+        this._drawBorder(x - s / 2, y - s / 2, s, s);
+    }
+
+    _updateEat() {
+        if (!this.highlightGraphics || !this.highlightTarget) return;
+        const { x, y, width, height } = this.highlightTarget;
+        this._drawBorder(x - width / 2, y - height / 2, width, height);
+    }
+
+    // ==================== ヘルパー ====================
+
+    _draw4Region(hx, hy, hw, hh) {
+        const w = this.scene.sys.game.config.width;
+        const h = this.scene.sys.game.config.height;
+        this.overlayGraphics.fillStyle(0x000000, 0.7);
+        this.overlayGraphics.fillRect(0, 0, w, hy);
+        this.overlayGraphics.fillRect(0, hy + hh, w, h - (hy + hh));
+        this.overlayGraphics.fillRect(0, hy, hx, hh);
+        this.overlayGraphics.fillRect(hx + hw, hy, w - (hx + hw), hh);
+    }
+
+    _drawBorder(x, y, w, h) {
+        const alpha = 0.5 + Math.abs(Math.sin(this.highlightAlpha)) * 0.5;
+        this.highlightGraphics.clear();
+        this.highlightGraphics.lineStyle(4, 0xffff00, alpha);
+        this.highlightGraphics.strokeRect(x - 4, y - 4, w + 8, h + 8);
+    }
+
+    _createBlockingArea(scroll) {
+        this.blockingArea = this.scene.add
+            .rectangle(
+                0,
+                0,
+                this.scene.sys.game.config.width,
+                this.scene.sys.game.config.height,
+                0x000000,
+                0.01
+            )
+            .setOrigin(0, 0)
+            .setDepth(1000)
+            .setInteractive({ useHandCursor: false });
+        if (scroll) this.blockingArea.setScrollFactor(0);
+        this.blockingArea.on("pointerdown", (p, lx, ly, e) =>
+            e.stopPropagation()
+        );
+    }
+
+    _createUIOverlay() {
+        this.overlayGraphics = this.scene.add.graphics().setDepth(1000);
+        this.scene.cameras.main.ignore(this.overlayGraphics);
+
+        if (this.highlightTarget?.type === "inventory") {
+            const pos = this._getInvPos(this.highlightTarget.frame);
+            const f = this.highlightTarget.frame;
+            this._draw4Region(
+                pos.x - 10,
+                pos.y - 10,
+                f.width + 20,
+                f.height + 20
+            );
+        } else if (this.highlightTarget?.type === "status") {
+            const { statusSprite, topBarUI } = this.highlightTarget;
+            const x = topBarUI.x + statusSprite.x;
+            const y = topBarUI.y + statusSprite.y;
+            const s = statusSprite.displayWidth;
+            this._draw4Region(x - s / 2 - 10, y - s / 2 - 10, s + 20, s + 20);
+        }
+    }
+
+    _createHighlightGfx() {
+        this.highlightGraphics = this.scene.add.graphics().setDepth(1001);
+        this.scene.cameras.main.ignore(this.highlightGraphics);
+    }
+
+    _startAnimation(step, updateFn) {
         this.highlightTimer = this.scene.time.addEvent({
-            delay: 500,
+            delay: 30,
             callback: () => {
-                if (this.highlightGraphics && this.tutorialStep === TUTORIAL_STEP.STATUS_EXPLANATION) {
-                    this.updateStatusHighlight();
+                if (this.tutorialStep === step) {
+                    this.highlightAlpha += 0.05;
+                    updateFn();
                 }
             },
             loop: true,
         });
-
-        this.updateStatusHighlight();
     }
 
-    /**
-     * ステータスハイライトを更新
-     */
-    updateStatusHighlight() {
-        if (!this.highlightGraphics || !this.highlightTarget) return;
+    _getFishHitBounds() {
+        const { fishHitIndicator, fishHitText } = this.highlightTarget;
+        const cam = this.scene.cameras.main;
+        const sx = fishHitIndicator.x - cam.scrollX;
+        const sy = fishHitIndicator.y - cam.scrollY;
+        const tw = fishHitText?.width || 0;
+        const totalW = fishHitIndicator.displayWidth + tw + 30;
+        const totalH =
+            Math.max(fishHitIndicator.displayHeight, fishHitText?.height || 0) +
+            20;
+        return {
+            x: sx - fishHitIndicator.displayWidth / 2 - 15,
+            y: sy - totalH / 2,
+            width: totalW,
+            height: totalH,
+        };
+    }
 
-        const { statusSprite, topBarUI } = this.highlightTarget;
-        if (!statusSprite || !topBarUI) return;
+    _getInvPos(frame) {
+        const inv = this.scene.sidebarUI?.inventoryUI;
+        const sx = this.scene.sidebarUI.sidebarContainer.x;
+        const sy = this.scene.sidebarUI.sidebarContainer.y;
+        return { x: sx + inv.x + frame.x, y: sy + inv.y + frame.y };
+    }
 
-        // UIカメラの座標系でハイライトを描画
-        const topBarX = topBarUI.x;
-        const topBarY = topBarUI.y;
-
-        const x = topBarX + statusSprite.x;
-        const y = topBarY + statusSprite.y;
-
-        const size = statusSprite.displayWidth;
-
-        this.highlightGraphics.clear();
-        this.highlightGraphics.lineStyle(4, 0xffff00, 1);
-        this.highlightGraphics.strokeRect(
-            x - size / 2 - 4,
-            y - size / 2 - 4,
-            size + 8,
-            size + 8
+    _inBounds(p, b) {
+        return (
+            p.x >= b.x &&
+            p.x <= b.x + b.width &&
+            p.y >= b.y &&
+            p.y <= b.y + b.height
         );
     }
 
-    /**
-     * ハイライトをクリア
-     */
-    clearHighlight() {
-        if (this.highlightGraphics) {
-            this.highlightGraphics.destroy();
-            this.highlightGraphics = null;
+    _closeModal() {
+        if (this.currentModal) {
+            this.currentModal.close();
+            this.currentModal = null;
         }
-        if (this.highlightTimer) {
-            this.highlightTimer.remove();
-            this.highlightTimer = null;
-        }
-        this.highlightTarget = null;
-    }
-
-    /**
-     * チュートリアルが完了しているかチェック
-     * @returns {boolean}
-     */
-    isTutorialCompleted() {
-        return this.tutorialCompleted;
-    }
-
-    /**
-     * 現在のチュートリアルステップを取得
-     * @returns {number}
-     */
-    getCurrentStep() {
-        return this.tutorialStep;
     }
 }

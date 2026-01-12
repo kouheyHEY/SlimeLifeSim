@@ -151,9 +151,9 @@ export const GAME_CONST = {
     /** 魚ヒット抽選の確率 (1/この値) */
     FISH_HIT_LOTTERY_PROBABILITY: 3,
     /** 魚ヒットの最小持続時間（ゲーム内分） */
-    FISH_HIT_DURATION_MIN: 10,
+    FISH_HIT_DURATION_MIN: 20,
     /** 魚ヒットの最大持続時間（ゲーム内分） */
-    FISH_HIT_DURATION_MAX: 20,
+    FISH_HIT_DURATION_MAX: 40,
 };
 
 /**
@@ -181,10 +181,10 @@ export const TIME_PERIOD_DISPLAY_NAME = {
  */
 export const GAME_TIME_CONST = {
     /** ゲーム時間のスケール: 実時間1秒 = ゲーム内N分 */
-    TIME_SCALE_MINUTES_PER_REAL_SECOND: 5,
+    TIME_SCALE_MINUTES_PER_REAL_SECOND: 2,
 
     /** ゲーム時間の更新判定時間（秒） */
-    UPDATE_THRESHOLD_SECONDS: 0.2,
+    UPDATE_THRESHOLD_SECONDS: 0.5,
 
     /** ゲーム開始時の初期時刻 */
     GAME_START_TIME: {

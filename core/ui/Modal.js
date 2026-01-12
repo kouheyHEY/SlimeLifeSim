@@ -40,6 +40,8 @@ export class Modal {
             modalStyle: config.modalStyle || {},
             image: config.image || null,
             keyLabel: config.keyLabel || null,
+            x: config.x,
+            y: config.y,
         };
 
         this.container = null;
@@ -66,7 +68,7 @@ export class Modal {
         );
         this.overlay.setOrigin(0, 0);
         this.overlay.setScrollFactor(0);
-        this.overlay.setDepth(1000);
+        this.overlay.setDepth(2000);
         this.overlay.setInteractive();
 
         // 外側クリックで閉じる設定
@@ -76,13 +78,19 @@ export class Modal {
             });
         }
 
-        // モーダルコンテナ
-        this.container = this.scene.add.container(
-            COMMON_CONST.SCREEN_WIDTH / 2,
-            COMMON_CONST.SCREEN_HEIGHT / 2
-        );
+        // モーダルコンテナ（Y座標をカスタマイズ可能に）
+        const containerX =
+            this.config.x !== undefined
+                ? this.config.x
+                : COMMON_CONST.SCREEN_WIDTH / 2;
+        const containerY =
+            this.config.y !== undefined
+                ? this.config.y
+                : COMMON_CONST.SCREEN_HEIGHT / 2;
+
+        this.container = this.scene.add.container(containerX, containerY);
         this.container.setScrollFactor(0);
-        this.container.setDepth(1001);
+        this.container.setDepth(2001);
 
         // モーダル背景
         const modalBg = this.scene.add.rectangle(
@@ -131,6 +139,16 @@ export class Modal {
                 this.config.image.y !== undefined
                     ? this.config.image.y
                     : currentY;
+
+            // テクスチャのフレーム数を確認
+            const texture = this.scene.textures.get(this.config.image.key);
+            const frameNames = texture.getFrameNames();
+            const hasMultipleFrames = frameNames.length > 1;
+
+            console.log(
+                `Modal image: ${this.config.image.key}, frames: ${frameNames.length}, hasMultiple: ${hasMultipleFrames}`
+            );
+
             const imageSprite = this.scene.add.sprite(
                 0,
                 imageY,
@@ -140,21 +158,28 @@ export class Modal {
             imageSprite.setScale(this.config.image.scale || 1);
             this.container.add(imageSprite);
 
-            // アニメーション設定（ループ再生）
-            const animKey = `${this.config.image.key}_modal_anim`;
-            if (!this.scene.anims.exists(animKey)) {
-                const frames = this.scene.anims.generateFrameNumbers(
-                    this.config.image.key,
-                    { start: 0, end: -1 }
+            // スプライトシートの場合のみアニメーション設定（ループ再生）
+            if (hasMultipleFrames) {
+                const animKey = `${this.config.image.key}_modal_anim`;
+                if (!this.scene.anims.exists(animKey)) {
+                    const frames = this.scene.anims.generateFrameNumbers(
+                        this.config.image.key,
+                        { start: 0, end: -1 }
+                    );
+                    this.scene.anims.create({
+                        key: animKey,
+                        frames: frames,
+                        frameRate: this.config.image.frameRate || 10,
+                        repeat: -1, // 無限ループ
+                    });
+                }
+                console.log(`Playing animation: ${animKey}`);
+                imageSprite.play(animKey);
+            } else {
+                console.log(
+                    `Skipping animation for single frame image: ${this.config.image.key}`
                 );
-                this.scene.anims.create({
-                    key: animKey,
-                    frames: frames,
-                    frameRate: this.config.image.frameRate || 10,
-                    repeat: -1, // 無限ループ
-                });
             }
-            imageSprite.play(animKey);
 
             currentY += imageSprite.displayHeight * 0.5 + 20;
 

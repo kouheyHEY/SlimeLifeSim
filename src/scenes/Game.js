@@ -194,11 +194,14 @@ export class Game extends Phaser.Scene {
 
     /**
      * 入力の初期化
-     * クリック/タップでゲーム開始
+     * ※タイトル画面経由の場合はresumeイベントでstartGame()が呼ばれるため、
+     * このイベントは主にデバッグ時など直接Gameシーンを開始した場合に使用
      */
     initInput() {
         this.input.once("pointerdown", () => {
-            this.startGame();
+            if (!this.gameStarted) {
+                this.startGame();
+            }
         });
     }
 
@@ -332,6 +335,12 @@ export class Game extends Phaser.Scene {
 
             // dataがundefinedの場合は早期リターン
             if (!data) {
+                return;
+            }
+
+            // タイトル画面からの再開時、ゲームを開始
+            if (data.from === "title") {
+                this.startGame();
                 return;
             }
 
@@ -479,9 +488,12 @@ export class Game extends Phaser.Scene {
             );
             // インベントリUIの更新
             this.sidebarUI.updateInventory();
-            
+
             // チュートリアルステップ2をトリガー
-            if (this.tutorialManager && this.tutorialManager.getCurrentStep() === TUTORIAL_STEP.FISH_HIT) {
+            if (
+                this.tutorialManager &&
+                this.tutorialManager.getCurrentStep() === TUTORIAL_STEP.FISH_HIT
+            ) {
                 this.time.delayedCall(500, () => {
                     this.tutorialManager.showStep2ClickFish();
                 });
@@ -592,18 +604,31 @@ export class Game extends Phaser.Scene {
         this.gameStarted = true;
         this.physics.resume();
         this.isPaused = false; // 一時停止中フラグを追加
-        
-        // チュートリアルを開始
-        if (this.tutorialManager && !this.tutorialManager.isTutorialCompleted()) {
-            this.time.delayedCall(500, () => {
-                this.tutorialManager.startTutorial();
-            });
+
+        // ゲーム時間のポーズを解除してゲーム開始
+        this.gameTimeManager.resume();
+
+        // チュートリアルを開始（ゲーム時間で10分後に自動的に魚ヒットとチュートリアルを開始）
+        if (
+            this.tutorialManager &&
+            !this.tutorialManager.isTutorialCompleted()
+        ) {
+            // チュートリアル用のタイマーをセット
+            this.tutorialManager.scheduleTutorialStart();
         }
-        
+
         // 画面タップ時の処理を設定
         this.input.on("pointerdown", (pointer) => {
             // 一時停止中は何もしない
             if (this.isPaused) {
+                return;
+            }
+
+            // チュートリアル中はこのイベントを無視（チュートリアルマネージャーが独自に処理）
+            if (
+                this.tutorialManager &&
+                !this.tutorialManager.isTutorialCompleted()
+            ) {
                 return;
             }
 
