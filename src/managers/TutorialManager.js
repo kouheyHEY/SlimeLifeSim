@@ -17,8 +17,85 @@ export const TUTORIAL_STEP = {
  * モーダルサイズ定数
  */
 const MODAL_SIZE = {
-    SMALL: { width: 280, height: 90, titleSize: "20px", msgSize: "14px" },
-    LARGE: { width: 380, height: 320, titleSize: "22px", msgSize: "14px" },
+    SMALL: { width: 360, height: 100, msgSize: "20px" },
+    LARGE: { width: 460, height: 360, msgSize: "18px" },
+};
+
+/**
+ * モーダル位置定数（各ステップごとに個別設定）
+ * x: null = 画面中央, y: null = 画面中央
+ * y: "top" = 画面上部, y: "bottom" = 画面下部
+ * x/yは画面サイズに対する比率または固定値で指定可能
+ */
+const STEP_CONFIG = {
+    // ステップ1: 魚ヒット
+    STEP1: {
+        x: null, // 画面中央
+        y: "bottom", // 画面下部
+        bottomMargin: 200, // 下マージン
+    },
+    // ステップ2: 魚をクリック
+    STEP2: {
+        x: null, // 画面中央
+        y: null, // 画面中央
+    },
+    // ステップ3: 食べるボタン
+    STEP3: {
+        x: null, // 画面中央
+        y: "top", // 画面上部
+        topMargin: 80, // 上マージン
+    },
+    // ステップ4: ステータス説明（大モーダル）
+    STEP4: {
+        x: null, // 画面中央
+        y: null, // 画面中央
+    },
+};
+
+/**
+ * チュートリアル文字列定数
+ */
+const TUTORIAL_TEXT = {
+    // ステップ1: 魚ヒット
+    STEP1: {
+        JP: "魚がヒット！\nアイコンをタップ！",
+        EN: "Fish hit!\nTap the icon!",
+    },
+    // ステップ2: 魚をクリック
+    STEP2: {
+        JP: "釣り成功！\n魚をタップ！",
+        EN: "Caught it!\nTap the fish!",
+    },
+    // ステップ3: 食べるボタン
+    STEP3: {
+        JP: "「食べる」をタップ！",
+        EN: "Tap 'Eat'!",
+    },
+    // ステップ4: ステータス説明
+    STEP4: {
+        JP: "魚を食べるとステータスUP！\n\n朝と夕方の終わりに\nステータスが下がります。\n\n最低になると\nゲームオーバー！\n\n定期的に魚を食べよう！",
+        EN: "Eating fish boosts status!\n\nStatus drops at the end\nof morning & evening.\n\nGame over if it hits zero!\n\nEat fish regularly!",
+    },
+    // OKボタン
+    OK_BUTTON: "OK",
+};
+
+/**
+ * モーダルスタイル定数
+ */
+const MODAL_STYLE = {
+    // メッセージ
+    MESSAGE_COLOR: "#ffffff",
+    MESSAGE_STROKE: "#000000",
+    MESSAGE_STROKE_THICKNESS: 2,
+    LINE_SPACING: 4,
+    // OKボタン
+    OK_BUTTON: {
+        FONT_SIZE: "18px",
+        BG_COLOR: 0x00cc00,
+        WIDTH: 100,
+        HEIGHT: 36,
+    },
 };
 
 /**
@@ -74,12 +151,8 @@ export class TutorialManager {
             this.highlightFishHitIndicator()
         );
 
-        const msg =
-            getCurrentLanguage() === "JP"
-                ? "魚がヒット！\nアイコンをタップ！"
-                : "Fish hit!\nTap the icon!";
-
-        this._showSmallModal(msg);
+        const msg = this._getText(TUTORIAL_TEXT.STEP1);
+        this._showSmallModal(msg, STEP_CONFIG.STEP1);
         this.scene.gameTimeManager?.pause();
     }
 
@@ -89,12 +162,8 @@ export class TutorialManager {
 
         this.highlightInventoryItem(0);
 
-        const msg =
-            getCurrentLanguage() === "JP"
-                ? "釣り成功！\n魚をタップ！"
-                : "Caught it!\nTap the fish!";
-
-        this._showSmallModal(msg, { x: 180 });
+        const msg = this._getText(TUTORIAL_TEXT.STEP2);
+        this._showSmallModal(msg, STEP_CONFIG.STEP2);
         this.scene.gameTimeManager?.pause();
     }
 
@@ -112,12 +181,8 @@ export class TutorialManager {
             this.scene.time.delayedCall(200, () => this.highlightEatButton());
         }
 
-        const msg =
-            getCurrentLanguage() === "JP"
-                ? "「食べる」をタップ！"
-                : "Tap 'Eat'!";
-
-        this._showSmallModal(msg);
+        const msg = this._getText(TUTORIAL_TEXT.STEP3);
+        this._showSmallModal(msg, STEP_CONFIG.STEP3);
     }
 
     showStep4StatusExplanation() {
@@ -126,12 +191,12 @@ export class TutorialManager {
 
         this.highlightStatus();
 
-        const msg =
-            getCurrentLanguage() === "JP"
-                ? "魚を食べるとステータスUP！\n\n朝と夕方の終わりに\nステータスが下がります。\n\n最低になると\nゲームオーバー！\n\n定期的に魚を食べよう！"
-                : "Eating fish boosts status!\n\nStatus drops at the end\nof morning & evening.\n\nGame over if it hits zero!\n\nEat fish regularly!";
-
-        this._showLargeModal(msg, () => this.completeTutorial());
+        const msg = this._getText(TUTORIAL_TEXT.STEP4);
+        this._showLargeModal(
+            msg,
+            () => this.completeTutorial(),
+            STEP_CONFIG.STEP4
+        );
         this.scene.gameTimeManager?.pause();
     }
 
@@ -146,21 +211,37 @@ export class TutorialManager {
 
     // ==================== モーダル表示 ====================
 
-    _showSmallModal(message, options = {}) {
+    _showSmallModal(message, config = {}) {
         const gameWidth = this.scene.sys.game.config.width;
         const gameHeight = this.scene.sys.game.config.height;
         const size = MODAL_SIZE.SMALL;
 
+        // X座標の計算
+        const minX = size.width / 2 + 10;
+        const requestedX = config.x !== null ? config.x : gameWidth / 2;
+        const safeX = Math.max(minX, Math.min(requestedX, gameWidth - minX));
+
+        // Y座標の計算
+        let modalY;
+        if (config.y === "top") {
+            modalY = size.height / 2 + (config.topMargin || 20);
+        } else if (config.y === "bottom") {
+            modalY = gameHeight - size.height / 2 - (config.bottomMargin || 20);
+        } else if (config.y !== null && config.y !== undefined) {
+            modalY = config.y;
+        } else {
+            modalY = gameHeight / 2;
+        }
+
         this.currentModal = new Modal(this.scene, {
-            title:
-                getCurrentLanguage() === "JP" ? "チュートリアル" : "Tutorial",
+            title: "",
             message: message,
             modalStyle: this._getStyle(size),
             buttons: [],
             width: size.width,
             height: size.height,
-            x: options.x || gameWidth / 2,
-            y: gameHeight - 70,
+            x: safeX,
+            y: modalY,
             closeOnClickOutside: false,
         });
 
@@ -168,48 +249,71 @@ export class TutorialManager {
         this.currentModal.overlay?.disableInteractive();
     }
 
-    _showLargeModal(message, callback) {
+    _showLargeModal(message, callback, config = {}) {
+        const gameWidth = this.scene.sys.game.config.width;
+        const gameHeight = this.scene.sys.game.config.height;
         const size = MODAL_SIZE.LARGE;
 
+        // X座標の計算
+        const minX = size.width / 2 + 10;
+        const requestedX = config.x !== null ? config.x : gameWidth / 2;
+        const safeX = Math.max(minX, Math.min(requestedX, gameWidth - minX));
+
+        // Y座標の計算
+        let modalY;
+        if (config.y === "top") {
+            modalY = size.height / 2 + (config.topMargin || 20);
+        } else if (config.y === "bottom") {
+            modalY = gameHeight - size.height / 2 - (config.bottomMargin || 20);
+        } else if (config.y !== null && config.y !== undefined) {
+            modalY = config.y;
+        } else {
+            modalY = gameHeight / 2;
+        }
+
         this.currentModal = new Modal(this.scene, {
-            title:
-                getCurrentLanguage() === "JP" ? "チュートリアル" : "Tutorial",
+            title: "",
             message: message,
             modalStyle: this._getStyle(size),
             buttons: [
                 {
-                    text: "OK",
+                    text: TUTORIAL_TEXT.OK_BUTTON,
                     style: {
                         fontFamily: FONT_NAME.MELONANO,
-                        fontSize: "18px",
-                        backgroundColor: 0x00cc00,
-                        width: 100,
-                        height: 36,
+                        fontSize: MODAL_STYLE.OK_BUTTON.FONT_SIZE,
+                        backgroundColor: MODAL_STYLE.OK_BUTTON.BG_COLOR,
+                        width: MODAL_STYLE.OK_BUTTON.WIDTH,
+                        height: MODAL_STYLE.OK_BUTTON.HEIGHT,
                     },
                     callback: callback,
                 },
             ],
             width: size.width,
             height: size.height,
+            x: safeX,
+            y: modalY,
+            messageAlignTop: true,
         });
 
         this.currentModal.show();
+        // オーバーレイを無効化してハイライトを表示できるようにする
+        this.currentModal.overlay?.disableInteractive();
+        this.currentModal.overlay?.setVisible(false);
     }
 
     _getStyle(size) {
         return {
-            titleFontFamily: FONT_NAME.MELONANO,
-            titleFontSize: size.titleSize,
-            titleColor: "#ffff00",
-            titleStroke: "#000000",
-            titleStrokeThickness: 3,
             messageFontFamily: FONT_NAME.MELONANO,
             messageFontSize: size.msgSize,
-            messageColor: "#ffffff",
-            messageStroke: "#000000",
-            messageStrokeThickness: 2,
-            lineSpacing: 4,
+            messageColor: MODAL_STYLE.MESSAGE_COLOR,
+            messageStroke: MODAL_STYLE.MESSAGE_STROKE,
+            messageStrokeThickness: MODAL_STYLE.MESSAGE_STROKE_THICKNESS,
+            lineSpacing: MODAL_STYLE.LINE_SPACING,
         };
+    }
+
+    _getText(textObj) {
+        return getCurrentLanguage() === "JP" ? textObj.JP : textObj.EN;
     }
 
     // ==================== ハイライト ====================
@@ -247,6 +351,12 @@ export class TutorialManager {
             .setScrollFactor(0);
         this.scene.uiCamera.ignore(this.overlayGraphics);
 
+        this.highlightGraphics = this.scene.add
+            .graphics()
+            .setDepth(1001)
+            .setScrollFactor(0);
+        this.scene.uiCamera.ignore(this.highlightGraphics);
+
         this._createBlockingArea(true);
         this.scene.uiCamera.ignore(this.blockingArea);
 
@@ -261,6 +371,10 @@ export class TutorialManager {
                 }
             }
         });
+
+        // 初期描画
+        const b = this._getFishHitBounds();
+        this._draw4Region(b.x - 10, b.y - 10, b.width + 20, b.height + 20);
 
         this._startAnimation(TUTORIAL_STEP.FISH_HIT, () =>
             this._updateFishHit()
@@ -279,8 +393,18 @@ export class TutorialManager {
 
         this.highlightTarget = { frame, index, type: "inventory" };
 
-        this._createUIOverlay();
-        this._createHighlightGfx();
+        this.overlayGraphics = this.scene.add
+            .graphics()
+            .setDepth(1000)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.overlayGraphics);
+
+        this.highlightGraphics = this.scene.add
+            .graphics()
+            .setDepth(1001)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.highlightGraphics);
+
         this._createBlockingArea(false);
         this.scene.cameras.main.ignore(this.blockingArea);
 
@@ -301,6 +425,10 @@ export class TutorialManager {
 
         this.highlightTarget.clickableArea = clickArea;
 
+        // 初期描画
+        const f = frame;
+        this._draw4Region(pos.x - 10, pos.y - 10, f.width + 20, f.height + 20);
+
         this._startAnimation(TUTORIAL_STEP.CLICK_FISH, () => this._updateInv());
         this._updateInv();
     }
@@ -310,18 +438,41 @@ export class TutorialManager {
 
         const topBarUI = this.scene.topBarUI;
         const sprite = topBarUI?.statusSprite;
-        if (!sprite) return;
+        const statusText = topBarUI?.statusText;
+        const container = topBarUI?.topBarContainer;
+        if (!sprite || !container) return;
 
         this.highlightTarget = {
             statusSprite: sprite,
-            topBarUI,
+            statusText: statusText,
+            topBarContainer: container,
             type: "status",
         };
 
-        this._createUIOverlay();
-        this._createHighlightGfx();
-        this._createBlockingArea(false);
+        // ステータスはUIカメラで表示されるので、メインカメラで無視してUIカメラで表示
+        this.overlayGraphics = this.scene.add
+            .graphics()
+            .setDepth(1000)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.overlayGraphics);
+
+        this.highlightGraphics = this.scene.add
+            .graphics()
+            .setDepth(1001)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.highlightGraphics);
+
+        this._createBlockingArea(true);
         this.scene.cameras.main.ignore(this.blockingArea);
+
+        // ステータスアイコンとテキストを含む領域を計算
+        const bounds = this._getStatusBounds();
+        this._draw4Region(
+            bounds.x - 10,
+            bounds.y - 10,
+            bounds.width + 20,
+            bounds.height + 20
+        );
 
         this._startAnimation(TUTORIAL_STEP.STATUS_EXPLANATION, () =>
             this._updateStatus()
@@ -338,12 +489,18 @@ export class TutorialManager {
         const cx = this.scene.cameras.main.width / 2;
         const cy = this.scene.cameras.main.height / 2;
 
+        // ボタンの左上座標と大きさ
+        const buttonX = cx - 190;
+        const buttonY = cy + 180;
+        const buttonW = 120;
+        const buttonH = 40;
+
         this.highlightTarget = {
             type: "eatButton",
-            x: cx - 130,
-            y: cy + 200,
-            width: 200,
-            height: 60,
+            x: buttonX,
+            y: buttonY,
+            width: buttonW,
+            height: buttonH,
         };
 
         this.overlayGraphics = this.scene.add
@@ -358,6 +515,14 @@ export class TutorialManager {
             .setScrollFactor(0);
         this.scene.cameras.main.ignore(this.highlightGraphics);
 
+        // 初期描画（マージン付き）
+        this._draw4Region(
+            buttonX - 10,
+            buttonY - 10,
+            buttonW + 20,
+            buttonH + 20
+        );
+
         this._startAnimation(TUTORIAL_STEP.EAT_FISH, () => this._updateEat());
         this._updateEat();
     }
@@ -365,36 +530,33 @@ export class TutorialManager {
     // ==================== ハイライト更新 ====================
 
     _updateFishHit() {
-        if (!this.overlayGraphics || !this.highlightTarget) return;
+        if (!this.highlightGraphics || !this.highlightTarget) return;
         const b = this._getFishHitBounds();
-        const alpha = 0.5 + Math.abs(Math.sin(this.highlightAlpha)) * 0.5;
-
-        this.overlayGraphics.clear();
-        this._draw4Region(b.x, b.y, b.width, b.height);
-        this.overlayGraphics.lineStyle(4, 0xffff00, alpha);
-        this.overlayGraphics.strokeRect(b.x, b.y, b.width, b.height);
+        this._drawBorder(b.x - 10, b.y - 10, b.width + 20, b.height + 20);
     }
 
     _updateInv() {
         if (!this.highlightGraphics || !this.highlightTarget) return;
         const pos = this._getInvPos(this.highlightTarget.frame);
         const f = this.highlightTarget.frame;
-        this._drawBorder(pos.x, pos.y, f.width, f.height);
+        this._drawBorder(pos.x - 10, pos.y - 10, f.width + 20, f.height + 20);
     }
 
     _updateStatus() {
         if (!this.highlightGraphics || !this.highlightTarget) return;
-        const { statusSprite, topBarUI } = this.highlightTarget;
-        const x = topBarUI.x + statusSprite.x;
-        const y = topBarUI.y + statusSprite.y;
-        const s = statusSprite.displayWidth;
-        this._drawBorder(x - s / 2, y - s / 2, s, s);
+        const bounds = this._getStatusBounds();
+        this._drawBorder(
+            bounds.x - 10,
+            bounds.y - 10,
+            bounds.width + 20,
+            bounds.height + 20
+        );
     }
 
     _updateEat() {
         if (!this.highlightGraphics || !this.highlightTarget) return;
         const { x, y, width, height } = this.highlightTarget;
-        this._drawBorder(x - width / 2, y - height / 2, width, height);
+        this._drawBorder(x - 10, y - 10, width + 20, height + 20);
     }
 
     // ==================== ヘルパー ====================
@@ -402,7 +564,8 @@ export class TutorialManager {
     _draw4Region(hx, hy, hw, hh) {
         const w = this.scene.sys.game.config.width;
         const h = this.scene.sys.game.config.height;
-        this.overlayGraphics.fillStyle(0x000000, 0.7);
+        // オーバーレイの透明度を0.5に下げて、ハイライト領域とのコントラストを強める
+        this.overlayGraphics.fillStyle(0x000000, 0.5);
         this.overlayGraphics.fillRect(0, 0, w, hy);
         this.overlayGraphics.fillRect(0, hy + hh, w, h - (hy + hh));
         this.overlayGraphics.fillRect(0, hy, hx, hh);
@@ -412,6 +575,10 @@ export class TutorialManager {
     _drawBorder(x, y, w, h) {
         const alpha = 0.5 + Math.abs(Math.sin(this.highlightAlpha)) * 0.5;
         this.highlightGraphics.clear();
+        // ハイライト領域を白色で塗りつぶして、暗いオーバーレイとのコントラストを強める
+        this.highlightGraphics.fillStyle(0xffffff, 0);
+        this.highlightGraphics.fillRect(x, y, w, h);
+        // 枠線
         this.highlightGraphics.lineStyle(4, 0xffff00, alpha);
         this.highlightGraphics.strokeRect(x - 4, y - 4, w + 8, h + 8);
     }
@@ -435,28 +602,6 @@ export class TutorialManager {
         );
     }
 
-    _createUIOverlay() {
-        this.overlayGraphics = this.scene.add.graphics().setDepth(1000);
-        this.scene.cameras.main.ignore(this.overlayGraphics);
-
-        if (this.highlightTarget?.type === "inventory") {
-            const pos = this._getInvPos(this.highlightTarget.frame);
-            const f = this.highlightTarget.frame;
-            this._draw4Region(
-                pos.x - 10,
-                pos.y - 10,
-                f.width + 20,
-                f.height + 20
-            );
-        } else if (this.highlightTarget?.type === "status") {
-            const { statusSprite, topBarUI } = this.highlightTarget;
-            const x = topBarUI.x + statusSprite.x;
-            const y = topBarUI.y + statusSprite.y;
-            const s = statusSprite.displayWidth;
-            this._draw4Region(x - s / 2 - 10, y - s / 2 - 10, s + 20, s + 20);
-        }
-    }
-
     _createHighlightGfx() {
         this.highlightGraphics = this.scene.add.graphics().setDepth(1001);
         this.scene.cameras.main.ignore(this.highlightGraphics);
@@ -475,13 +620,51 @@ export class TutorialManager {
         });
     }
 
+    _getStatusBounds() {
+        const { statusSprite, statusText, topBarContainer } =
+            this.highlightTarget;
+        const spriteX = topBarContainer.x + statusSprite.x;
+        const spriteY = topBarContainer.y + statusSprite.y;
+        const spriteW = statusSprite.displayWidth;
+        const spriteH = statusSprite.displayHeight;
+
+        // ステータステキストがある場合は含める
+        if (statusText) {
+            const textX = topBarContainer.x + statusText.x;
+            const textY = topBarContainer.y + statusText.y;
+            const textW = statusText.width;
+            const textH = statusText.height;
+
+            // アイコンとテキストを含む領域を計算
+            const minX = Math.min(spriteX - spriteW / 2, textX);
+            const maxX = Math.max(spriteX + spriteW / 2, textX + textW);
+            const minY = Math.min(spriteY - spriteH / 2, textY - textH / 2);
+            const maxY = Math.max(spriteY + spriteH / 2, textY + textH / 2);
+
+            return {
+                x: minX,
+                y: minY,
+                width: maxX - minX,
+                height: maxY - minY,
+            };
+        }
+
+        // テキストがない場合はアイコンのみ
+        return {
+            x: spriteX - spriteW / 2,
+            y: spriteY - spriteH / 2,
+            width: spriteW,
+            height: spriteH,
+        };
+    }
+
     _getFishHitBounds() {
         const { fishHitIndicator, fishHitText } = this.highlightTarget;
         const cam = this.scene.cameras.main;
         const sx = fishHitIndicator.x - cam.scrollX;
         const sy = fishHitIndicator.y - cam.scrollY;
         const tw = fishHitText?.width || 0;
-        const totalW = fishHitIndicator.displayWidth + tw + 30;
+        const totalW = fishHitIndicator.displayWidth + tw + 60;
         const totalH =
             Math.max(fishHitIndicator.displayHeight, fishHitText?.height || 0) +
             20;

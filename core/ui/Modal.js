@@ -42,6 +42,7 @@ export class Modal {
             keyLabel: config.keyLabel || null,
             x: config.x,
             y: config.y,
+            messageAlignTop: config.messageAlignTop || false,
         };
 
         this.container = null;
@@ -298,12 +299,17 @@ export class Modal {
                 lineSpacing: this.config.modalStyle.lineSpacing || 8,
             }
         );
-        messageText.setOrigin(0.5);
+        // 上揃えオプションの場合は上端を基準に配置
+        if (this.config.messageAlignTop) {
+            messageText.setOrigin(0.5, 0);
+        } else {
+            messageText.setOrigin(0.5);
+        }
         this.container.add(messageText);
 
         // メッセージの高さを考慮してボタンの位置を調整
         const messageHeight = messageText.height;
-        currentY = this.config.height / 2 - 80;
+        currentY = this.config.height / 2 - 40;
 
         // ボタン表示
         if (this.config.buttons.length > 0) {

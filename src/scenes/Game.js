@@ -769,6 +769,14 @@ export class Game extends Phaser.Scene {
             delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
         }
 
+        // チュートリアル中はメッセージボトルを除外
+        if (
+            this.tutorialManager &&
+            !this.tutorialManager.isTutorialCompleted()
+        ) {
+            delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
+        }
+
         const targets = Object.keys(weights);
 
         // 総重みを計算
