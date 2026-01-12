@@ -48,6 +48,7 @@ export class Game extends Phaser.Scene {
         this.initMaps();
         this.initClouds();
         this.initPlayer();
+        this.initFishingRod();
         this.initInput();
         this.initEvents();
         this.initInventory();
@@ -96,6 +97,9 @@ export class Game extends Phaser.Scene {
         this.updateClouds();
 
         if (!this.gameStarted) return;
+
+        // ロッドと糸の位置更新
+        this.updateFishingRod();
 
         // 魚ヒットインジケーターの位置を更新
         this.updateFishHitIndicator();
@@ -155,6 +159,38 @@ export class Game extends Phaser.Scene {
 
         // スライムアニメーションの開始
         this.scheduleSlimeAnimation();
+    }
+
+    /**
+     * 釣竿の初期化（プレイヤー左にロッドを表示し、糸を垂らす）
+     */
+    initFishingRod() {
+        // ロッド画像
+        this.rodBig = this.add
+            .image(0, 0, ASSETS.image.rod_big.key)
+            .setScale(0.8)
+            .setDepth(this.player.depth - 1);
+
+        // UIカメラから除外（ワールド座標で動く）
+        this.uiCamera.ignore(this.rodBig);
+
+        // 初期位置を設定
+        this.updateFishingRod();
+    }
+
+    /**
+     * 釣竿と糸の位置更新（毎フレーム）
+     */
+    updateFishingRod() {
+        if (!this.player || !this.rodBig) return;
+
+        // プレイヤーの左下側にロッドを配置（より左下へ）
+        const offsetX = 180; // さらに左へオフセット
+        const offsetY = 80; // 手元より下に配置
+        this.rodBig.setPosition(
+            this.player.x - offsetX,
+            this.player.y + offsetY
+        );
     }
 
     /**
@@ -472,14 +508,11 @@ export class Game extends Phaser.Scene {
             }
         } else {
             // ここに釣り成功時の処理を追加
-            // アップグレードによる価値倍率を適用
+            // アップグレードによる価値倍率を適用（売却時に使用）
             const valueMultiplier =
                 this.upgradeManager.getFishValueMultiplier();
             const baseValue = GAME_CONST.ITEM_VALUE[fishName] || 0;
             const actualValue = Math.floor(baseValue * valueMultiplier);
-
-            // コイン獲得（価値倍率適用後）
-            this.sidebarUI.gameInfoUI.addCoins(actualValue);
 
             this.inventoryManager.addItem(
                 fishName,
@@ -506,6 +539,9 @@ export class Game extends Phaser.Scene {
      */
     showFishHitIndicator() {
         if (this.fishHitIndicator) {
+            if (this.fishHitButton) {
+                this.fishHitButton.setVisible(true);
+            }
             this.fishHitIndicator.setVisible(true);
             if (this.fishHitText) {
                 this.fishHitText.setVisible(true);
@@ -536,12 +572,42 @@ export class Game extends Phaser.Scene {
         // UIカメラから除外（プレイヤーと一緒に動く）
         this.uiCamera.ignore(this.fishHitText);
 
-        // アイコンとテキストの合計幅を計算して中央配置
+        // アイコンとテキストの合計幅を計算
         const iconWidth = this.fishHitIndicator.displayWidth;
         const textWidth = this.fishHitText.width;
-        const totalWidth =
-            iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X + textWidth;
-        const startX = this.player.x - totalWidth / 2;
+        const buttonPadding = 20;
+        const buttonWidth =
+            iconWidth +
+            UI_CONST.FISH_HIT_TEXT_OFFSET_X +
+            textWidth +
+            buttonPadding * 2;
+        const buttonHeight =
+            Math.max(
+                this.fishHitIndicator.displayHeight,
+                this.fishHitText.height
+            ) + 20;
+
+        // ボタン背景を作成（背面に配置するため最初に作成）
+        this.fishHitButton = this.add
+            .rectangle(
+                this.player.x,
+                this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET,
+                buttonWidth,
+                buttonHeight,
+                0xff6600
+            )
+            .setStrokeStyle(3, 0xffffff)
+            .setOrigin(0.5, 0.5);
+
+        this.uiCamera.ignore(this.fishHitButton);
+
+        // ボタンを背面に移動
+        this.fishHitButton.setDepth(-1);
+
+        // アイコンとテキストを中央配置
+        const startX =
+            this.player.x -
+            (iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X + textWidth) / 2;
 
         this.fishHitIndicator.setPosition(
             startX + iconWidth / 2,
@@ -554,7 +620,11 @@ export class Game extends Phaser.Scene {
 
         // 点滅アニメーションを追加
         this.tweens.add({
-            targets: [this.fishHitIndicator, this.fishHitText],
+            targets: [
+                this.fishHitButton,
+                this.fishHitIndicator,
+                this.fishHitText,
+            ],
             alpha: 0.3,
             duration: 500,
             yoyo: true,
@@ -566,6 +636,9 @@ export class Game extends Phaser.Scene {
      * 魚ヒットインジケーターを非表示
      */
     hideFishHitIndicator() {
+        if (this.fishHitButton) {
+            this.fishHitButton.setVisible(false);
+        }
         if (this.fishHitIndicator) {
             this.fishHitIndicator.setVisible(false);
         }
@@ -579,12 +652,20 @@ export class Game extends Phaser.Scene {
      */
     updateFishHitIndicator() {
         if (this.fishHitIndicator && this.fishHitIndicator.visible) {
-            // アイコンとテキストの合計幅を計算して中央配置
+            // アイコンとテキストの合計幅を計算
             const iconWidth = this.fishHitIndicator.displayWidth;
             const textWidth = this.fishHitText ? this.fishHitText.width : 0;
-            const totalWidth =
-                iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X + textWidth;
-            const startX = this.player.x - totalWidth / 2;
+            const startX =
+                this.player.x -
+                (iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X + textWidth) / 2;
+
+            // ボタン背景の位置を更新
+            if (this.fishHitButton) {
+                this.fishHitButton.setPosition(
+                    this.player.x,
+                    this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
+                );
+            }
 
             this.fishHitIndicator.setPosition(
                 startX + iconWidth / 2,

@@ -17,8 +17,8 @@ export const TUTORIAL_STEP = {
  * モーダルサイズ定数
  */
 const MODAL_SIZE = {
-    SMALL: { width: 360, height: 100, msgSize: "20px" },
-    LARGE: { width: 460, height: 360, msgSize: "18px" },
+    SMALL: { width: 360, height: 100, msgSize: "28px" },
+    LARGE: { width: 460, height: 460, msgSize: "26px" },
 };
 
 /**
@@ -73,7 +73,7 @@ const TUTORIAL_TEXT = {
     },
     // ステップ4: ステータス説明
     STEP4: {
-        JP: "魚を食べるとステータスUP！\n\n朝と夕方の終わりに\nステータスが下がります。\n\n最低になると\nゲームオーバー！\n\n定期的に魚を食べよう！",
+        JP: "魚を食べるとステータスUP！\n\n朝と夕方の終わりに\nステータスが下がります。\n\n最低になると\nゲームオーバー！\n\n定期的に魚を食べましょう！",
         EN: "Eating fish boosts status!\n\nStatus drops at the end\nof morning & evening.\n\nGame over if it hits zero!\n\nEat fish regularly!",
     },
     // OKボタン
@@ -91,10 +91,10 @@ const MODAL_STYLE = {
     LINE_SPACING: 4,
     // OKボタン
     OK_BUTTON: {
-        FONT_SIZE: "18px",
+        FONT_SIZE: "24px",
         BG_COLOR: 0x00cc00,
         WIDTH: 100,
-        HEIGHT: 36,
+        HEIGHT: 48,
     },
 };
 
@@ -336,11 +336,13 @@ export class TutorialManager {
     highlightFishHitIndicator() {
         this.clearHighlight();
 
+        const button = this.scene.fishHitButton;
         const indicator = this.scene.fishHitIndicator;
         const text = this.scene.fishHitText;
-        if (!indicator) return;
+        if (!button && !indicator) return;
 
         this.highlightTarget = {
+            fishHitButton: button,
             fishHitIndicator: indicator,
             fishHitText: text,
             type: "fishHit",
@@ -670,22 +672,36 @@ export class TutorialManager {
     }
 
     _getFishHitBounds() {
-        const { fishHitIndicator, fishHitText } = this.highlightTarget;
+        const { fishHitButton, fishHitIndicator } = this.highlightTarget;
         const cam = this.scene.cameras.main;
-        // ワールド座標をスクリーン座標に変換（カメラのスクロール位置を考慮）
-        const sx = fishHitIndicator.x - cam.scrollX;
-        const sy = fishHitIndicator.y - cam.scrollY;
-        const tw = fishHitText?.width || 0;
-        const totalW = fishHitIndicator.displayWidth + tw + 60;
-        const totalH =
-            Math.max(fishHitIndicator.displayHeight, fishHitText?.height || 0) +
-            20;
-        return {
-            x: sx - fishHitIndicator.displayWidth / 2 - 15,
-            y: sy - totalH / 2,
-            width: totalW,
-            height: totalH,
-        };
+
+        // ボタンがある場合はボタンのサイズを使用
+        if (fishHitButton) {
+            const sx = fishHitButton.x - cam.scrollX;
+            const sy = fishHitButton.y - cam.scrollY;
+            const padding = 10;
+            return {
+                x: sx - fishHitButton.width / 2 - padding,
+                y: sy - fishHitButton.height / 2 - padding,
+                width: fishHitButton.width + padding * 2,
+                height: fishHitButton.height + padding * 2,
+            };
+        }
+
+        // フォールバック（ボタンがない場合）
+        if (fishHitIndicator) {
+            const sx = fishHitIndicator.x - cam.scrollX;
+            const sy = fishHitIndicator.y - cam.scrollY;
+            const padding = 15;
+            return {
+                x: sx - fishHitIndicator.displayWidth / 2 - padding,
+                y: sy - fishHitIndicator.displayHeight / 2 - padding,
+                width: fishHitIndicator.displayWidth + padding * 2,
+                height: fishHitIndicator.displayHeight + padding * 2,
+            };
+        }
+
+        return { x: 0, y: 0, width: 100, height: 100 };
     }
 
     _getInvPos(frame) {

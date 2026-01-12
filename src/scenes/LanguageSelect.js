@@ -150,6 +150,12 @@ export class LanguageSelect extends Phaser.Scene {
      * @param {string} language - 選択した言語コード
      */
     selectLanguage(language) {
+        // 既に選択済みの場合は何もしない
+        if (this.isSelecting) {
+            return;
+        }
+        this.isSelecting = true;
+
         // 言語設定を保存
         setCurrentLanguage(language);
 

@@ -427,8 +427,8 @@ export const UI_TEXT = {
         DAY_PREFIX: "DAY ",
         TIME_SEPARATOR: ":",
         INITIAL_COIN_COUNT: "0",
-        STATUS_SMILE: { JP: "元気", EN: "Happy" },
+        STATUS_SMILE: { JP: "満腹", EN: "Full" },
         STATUS_NORMAL: { JP: "普通", EN: "Normal" },
-        STATUS_BAD: { JP: "不機嫌", EN: "Unhappy" },
+        STATUS_BAD: { JP: "飢餓", EN: "Hungry" },
     },
 };

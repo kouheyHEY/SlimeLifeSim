@@ -8,7 +8,7 @@ export const MAP_CONST = {
     CELL_SIZE: 32,
 
     /** プレイヤーの初期座標位置 */
-    PLAYER_START_POSITION: { x: 20, y: 21 },
+    PLAYER_START_POSITION: { x: 21, y: 21 },
 
     /** レイヤーのキー */
     LAYER_KEYS: {

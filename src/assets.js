@@ -46,6 +46,10 @@ export default {
             key: "rod",
             args: ["assets/rod.png"],
         },
+        rod_big: {
+            key: "rod_big",
+            args: ["assets/rod_big.png"],
+        },
         status_bad: {
             key: "status_bad",
             args: ["assets/status_bad.png"],
