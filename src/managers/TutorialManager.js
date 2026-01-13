@@ -642,12 +642,18 @@ export class TutorialManager {
     highlightUpgradeButton() {
         this.clearHighlight();
 
-        const gameInfoUI = this.scene.sidebarUI?.gameInfoUI;
-        if (!gameInfoUI) return;
+        const sidebarUI = this.scene.sidebarUI;
+        const gameInfoUI = sidebarUI?.gameInfoUI;
+        
+        // 必要なコンポーネントの存在確認
+        if (!gameInfoUI || !gameInfoUI.upgradeButton || !sidebarUI.sidebarContainer || !gameInfoUI.infoContainer) {
+            console.warn("Cannot highlight upgrade button: required components not found");
+            return;
+        }
 
         // アップグレードボタンの位置とサイズを取得
-        const sidebarX = this.scene.sidebarUI.sidebarContainer.x;
-        const sidebarY = this.scene.sidebarUI.sidebarContainer.y;
+        const sidebarX = sidebarUI.sidebarContainer.x;
+        const sidebarY = sidebarUI.sidebarContainer.y;
         const infoX = gameInfoUI.infoContainer.x;
         const infoY = gameInfoUI.infoContainer.y;
         
