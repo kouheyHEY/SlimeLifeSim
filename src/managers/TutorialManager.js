@@ -26,6 +26,13 @@ const MODAL_SIZE = {
 };
 
 /**
+ * チュートリアル遅延定数（ミリ秒）
+ */
+const TUTORIAL_DELAY = {
+    COIN_TUTORIAL_START: 300, // コインチュートリアル開始までの遅延
+};
+
+/**
  * モーダル位置定数（各ステップごとに個別設定）
  * x: null = 画面中央, y: null = 画面中央
  * y: "top" = 画面上部, y: "bottom" = 画面下部
@@ -268,7 +275,7 @@ export class TutorialManager {
         // 初めてのコイン獲得
         if (!this.firstCoinEarned) {
             this.firstCoinEarned = true;
-            this.scene.time.delayedCall(300, () => {
+            this.scene.time.delayedCall(TUTORIAL_DELAY.COIN_TUTORIAL_START, () => {
                 this.showCoinTutorialStep1();
             });
         }
@@ -646,8 +653,24 @@ export class TutorialManager {
         const gameInfoUI = sidebarUI?.gameInfoUI;
         
         // 必要なコンポーネントの存在確認
-        if (!gameInfoUI || !gameInfoUI.upgradeButton || !sidebarUI.sidebarContainer || !gameInfoUI.infoContainer) {
-            console.warn("Cannot highlight upgrade button: required components not found");
+        if (!sidebarUI) {
+            console.warn("Cannot highlight upgrade button: sidebarUI not found");
+            return;
+        }
+        if (!gameInfoUI) {
+            console.warn("Cannot highlight upgrade button: gameInfoUI not found");
+            return;
+        }
+        if (!gameInfoUI.upgradeButton) {
+            console.warn("Cannot highlight upgrade button: upgradeButton not found");
+            return;
+        }
+        if (!sidebarUI.sidebarContainer) {
+            console.warn("Cannot highlight upgrade button: sidebarContainer not found");
+            return;
+        }
+        if (!gameInfoUI.infoContainer) {
+            console.warn("Cannot highlight upgrade button: infoContainer not found");
             return;
         }
 
