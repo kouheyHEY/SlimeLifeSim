@@ -376,10 +376,20 @@ export class InventoryUI {
             // 魚を売る処理
             if (this.inventoryManager.removeItem(item.itemKey, 1)) {
                 console.log("売る:", item.itemKey, value);
-                // コインを追加
+                
+                // コインを追加し、初回かどうかをチェック
                 if (this.gameInfoUI) {
+                    // Capture zero-coin state before adding coins to detect first sale
+                    // This prevents race conditions if addCoins triggers any events
+                    const hadZeroCoins = this.gameInfoUI.coins === 0;
                     this.gameInfoUI.addCoins(value);
+                    
+                    // 初めてコインを獲得した場合、コインチュートリアルを開始
+                    if (hadZeroCoins && this.scene.tutorialManager) {
+                        this.scene.tutorialManager.onFirstFishSold();
+                    }
                 }
+                
                 // インベントリを更新
                 this.update();
             }

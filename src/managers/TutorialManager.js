@@ -1,5 +1,5 @@
 import { Modal } from "../../core/ui/Modal.js";
-import { getCurrentLanguage, FONT_NAME } from "../const/CommonConst.js";
+import { getCurrentLanguage, FONT_NAME, STORAGE_KEY } from "../const/CommonConst.js";
 
 /**
  * チュートリアルステップの定数
@@ -11,6 +11,10 @@ export const TUTORIAL_STEP = {
     EAT_FISH: 3,
     STATUS_EXPLANATION: 4,
     COMPLETED: 5,
+    // コインチュートリアル
+    FIRST_COIN_EARNED: 6,
+    UPGRADE_ROD_EXPLANATION: 7,
+    COIN_TUTORIAL_COMPLETED: 8,
 };
 
 /**
@@ -19,6 +23,13 @@ export const TUTORIAL_STEP = {
 const MODAL_SIZE = {
     SMALL: { width: 360, height: 100, msgSize: "28px" },
     LARGE: { width: 460, height: 460, msgSize: "26px" },
+};
+
+/**
+ * チュートリアル遅延定数（ミリ秒）
+ */
+const TUTORIAL_DELAY = {
+    COIN_TUTORIAL_START: 300, // コインチュートリアル開始までの遅延
 };
 
 /**
@@ -50,6 +61,16 @@ const STEP_CONFIG = {
         x: null, // 画面中央
         y: null, // 画面中央
     },
+    // コインチュートリアルステップ1: コインを獲得
+    COIN_STEP1: {
+        x: null, // 画面中央
+        y: null, // 画面中央
+    },
+    // コインチュートリアルステップ2: 釣り竿のアップグレード説明
+    COIN_STEP2: {
+        x: null, // 画面中央
+        y: null, // 画面中央
+    },
 };
 
 /**
@@ -75,6 +96,16 @@ const TUTORIAL_TEXT = {
     STEP4: {
         JP: "魚を食べるとステータスUP！\n\n朝と夕方の終わりに\nステータスが下がります。\n\n最低になると\nゲームオーバー！\n\n定期的に魚を食べましょう！",
         EN: "Eating fish boosts status!\n\nStatus drops at the end\nof morning & evening.\n\nGame over if it hits zero!\n\nEat fish regularly!",
+    },
+    // コインチュートリアルステップ1: コイン獲得
+    COIN_STEP1: {
+        JP: "コインを獲得しました！\n\nコインを使って\n釣り竿を強化できます！",
+        EN: "You earned coins!\n\nUse coins to upgrade\nyour fishing rod!",
+    },
+    // コインチュートリアルステップ2: アップグレード説明
+    COIN_STEP2: {
+        JP: "釣り竿を強化すると...\n\n・魚の釣れる確率が上がる\n・レアな魚が釣れやすくなる\n・魚の価値が上がる\n・一定レベルで釣りが自動化\n\n左下のボタンで強化できます！",
+        EN: "Upgrading your rod gives:\n\n・Better catch rate\n・More rare fish\n・Higher fish value\n・Auto-fishing at high levels\n\nUpgrade via bottom-left button!",
     },
     // OKボタン
     OK_BUTTON: "OK",
@@ -115,18 +146,25 @@ export class TutorialManager {
         this.highlightAlpha = 1;
         this.tutorialStartGameTime = null;
         this.tutorialTriggered = false;
+        this.coinTutorialCompleted = false;
+        this.firstCoinEarned = false;
     }
 
     // ==================== 公開API ====================
 
     scheduleTutorialStart() {
-        if (localStorage.getItem("tutorialCompleted") === "true") {
+        if (localStorage.getItem(STORAGE_KEY.TUTORIAL_COMPLETED) === "true") {
             this.tutorialCompleted = true;
             this.tutorialStep = TUTORIAL_STEP.COMPLETED;
             return;
         }
         this.tutorialStartGameTime =
             this.scene.gameTimeManager.getTotalMinutes();
+        
+        // コインチュートリアルの完了状態をロード
+        if (localStorage.getItem(STORAGE_KEY.COIN_TUTORIAL_COMPLETED) === "true") {
+            this.coinTutorialCompleted = true;
+        }
     }
 
     startTutorial() {
@@ -206,7 +244,94 @@ export class TutorialManager {
         this.currentModal = null;
         this.clearHighlight();
         this.scene.gameTimeManager?.resume();
-        localStorage.setItem("tutorialCompleted", "true");
+        localStorage.setItem(STORAGE_KEY.TUTORIAL_COMPLETED, "true");
+    }
+
+    // ==================== コインチュートリアル ====================
+
+    /**
+     * コインチュートリアルが完了しているかチェック
+     * @returns {boolean} コインチュートリアルが完了していればtrue
+     */
+    isCoinTutorialCompleted() {
+        return this.coinTutorialCompleted;
+    }
+
+    /**
+     * 魚を売ったときにコインチュートリアルを開始
+     * 最初の魚を売った時のみ実行される
+     * 
+     * Note: This tutorial triggers when coins go from 0 to positive.
+     * Since coins are not persisted across page reloads in the current
+     * implementation, the tutorial will re-trigger after reload if not
+     * completed. Once completed, it will never show again.
+     */
+    onFirstFishSold() {
+        // メインチュートリアルが完了していない場合は開始しない
+        if (!this.tutorialCompleted) {
+            return;
+        }
+
+        // すでにコインチュートリアルが完了している場合は開始しない
+        if (this.coinTutorialCompleted) {
+            return;
+        }
+
+        // 初めてのコイン獲得
+        // Note: firstCoinEarned is not persisted to localStorage intentionally.
+        // If the tutorial is interrupted before completion, it will trigger again
+        // on the next first coin earning, ensuring players don't miss the tutorial.
+        // The hadZeroCoins check in InventoryUI prevents multiple triggers in the same session.
+        if (!this.firstCoinEarned) {
+            this.firstCoinEarned = true;
+            this.scene.time.delayedCall(TUTORIAL_DELAY.COIN_TUTORIAL_START, () => {
+                this.showCoinTutorialStep1();
+            });
+        }
+    }
+
+    /**
+     * コインチュートリアルステップ1: コイン獲得を祝福
+     */
+    showCoinTutorialStep1() {
+        this.tutorialStep = TUTORIAL_STEP.FIRST_COIN_EARNED;
+        this.scene.gameTimeManager?.pause();
+
+        const msg = this._getText(TUTORIAL_TEXT.COIN_STEP1);
+        this._showLargeModal(
+            msg,
+            () => this.showCoinTutorialStep2(),
+            STEP_CONFIG.COIN_STEP1
+        );
+    }
+
+    /**
+     * コインチュートリアルステップ2: 釣り竿のアップグレード説明
+     */
+    showCoinTutorialStep2() {
+        this.tutorialStep = TUTORIAL_STEP.UPGRADE_ROD_EXPLANATION;
+        
+        // アップグレードボタンをハイライト
+        this.highlightUpgradeButton();
+
+        const msg = this._getText(TUTORIAL_TEXT.COIN_STEP2);
+        this._showLargeModal(
+            msg,
+            () => this.completeCoinTutorial(),
+            STEP_CONFIG.COIN_STEP2
+        );
+    }
+
+    /**
+     * コインチュートリアルを完了
+     */
+    completeCoinTutorial() {
+        this.tutorialStep = TUTORIAL_STEP.COIN_TUTORIAL_COMPLETED;
+        this.coinTutorialCompleted = true;
+        this.currentModal = null;
+        this.clearHighlight();
+        this.scene.gameTimeManager?.resume();
+        localStorage.setItem(STORAGE_KEY.COIN_TUTORIAL_COMPLETED, "true");
     }
 
     // ==================== モーダル表示 ====================
@@ -530,6 +655,79 @@ export class TutorialManager {
         this._updateEat();
     }
 
+    highlightUpgradeButton() {
+        this.clearHighlight();
+
+        const sidebarUI = this.scene.sidebarUI;
+        const gameInfoUI = sidebarUI?.gameInfoUI;
+        
+        // 必要なコンポーネントの存在確認
+        if (!sidebarUI) {
+            console.warn("Cannot highlight upgrade button: sidebarUI not found");
+            return;
+        }
+        if (!gameInfoUI) {
+            console.warn("Cannot highlight upgrade button: gameInfoUI not found");
+            return;
+        }
+        if (!gameInfoUI.upgradeButton) {
+            console.warn("Cannot highlight upgrade button: upgradeButton not found");
+            return;
+        }
+        if (!sidebarUI.sidebarContainer) {
+            console.warn("Cannot highlight upgrade button: sidebarContainer not found");
+            return;
+        }
+        if (!gameInfoUI.infoContainer) {
+            console.warn("Cannot highlight upgrade button: infoContainer not found");
+            return;
+        }
+
+        // アップグレードボタンの位置とサイズを取得
+        const sidebarX = sidebarUI.sidebarContainer.x;
+        const sidebarY = sidebarUI.sidebarContainer.y;
+        const infoX = gameInfoUI.infoContainer.x;
+        const infoY = gameInfoUI.infoContainer.y;
+        
+        // ボタンの絶対座標を計算
+        // upgradeButton has origin (0, 0), so x/y are top-left coordinates
+        const buttonX = sidebarX + infoX + gameInfoUI.upgradeButton.x;
+        const buttonY = sidebarY + infoY + gameInfoUI.upgradeButton.y;
+        const buttonW = gameInfoUI.upgradeButton.width;
+        const buttonH = gameInfoUI.upgradeButton.height;
+
+        this.highlightTarget = {
+            type: "upgradeButton",
+            x: buttonX,
+            y: buttonY,
+            width: buttonW,
+            height: buttonH,
+        };
+
+        this.overlayGraphics = this.scene.add
+            .graphics()
+            .setDepth(1000)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.overlayGraphics);
+
+        this.highlightGraphics = this.scene.add
+            .graphics()
+            .setDepth(1001)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.highlightGraphics);
+
+        // 初期描画（マージン付き）
+        this._draw4Region(
+            buttonX - 10,
+            buttonY - 10,
+            buttonW + 20,
+            buttonH + 20
+        );
+
+        this._startAnimation(TUTORIAL_STEP.UPGRADE_ROD_EXPLANATION, () => this._updateUpgradeButton());
+        this._updateUpgradeButton();
+    }
+
     // ==================== ハイライト更新 ====================
 
     _updateFishHit() {
@@ -562,6 +760,12 @@ export class TutorialManager {
         this._drawBorder(x - 10, y - 10, width + 20, height + 20);
     }
 
+    _updateUpgradeButton() {
+        if (!this.highlightGraphics || !this.highlightTarget) return;
+        const { x, y, width, height } = this.highlightTarget;
+        this._drawBorder(x - 10, y - 10, width + 20, height + 20);
+    }
+
     // ==================== ヘルパー ====================
 
     _draw4Region(hx, hy, hw, hh) {
@@ -575,6 +779,8 @@ export class TutorialManager {
                 2: "CLICK_FISH",
                 3: "EAT_FISH",
                 4: "STATUS_EXPLANATION",
+                6: "FIRST_COIN_EARNED",
+                7: "UPGRADE_ROD_EXPLANATION",
             }[this.tutorialStep] || "UNKNOWN";
         const overlayAlpha = 0.3;
 
@@ -621,6 +827,8 @@ export class TutorialManager {
     }
 
     _startAnimation(step, updateFn) {
+        // Start a looped animation that only runs while still on the specified tutorial step
+        // This prevents animations from continuing after moving to a different step
         this.highlightTimer = this.scene.time.addEvent({
             delay: 30,
             callback: () => {
