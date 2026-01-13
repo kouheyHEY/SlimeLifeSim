@@ -657,6 +657,52 @@ export class TutorialManager {
             .setScrollFactor(0);
         this.scene.cameras.main.ignore(this.highlightGraphics);
 
+        // ブロッキングエリアを作成（クリック可能な領域を制限）
+        this._createBlockingArea(false);
+        this.scene.cameras.main.ignore(this.blockingArea);
+
+        // 食べるボタンの上にクリック可能な透明エリアを作成
+        const clickArea = this.scene.add
+            .rectangle(buttonX, buttonY, buttonW, buttonH, 0x000000, 0.01)
+            .setOrigin(0, 0)
+            .setDepth(1002)
+            .setScrollFactor(0)
+            .setInteractive({ useHandCursor: true });
+
+        this.scene.cameras.main.ignore(clickArea);
+
+        clickArea.on("pointerdown", () => {
+            // チュートリアルのモーダルを閉じる
+            this._closeModal();
+            this.clearHighlight();
+
+            // 食べる処理を実行
+            const items = this.scene.inventoryManager.items;
+            const item = items.find((i) => i && i.itemKey);
+            if (
+                item &&
+                this.scene.inventoryManager.removeItem(item.itemKey, 1)
+            ) {
+                console.log("食べる:", item.itemKey);
+                // ステータスを1段階向上
+                if (inventoryUI.gameInfoUI) {
+                    inventoryUI.gameInfoUI.improvePlayerStatus();
+                }
+                // インベントリを更新
+                inventoryUI.update();
+
+                // アイテム詳細モーダルを閉じる
+                inventoryUI.closeItemDetail();
+
+                // チュートリアルステップ4をトリガー
+                this.scene.time.delayedCall(500, () => {
+                    this.showStep4StatusExplanation();
+                });
+            }
+        });
+
+        this.highlightTarget.clickableArea = clickArea;
+
         // 初期描画（マージン付き）
         this._draw4Region(
             buttonX - 10,
