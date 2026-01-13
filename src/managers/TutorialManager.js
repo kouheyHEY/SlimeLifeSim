@@ -1,5 +1,5 @@
 import { Modal } from "../../core/ui/Modal.js";
-import { getCurrentLanguage, FONT_NAME } from "../const/CommonConst.js";
+import { getCurrentLanguage, FONT_NAME, STORAGE_KEY } from "../const/CommonConst.js";
 
 /**
  * チュートリアルステップの定数
@@ -162,7 +162,7 @@ export class TutorialManager {
             this.scene.gameTimeManager.getTotalMinutes();
         
         // コインチュートリアルの完了状態をロード
-        if (localStorage.getItem("coinTutorialCompleted") === "true") {
+        if (localStorage.getItem(STORAGE_KEY.COIN_TUTORIAL_COMPLETED) === "true") {
             this.coinTutorialCompleted = true;
         }
     }
@@ -281,6 +281,7 @@ export class TutorialManager {
         // Note: firstCoinEarned is not persisted to localStorage intentionally.
         // If the tutorial is interrupted before completion, it will trigger again
         // on the next first coin earning, ensuring players don't miss the tutorial.
+        // The hadZeroCoins check in InventoryUI prevents multiple triggers in the same session.
         if (!this.firstCoinEarned) {
             this.firstCoinEarned = true;
             this.scene.time.delayedCall(TUTORIAL_DELAY.COIN_TUTORIAL_START, () => {
@@ -330,7 +331,7 @@ export class TutorialManager {
         this.currentModal = null;
         this.clearHighlight();
         this.scene.gameTimeManager?.resume();
-        localStorage.setItem("coinTutorialCompleted", "true");
+        localStorage.setItem(STORAGE_KEY.COIN_TUTORIAL_COMPLETED, "true");
     }
 
     // ==================== モーダル表示 ====================

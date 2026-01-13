@@ -56,6 +56,8 @@ export const STORAGE_KEY = {
     UPGRADES: "slimelife_upgrades",
     /** ゲーム設定 */
     SETTINGS: "slimelife_settings",
+    /** コインチュートリアル完了状態 */
+    COIN_TUTORIAL_COMPLETED: "coinTutorialCompleted",
 };
 
 /**

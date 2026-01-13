@@ -379,6 +379,8 @@ export class InventoryUI {
                 
                 // コインを追加し、初回かどうかをチェック
                 if (this.gameInfoUI) {
+                    // Capture zero-coin state before adding coins to detect first sale
+                    // This prevents race conditions if addCoins triggers any events
                     const hadZeroCoins = this.gameInfoUI.coins === 0;
                     this.gameInfoUI.addCoins(value);
                     
