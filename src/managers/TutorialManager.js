@@ -273,6 +273,9 @@ export class TutorialManager {
         }
 
         // 初めてのコイン獲得
+        // Note: firstCoinEarned is not persisted to localStorage intentionally.
+        // If the tutorial is interrupted before completion, it will trigger again
+        // on the next first coin earning, ensuring players don't miss the tutorial.
         if (!this.firstCoinEarned) {
             this.firstCoinEarned = true;
             this.scene.time.delayedCall(TUTORIAL_DELAY.COIN_TUTORIAL_START, () => {
@@ -680,6 +683,8 @@ export class TutorialManager {
         const infoX = gameInfoUI.infoContainer.x;
         const infoY = gameInfoUI.infoContainer.y;
         
+        // ボタンの絶対座標を計算
+        // upgradeButton.x/y はボタンの中心座標なので、左上座標に変換するため幅/高さの半分を引く
         const buttonX = sidebarX + infoX + gameInfoUI.upgradeButton.x - gameInfoUI.upgradeButton.width / 2;
         const buttonY = sidebarY + infoY + gameInfoUI.upgradeButton.y - gameInfoUI.upgradeButton.height / 2;
         const buttonW = gameInfoUI.upgradeButton.width;
