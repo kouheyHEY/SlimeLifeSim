@@ -739,6 +739,8 @@ export class TutorialManager {
                 2: "CLICK_FISH",
                 3: "EAT_FISH",
                 4: "STATUS_EXPLANATION",
+                6: "FIRST_COIN_EARNED",
+                7: "UPGRADE_ROD_EXPLANATION",
             }[this.tutorialStep] || "UNKNOWN";
         const overlayAlpha = 0.3;
 
