@@ -153,7 +153,7 @@ export class TutorialManager {
     // ==================== 公開API ====================
 
     scheduleTutorialStart() {
-        if (localStorage.getItem("tutorialCompleted") === "true") {
+        if (localStorage.getItem(STORAGE_KEY.TUTORIAL_COMPLETED) === "true") {
             this.tutorialCompleted = true;
             this.tutorialStep = TUTORIAL_STEP.COMPLETED;
             return;
@@ -244,7 +244,7 @@ export class TutorialManager {
         this.currentModal = null;
         this.clearHighlight();
         this.scene.gameTimeManager?.resume();
-        localStorage.setItem("tutorialCompleted", "true");
+        localStorage.setItem(STORAGE_KEY.TUTORIAL_COMPLETED, "true");
     }
 
     // ==================== コインチュートリアル ====================
