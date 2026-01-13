@@ -260,6 +260,11 @@ export class TutorialManager {
     /**
      * 魚を売ったときにコインチュートリアルを開始
      * 最初の魚を売った時のみ実行される
+     * 
+     * Note: This tutorial triggers when coins go from 0 to positive.
+     * Since coins are not persisted across page reloads in the current
+     * implementation, the tutorial will re-trigger after reload if not
+     * completed. Once completed, it will never show again.
      */
     onFirstFishSold() {
         // メインチュートリアルが完了していない場合は開始しない
@@ -684,9 +689,9 @@ export class TutorialManager {
         const infoY = gameInfoUI.infoContainer.y;
         
         // ボタンの絶対座標を計算
-        // upgradeButton.x/y はボタンの中心座標なので、左上座標に変換するため幅/高さの半分を引く
-        const buttonX = sidebarX + infoX + gameInfoUI.upgradeButton.x - gameInfoUI.upgradeButton.width / 2;
-        const buttonY = sidebarY + infoY + gameInfoUI.upgradeButton.y - gameInfoUI.upgradeButton.height / 2;
+        // upgradeButton has origin (0, 0), so x/y are top-left coordinates
+        const buttonX = sidebarX + infoX + gameInfoUI.upgradeButton.x;
+        const buttonY = sidebarY + infoY + gameInfoUI.upgradeButton.y;
         const buttonW = gameInfoUI.upgradeButton.width;
         const buttonH = gameInfoUI.upgradeButton.height;
 
@@ -821,6 +826,8 @@ export class TutorialManager {
     }
 
     _startAnimation(step, updateFn) {
+        // Start a looped animation that only runs while still on the specified tutorial step
+        // This prevents animations from continuing after moving to a different step
         this.highlightTimer = this.scene.time.addEvent({
             delay: 30,
             callback: () => {
