@@ -377,15 +377,15 @@ export class InventoryUI {
             if (this.inventoryManager.removeItem(item.itemKey, 1)) {
                 console.log("売る:", item.itemKey, value);
                 
-                // コインを追加
-                const hadZeroCoins = this.gameInfoUI && this.gameInfoUI.coins === 0;
+                // コインを追加し、初回かどうかをチェック
                 if (this.gameInfoUI) {
+                    const hadZeroCoins = this.gameInfoUI.coins === 0;
                     this.gameInfoUI.addCoins(value);
-                }
-                
-                // 初めてコインを獲得した場合、コインチュートリアルを開始
-                if (hadZeroCoins && this.scene.tutorialManager) {
-                    this.scene.tutorialManager.onFirstFishSold();
+                    
+                    // 初めてコインを獲得した場合、コインチュートリアルを開始
+                    if (hadZeroCoins && this.scene.tutorialManager) {
+                        this.scene.tutorialManager.onFirstFishSold();
+                    }
                 }
                 
                 // インベントリを更新
