@@ -11,6 +11,10 @@ export const TUTORIAL_STEP = {
     EAT_FISH: 3,
     STATUS_EXPLANATION: 4,
     COMPLETED: 5,
+    // コインチュートリアル
+    FIRST_COIN_EARNED: 6,
+    UPGRADE_ROD_EXPLANATION: 7,
+    COIN_TUTORIAL_COMPLETED: 8,
 };
 
 /**
@@ -50,6 +54,16 @@ const STEP_CONFIG = {
         x: null, // 画面中央
         y: null, // 画面中央
     },
+    // コインチュートリアルステップ1: コインを獲得
+    COIN_STEP1: {
+        x: null, // 画面中央
+        y: null, // 画面中央
+    },
+    // コインチュートリアルステップ2: 釣り竿のアップグレード説明
+    COIN_STEP2: {
+        x: null, // 画面中央
+        y: null, // 画面中央
+    },
 };
 
 /**
@@ -75,6 +89,16 @@ const TUTORIAL_TEXT = {
     STEP4: {
         JP: "魚を食べるとステータスUP！\n\n朝と夕方の終わりに\nステータスが下がります。\n\n最低になると\nゲームオーバー！\n\n定期的に魚を食べましょう！",
         EN: "Eating fish boosts status!\n\nStatus drops at the end\nof morning & evening.\n\nGame over if it hits zero!\n\nEat fish regularly!",
+    },
+    // コインチュートリアルステップ1: コイン獲得
+    COIN_STEP1: {
+        JP: "コインを獲得しました！\n\nコインを使って\n釣り竿を強化できます！",
+        EN: "You earned coins!\n\nUse coins to upgrade\nyour fishing rod!",
+    },
+    // コインチュートリアルステップ2: アップグレード説明
+    COIN_STEP2: {
+        JP: "釣り竿を強化すると...\n\n・魚の釣れる確率が上がる\n・レアな魚が釣れやすくなる\n・魚の価値が上がる\n・一定レベルで釣りが自動化\n\n左下のボタンで強化できます！",
+        EN: "Upgrading your rod gives:\n\n・Better catch rate\n・More rare fish\n・Higher fish value\n・Auto-fishing at high levels\n\nUpgrade via bottom-left button!",
     },
     // OKボタン
     OK_BUTTON: "OK",
@@ -115,6 +139,8 @@ export class TutorialManager {
         this.highlightAlpha = 1;
         this.tutorialStartGameTime = null;
         this.tutorialTriggered = false;
+        this.coinTutorialCompleted = false;
+        this.firstCoinEarned = false;
     }
 
     // ==================== 公開API ====================
@@ -127,6 +153,11 @@ export class TutorialManager {
         }
         this.tutorialStartGameTime =
             this.scene.gameTimeManager.getTotalMinutes();
+        
+        // コインチュートリアルの完了状態をロード
+        if (localStorage.getItem("coinTutorialCompleted") === "true") {
+            this.coinTutorialCompleted = true;
+        }
     }
 
     startTutorial() {
@@ -207,6 +238,84 @@ export class TutorialManager {
         this.clearHighlight();
         this.scene.gameTimeManager?.resume();
         localStorage.setItem("tutorialCompleted", "true");
+    }
+
+    // ==================== コインチュートリアル ====================
+
+    /**
+     * コインチュートリアルが完了しているかチェック
+     * @returns {boolean} コインチュートリアルが完了していればtrue
+     */
+    isCoinTutorialCompleted() {
+        return this.coinTutorialCompleted;
+    }
+
+    /**
+     * 魚を売ったときにコインチュートリアルを開始
+     * 最初の魚を売った時のみ実行される
+     */
+    onFirstFishSold() {
+        // メインチュートリアルが完了していない場合は開始しない
+        if (!this.tutorialCompleted) {
+            return;
+        }
+
+        // すでにコインチュートリアルが完了している場合は開始しない
+        if (this.coinTutorialCompleted) {
+            return;
+        }
+
+        // 初めてのコイン獲得
+        if (!this.firstCoinEarned) {
+            this.firstCoinEarned = true;
+            this.scene.time.delayedCall(300, () => {
+                this.showCoinTutorialStep1();
+            });
+        }
+    }
+
+    /**
+     * コインチュートリアルステップ1: コイン獲得を祝福
+     */
+    showCoinTutorialStep1() {
+        this.tutorialStep = TUTORIAL_STEP.FIRST_COIN_EARNED;
+        this.scene.gameTimeManager?.pause();
+
+        const msg = this._getText(TUTORIAL_TEXT.COIN_STEP1);
+        this._showLargeModal(
+            msg,
+            () => this.showCoinTutorialStep2(),
+            STEP_CONFIG.COIN_STEP1
+        );
+    }
+
+    /**
+     * コインチュートリアルステップ2: 釣り竿のアップグレード説明
+     */
+    showCoinTutorialStep2() {
+        this.tutorialStep = TUTORIAL_STEP.UPGRADE_ROD_EXPLANATION;
+        
+        // アップグレードボタンをハイライト
+        this.highlightUpgradeButton();
+
+        const msg = this._getText(TUTORIAL_TEXT.COIN_STEP2);
+        this._showLargeModal(
+            msg,
+            () => this.completeCoinTutorial(),
+            STEP_CONFIG.COIN_STEP2
+        );
+    }
+
+    /**
+     * コインチュートリアルを完了
+     */
+    completeCoinTutorial() {
+        this.tutorialStep = TUTORIAL_STEP.COIN_TUTORIAL_COMPLETED;
+        this.coinTutorialCompleted = true;
+        this.currentModal = null;
+        this.clearHighlight();
+        this.scene.gameTimeManager?.resume();
+        localStorage.setItem("coinTutorialCompleted", "true");
     }
 
     // ==================== モーダル表示 ====================
@@ -530,6 +639,55 @@ export class TutorialManager {
         this._updateEat();
     }
 
+    highlightUpgradeButton() {
+        this.clearHighlight();
+
+        const gameInfoUI = this.scene.sidebarUI?.gameInfoUI;
+        if (!gameInfoUI) return;
+
+        // アップグレードボタンの位置とサイズを取得
+        const sidebarX = this.scene.sidebarUI.sidebarContainer.x;
+        const sidebarY = this.scene.sidebarUI.sidebarContainer.y;
+        const infoX = gameInfoUI.infoContainer.x;
+        const infoY = gameInfoUI.infoContainer.y;
+        
+        const buttonX = sidebarX + infoX + gameInfoUI.upgradeButton.x - gameInfoUI.upgradeButton.width / 2;
+        const buttonY = sidebarY + infoY + gameInfoUI.upgradeButton.y - gameInfoUI.upgradeButton.height / 2;
+        const buttonW = gameInfoUI.upgradeButton.width;
+        const buttonH = gameInfoUI.upgradeButton.height;
+
+        this.highlightTarget = {
+            type: "upgradeButton",
+            x: buttonX,
+            y: buttonY,
+            width: buttonW,
+            height: buttonH,
+        };
+
+        this.overlayGraphics = this.scene.add
+            .graphics()
+            .setDepth(1000)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.overlayGraphics);
+
+        this.highlightGraphics = this.scene.add
+            .graphics()
+            .setDepth(1001)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.highlightGraphics);
+
+        // 初期描画（マージン付き）
+        this._draw4Region(
+            buttonX - 10,
+            buttonY - 10,
+            buttonW + 20,
+            buttonH + 20
+        );
+
+        this._startAnimation(TUTORIAL_STEP.UPGRADE_ROD_EXPLANATION, () => this._updateUpgradeButton());
+        this._updateUpgradeButton();
+    }
+
     // ==================== ハイライト更新 ====================
 
     _updateFishHit() {
@@ -557,6 +715,12 @@ export class TutorialManager {
     }
 
     _updateEat() {
+        if (!this.highlightGraphics || !this.highlightTarget) return;
+        const { x, y, width, height } = this.highlightTarget;
+        this._drawBorder(x - 10, y - 10, width + 20, height + 20);
+    }
+
+    _updateUpgradeButton() {
         if (!this.highlightGraphics || !this.highlightTarget) return;
         const { x, y, width, height } = this.highlightTarget;
         this._drawBorder(x - 10, y - 10, width + 20, height + 20);
