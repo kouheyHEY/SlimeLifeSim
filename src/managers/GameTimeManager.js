@@ -1,5 +1,6 @@
 import { GAME_CONST, GAME_TIME_CONST } from "../const/GameConst.js";
 import { MAP_CONST } from "../const/MapConst.js";
+import { TUTORIAL_START_GAME_MINUTES } from "./TutorialManager.js";
 
 /**
  * ゲーム時間管理マネージャー
@@ -160,9 +161,7 @@ export class GameTimeManager {
             const elapsedMinutes =
                 currentTotalMinutes -
                 this.scene.tutorialManager.tutorialStartGameTime;
-            console.log("チュートリアル経過時間:", elapsedMinutes, "分");
-            if (elapsedMinutes >= 10) {
-                console.log("ゲーム開始から10分経過、チュートリアルを強制開始");
+            if (elapsedMinutes >= TUTORIAL_START_GAME_MINUTES) {
                 this.scene.tutorialManager.tutorialTriggered = true;
                 this.scene.tutorialManager.startTutorial();
                 return;
@@ -182,7 +181,6 @@ export class GameTimeManager {
             if (currentTotalMinutes >= this.fishHitEndTime) {
                 this.fishHitActive = false;
                 this.lotteryActive = true;
-                console.log("魚ヒット終了");
                 // イベントを発火してUIを更新
                 this.scene.events.emit("fishHit", false);
             }

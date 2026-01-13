@@ -1,5 +1,9 @@
 import { Modal } from "../../core/ui/Modal.js";
-import { getCurrentLanguage, FONT_NAME, STORAGE_KEY } from "../const/CommonConst.js";
+import {
+    getCurrentLanguage,
+    FONT_NAME,
+    STORAGE_KEY,
+} from "../const/CommonConst.js";
 
 /**
  * チュートリアルステップの定数
@@ -18,6 +22,11 @@ export const TUTORIAL_STEP = {
 };
 
 /**
+ * チュートリアル開始までの分数（ゲーム内時間）
+ */
+export const TUTORIAL_START_GAME_MINUTES = 2; // ゲーム開始から2分後
+
+/**
  * モーダルサイズ定数
  */
 const MODAL_SIZE = {
@@ -29,7 +38,7 @@ const MODAL_SIZE = {
  * チュートリアル遅延定数（ミリ秒）
  */
 const TUTORIAL_DELAY = {
-    COIN_TUTORIAL_START: 300, // コインチュートリアル開始までの遅延
+    COIN_TUTORIAL_START: 100, // コインチュートリアル開始までの遅延
 };
 
 /**
@@ -160,9 +169,11 @@ export class TutorialManager {
         }
         this.tutorialStartGameTime =
             this.scene.gameTimeManager.getTotalMinutes();
-        
+
         // コインチュートリアルの完了状態をロード
-        if (localStorage.getItem(STORAGE_KEY.COIN_TUTORIAL_COMPLETED) === "true") {
+        if (
+            localStorage.getItem(STORAGE_KEY.COIN_TUTORIAL_COMPLETED) === "true"
+        ) {
             this.coinTutorialCompleted = true;
         }
     }
@@ -260,7 +271,7 @@ export class TutorialManager {
     /**
      * 魚を売ったときにコインチュートリアルを開始
      * 最初の魚を売った時のみ実行される
-     * 
+     *
      * Note: This tutorial triggers when coins go from 0 to positive.
      * Since coins are not persisted across page reloads in the current
      * implementation, the tutorial will re-trigger after reload if not
@@ -284,9 +295,12 @@ export class TutorialManager {
         // The hadZeroCoins check in InventoryUI prevents multiple triggers in the same session.
         if (!this.firstCoinEarned) {
             this.firstCoinEarned = true;
-            this.scene.time.delayedCall(TUTORIAL_DELAY.COIN_TUTORIAL_START, () => {
-                this.showCoinTutorialStep1();
-            });
+            this.scene.time.delayedCall(
+                TUTORIAL_DELAY.COIN_TUTORIAL_START,
+                () => {
+                    this.showCoinTutorialStep1();
+                }
+            );
         }
     }
 
@@ -310,7 +324,7 @@ export class TutorialManager {
      */
     showCoinTutorialStep2() {
         this.tutorialStep = TUTORIAL_STEP.UPGRADE_ROD_EXPLANATION;
-        
+
         // アップグレードボタンをハイライト
         this.highlightUpgradeButton();
 
@@ -660,26 +674,36 @@ export class TutorialManager {
 
         const sidebarUI = this.scene.sidebarUI;
         const gameInfoUI = sidebarUI?.gameInfoUI;
-        
+
         // 必要なコンポーネントの存在確認
         if (!sidebarUI) {
-            console.warn("Cannot highlight upgrade button: sidebarUI not found");
+            console.warn(
+                "Cannot highlight upgrade button: sidebarUI not found"
+            );
             return;
         }
         if (!gameInfoUI) {
-            console.warn("Cannot highlight upgrade button: gameInfoUI not found");
+            console.warn(
+                "Cannot highlight upgrade button: gameInfoUI not found"
+            );
             return;
         }
         if (!gameInfoUI.upgradeButton) {
-            console.warn("Cannot highlight upgrade button: upgradeButton not found");
+            console.warn(
+                "Cannot highlight upgrade button: upgradeButton not found"
+            );
             return;
         }
         if (!sidebarUI.sidebarContainer) {
-            console.warn("Cannot highlight upgrade button: sidebarContainer not found");
+            console.warn(
+                "Cannot highlight upgrade button: sidebarContainer not found"
+            );
             return;
         }
         if (!gameInfoUI.infoContainer) {
-            console.warn("Cannot highlight upgrade button: infoContainer not found");
+            console.warn(
+                "Cannot highlight upgrade button: infoContainer not found"
+            );
             return;
         }
 
@@ -688,7 +712,7 @@ export class TutorialManager {
         const sidebarY = sidebarUI.sidebarContainer.y;
         const infoX = gameInfoUI.infoContainer.x;
         const infoY = gameInfoUI.infoContainer.y;
-        
+
         // ボタンの絶対座標を計算
         // upgradeButton has origin (0, 0), so x/y are top-left coordinates
         const buttonX = sidebarX + infoX + gameInfoUI.upgradeButton.x;
@@ -724,7 +748,9 @@ export class TutorialManager {
             buttonH + 20
         );
 
-        this._startAnimation(TUTORIAL_STEP.UPGRADE_ROD_EXPLANATION, () => this._updateUpgradeButton());
+        this._startAnimation(TUTORIAL_STEP.UPGRADE_ROD_EXPLANATION, () =>
+            this._updateUpgradeButton()
+        );
         this._updateUpgradeButton();
     }
 
