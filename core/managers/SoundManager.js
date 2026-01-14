@@ -10,9 +10,9 @@ export class SoundManager {
         this.scene = scene;
 
         /** BGMの音量 */
-        this.bgmVolume = 0.5;
+        this.bgmVolume = 0.3;
         /** SEの音量 */
-        this.seVolume = 0.7;
+        this.seVolume = 0.3;
 
         /** 現在再生中のBGM */
         this.currentBgm = null;

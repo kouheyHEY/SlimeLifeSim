@@ -44,9 +44,8 @@ export class Game extends Phaser.Scene {
             MAP_CONST.INITIAL_BACKGROUND_COLOR
         );
 
-        // SoundManager を初期化して BGM を再生
+        // SoundManager を初期化
         this.soundManager = new SoundManager(this);
-        this.soundManager.playBgm("bgm1");
 
         this.initCameras();
         this.initAnimations();
@@ -492,6 +491,13 @@ export class Game extends Phaser.Scene {
     initUpgradesAndSettings() {
         this.upgradeManager = new UpgradeManager(this);
         this.settingsManager = new SettingsManager(this);
+
+        // 保存された音量設定をSoundManagerに適用
+        this.soundManager.setBgmVolume(this.settingsManager.getBgmVolume());
+        this.soundManager.setSeVolume(this.settingsManager.getSeVolume());
+
+        // BGMを再生
+        this.soundManager.playBgm("bgm1");
 
         // アップグレードに基づいて自動釣り設定を同期
         if (this.upgradeManager.isAutoFishingEnabled()) {
