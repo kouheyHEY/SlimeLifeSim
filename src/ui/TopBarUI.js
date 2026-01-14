@@ -25,11 +25,13 @@ export class TopBarUI {
      * @param {Phaser.Scene} scene - 所属するシーン
      * @param {GameTimeManager} gameTimeManager - ゲーム時間マネージャー
      * @param {GameInfoUI} gameInfoUI - ゲーム情報UI
+     * @param {TutorialManager} [tutorialManager] - チュートリアルマネージャー（オプション）
      */
-    constructor(scene, gameTimeManager, gameInfoUI) {
+    constructor(scene, gameTimeManager, gameInfoUI, tutorialManager = null) {
         this.scene = scene;
         this.gameTimeManager = gameTimeManager;
         this.gameInfoUI = gameInfoUI;
+        this.tutorialManager = tutorialManager;
         this.createUI();
     }
 
@@ -79,7 +81,8 @@ export class TopBarUI {
                 UI_CONST.PAUSE_BUTTON_HEIGHT,
                 UI_CONST.TOP_BAR_PAUSE_BUTTON_OUTER_COLOR
             )
-            .setOrigin(0.5, 0.5);
+            .setOrigin(0.5, 0.5)
+            .setVisible(false);
         this.topBarContainer.add(this.pauseButtonOuter);
         this.scene.cameras.main.ignore(this.pauseButtonOuter);
 
@@ -95,7 +98,8 @@ export class TopBarUI {
                 UI_CONST.TOP_BAR_PAUSE_BUTTON_INNER_COLOR
             )
             .setOrigin(0.5, 0.5)
-            .setInteractive({ useHandCursor: true });
+            .setInteractive({ useHandCursor: true })
+            .setVisible(false);
         this.topBarContainer.add(this.pauseButton);
         this.scene.cameras.main.ignore(this.pauseButton);
 
@@ -128,6 +132,7 @@ export class TopBarUI {
 
         this.topBarContainer.add(this.pauseIcon);
         this.scene.cameras.main.ignore(this.pauseIcon);
+        this.pauseIcon.setVisible(false);
 
         this.pauseButton.on("pointerdown", () => {
             // プレス効果
@@ -313,6 +318,15 @@ export class TopBarUI {
      * UIの更新
      */
     update() {
+        // チュートリアル状態に基づいて Pause ボタンの表示を制御
+        if (this.tutorialManager) {
+            const shouldShowPauseButton =
+                this.tutorialManager.isStatusTutorialCompleted();
+            this.pauseButton.setVisible(shouldShowPauseButton);
+            this.pauseButtonOuter.setVisible(shouldShowPauseButton);
+            this.pauseIcon.setVisible(shouldShowPauseButton);
+        }
+
         // 日数を更新
         const day = this.gameTimeManager.currentTime.day;
         this.dayText.setText(`${UI_TEXT.TOP_BAR.DAY_PREFIX}${day}`);

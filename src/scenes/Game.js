@@ -504,6 +504,11 @@ export class Game extends Phaser.Scene {
      */
     initTutorial() {
         this.tutorialManager = new TutorialManager(this);
+
+        // TopBarUI に tutorialManager を設定
+        if (this.topBarUI) {
+            this.topBarUI.tutorialManager = this.tutorialManager;
+        }
     }
 
     /**

@@ -191,6 +191,14 @@ export class TutorialManager {
         return this.tutorialStep;
     }
 
+    /**
+     * ステータスチュートリアルが完了しているかチェック
+     * @returns {boolean} ステータスチュートリアル（STATUS_EXPLANATION）以降が完了していればtrue
+     */
+    isStatusTutorialCompleted() {
+        return this.tutorialStep >= TUTORIAL_STEP.STATUS_EXPLANATION;
+    }
+
     // ==================== 各ステップ ====================
 
     showStep1FishHit() {
