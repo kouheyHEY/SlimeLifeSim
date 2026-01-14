@@ -1,10 +1,10 @@
 export default {
-    // 'audio': {
-    //     score: {
-    //         key: 'sound',
-    //         args: ['assets/sound.mp3', 'assets/sound.m4a', 'assets/sound.ogg']
-    //     },
-    // },
+    audio: {
+        bgm1: {
+            key: "bgm1",
+            args: ["assets/sounds/bgm1.wav"],
+        },
+    },
     image: {
         fish_funa: {
             key: "fish_funa",

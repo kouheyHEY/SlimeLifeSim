@@ -14,8 +14,8 @@ export class SettingsManager {
 
         // デフォルト設定
         this.settings = {
-            bgmVolume: 0.5, // BGM音量（0.0-1.0）
-            seVolume: 0.5, // SE音量（0.0-1.0）
+            bgmVolume: 0.3, // BGM音量（0.0-1.0）
+            seVolume: 0.3, // SE音量（0.0-1.0）
             backgroundColorChange: true, // 背景色の変化
             playerAnimation: true, // プレイヤーのアニメーション
             statusChange: true, // ステータスの変化

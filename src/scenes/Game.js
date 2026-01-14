@@ -24,6 +24,7 @@ import {
 } from "../const/CommonConst.js";
 import assets from "../assets.js";
 import { TimeOfDayManager } from "../managers/TimeOfDayManager.js";
+import { SoundManager } from "../../core/managers/SoundManager.js";
 
 /**
  * メインゲームシーン
@@ -42,6 +43,10 @@ export class Game extends Phaser.Scene {
         this.cameras.main.setBackgroundColor(
             MAP_CONST.INITIAL_BACKGROUND_COLOR
         );
+
+        // SoundManager を初期化して BGM を再生
+        this.soundManager = new SoundManager(this);
+        this.soundManager.playBgm("bgm1");
 
         this.initCameras();
         this.initAnimations();

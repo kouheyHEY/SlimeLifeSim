@@ -4,6 +4,7 @@ import {
     getLocalizedText,
     getCurrentLanguage,
 } from "../const/CommonConst.js";
+import { Slider } from "../../core/ui/Slider.js";
 
 /**
  * 一時停止シーン
@@ -111,6 +112,34 @@ export class Pause extends Phaser.Scene {
 
         let currentY = -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 100;
         const lineHeight = 50;
+
+        // BGM音量スライダー
+        const bgmSlider = new Slider(this, pauseContainer, {
+            x: -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+            y: currentY,
+            label: getLocalizedText(UI_TEXT.PAUSE_MODAL.BGM_VOLUME),
+            value: this.gameScene.settingsManager.getBgmVolume(),
+            fontFamily: FONT_NAME.CP_PERIOD,
+            sliderWidth: UI_CONST.SLIDER_WIDTH,
+            handleOffsetX: UI_CONST.SLIDER_HANDLE_OFFSET_X,
+            percentOffsetX: UI_CONST.SLIDER_PERCENT_OFFSET_X,
+            handleRadius: UI_CONST.SLIDER_HANDLE_RADIUS,
+            // スタイル設定（ゲーム固有のスタイルをここで指定可能）
+            style: {
+                barBackgroundColor: 0x1a3a3a,
+                barBorderColor: 0xffffff,
+                barBorderWidth: 2,
+                labelColor: "#ffff00",
+                percentColor: "#ffffff",
+            },
+            onChange: (volume) => {
+                this.gameScene.settingsManager.setBgmVolume(volume);
+                if (this.gameScene.soundManager) {
+                    this.gameScene.soundManager.setBgmVolume(volume);
+                }
+            },
+        });
+        currentY += lineHeight;
 
         // ステータス変化トグル
         this.createToggle(

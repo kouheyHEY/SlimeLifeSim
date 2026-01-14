@@ -284,6 +284,15 @@ export const UI_CONST = {
     /** 一時停止モーダルの高さ */
     PAUSE_MODAL_HEIGHT: 320,
 
+    /** スライダーの幅 */
+    SLIDER_WIDTH: 180,
+    /** スライダーつまみの半径 */
+    SLIDER_HANDLE_RADIUS: 10,
+    /** スライダーつまみのX座標オフセット（ラベルの右側） */
+    SLIDER_HANDLE_OFFSET_X: 210,
+    /** スライダーパーセンテージ表示のX座標オフセット（ラベルの右側） */
+    SLIDER_PERCENT_OFFSET_X: 320,
+
     /** アップグレードモーダルの幅 */
     UPGRADE_MODAL_WIDTH: 700,
     /** アップグレードモーダルの高さ */

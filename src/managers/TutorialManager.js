@@ -3,6 +3,7 @@ import {
     getCurrentLanguage,
     FONT_NAME,
     STORAGE_KEY,
+    COMMON_CONST,
 } from "../const/CommonConst.js";
 
 /**
@@ -382,6 +383,9 @@ export class TutorialManager {
             x: safeX,
             y: modalY,
             closeOnClickOutside: false,
+            screenWidth: COMMON_CONST.SCREEN_WIDTH,
+            screenHeight: COMMON_CONST.SCREEN_HEIGHT,
+            fontFamily: FONT_NAME.CHECKPOINT,
         });
 
         this.currentModal.show();
@@ -433,6 +437,9 @@ export class TutorialManager {
             x: safeX,
             y: modalY,
             messageAlignTop: true,
+            screenWidth: COMMON_CONST.SCREEN_WIDTH,
+            screenHeight: COMMON_CONST.SCREEN_HEIGHT,
+            fontFamily: FONT_NAME.CHECKPOINT,
         });
 
         this.currentModal.show();

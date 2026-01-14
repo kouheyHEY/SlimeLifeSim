@@ -1,5 +1,3 @@
-import { COMMON_CONST, FONT_NAME } from "../../src/const/CommonConst.js";
-
 /**
  * モーダルダイアログクラス
  * 汎用的なモーダル表示機能を提供
@@ -9,6 +7,8 @@ export class Modal {
      * モーダルを作成
      * @param {Phaser.Scene} scene - モーダルを表示するシーン
      * @param {Object} config - モーダルの設定
+     * @param {number} config.screenWidth - 画面幅（デフォルト: 800）
+     * @param {number} config.screenHeight - 画面高さ（デフォルト: 600）
      * @param {string} config.title - モーダルのタイトル（オプション）
      * @param {string} config.message - モーダルのメッセージ
      * @param {Array<{text: string, callback: Function, style?: Object}>} config.buttons - ボタンの配列
@@ -27,10 +27,13 @@ export class Modal {
      * @param {number} config.keyLabel.iconFrame - アイコンのフレーム番号（オプション）
      * @param {number} config.keyLabel.iconScale - アイコンのスケール（オプション、デフォルト: 1）
      * @param {string} config.keyLabel.text - 表示するテキスト
+     * @param {string} config.fontFamily - デフォルトフォント（デフォルト: "Arial"）
      */
     constructor(scene, config) {
         this.scene = scene;
         this.config = {
+            screenWidth: config.screenWidth || 800,
+            screenHeight: config.screenHeight || 600,
             title: config.title || "",
             message: config.message || "",
             buttons: config.buttons || [],
@@ -43,6 +46,7 @@ export class Modal {
             x: config.x,
             y: config.y,
             messageAlignTop: config.messageAlignTop || false,
+            fontFamily: config.fontFamily || "Arial",
         };
 
         this.container = null;
@@ -62,8 +66,8 @@ export class Modal {
         this.overlay = this.scene.add.rectangle(
             0,
             0,
-            COMMON_CONST.SCREEN_WIDTH,
-            COMMON_CONST.SCREEN_HEIGHT,
+            this.config.screenWidth,
+            this.config.screenHeight,
             0x000000,
             0.7
         );
@@ -83,11 +87,11 @@ export class Modal {
         const containerX =
             this.config.x !== undefined
                 ? this.config.x
-                : COMMON_CONST.SCREEN_WIDTH / 2;
+                : this.config.screenWidth / 2;
         const containerY =
             this.config.y !== undefined
                 ? this.config.y
-                : COMMON_CONST.SCREEN_HEIGHT / 2;
+                : this.config.screenHeight / 2;
 
         this.container = this.scene.add.container(containerX, containerY);
         this.container.setScrollFactor(0);
@@ -119,7 +123,7 @@ export class Modal {
                 {
                     fontFamily:
                         this.config.modalStyle.titleFontFamily ||
-                        FONT_NAME.CHECKPOINT,
+                        this.config.fontFamily,
                     fontSize: this.config.modalStyle.titleFontSize || "36px",
                     color: this.config.modalStyle.titleColor || "#ffff00",
                     stroke: this.config.modalStyle.titleStroke || "#000000",
@@ -215,7 +219,7 @@ export class Modal {
                         0,
                         this.config.keyLabel,
                         {
-                            fontFamily: FONT_NAME.CHECKPOINT,
+                            fontFamily: this.config.fontFamily,
                             fontSize: "24px",
                             color: "#ffffff",
                             stroke: "#000000",
@@ -249,7 +253,7 @@ export class Modal {
                             0,
                             labelConfig.text,
                             {
-                                fontFamily: FONT_NAME.CHECKPOINT,
+                                fontFamily: this.config.fontFamily,
                                 fontSize: "32px",
                                 color: "#ffffff",
                                 stroke: "#000000",
@@ -288,7 +292,7 @@ export class Modal {
             {
                 fontFamily:
                     this.config.modalStyle.messageFontFamily ||
-                    FONT_NAME.CHECKPOINT,
+                    this.config.fontFamily,
                 fontSize: this.config.modalStyle.messageFontSize || "24px",
                 color: this.config.modalStyle.messageColor || "#ffffff",
                 stroke: this.config.modalStyle.messageStroke || "#000000",
@@ -383,7 +387,7 @@ export class Modal {
 
         // ボタンテキスト
         const buttonText = this.scene.add.text(0, 0, buttonConfig.text, {
-            fontFamily: buttonStyle.fontFamily || FONT_NAME.CHECKPOINT,
+            fontFamily: buttonStyle.fontFamily || this.config.fontFamily,
             fontSize: buttonStyle.fontSize || "28px",
             color: buttonStyle.color || "#ffffff",
             stroke: buttonStyle.stroke || "#000000",
