@@ -250,7 +250,7 @@ export class GameTimeManager {
         this.fishHitActive = true;
         this.lotteryActive = false;
 
-        // ヒット持続時間をランダムに決定（10～20分）
+        // ヒット持続時間をランダムに決定（4～20分）
         const duration = Phaser.Math.Between(
             GAME_CONST.FISH_HIT_DURATION_MIN,
             GAME_CONST.FISH_HIT_DURATION_MAX
