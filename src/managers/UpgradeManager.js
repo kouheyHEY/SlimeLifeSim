@@ -12,19 +12,32 @@ export class UpgradeManager {
     constructor(scene) {
         this.scene = scene;
 
-        // アップグレードの種類と初期レベル（簡略化版：総合レベルのみ）
+        // アップグレードの種類と初期レベル
         this.upgrades = {
             totalLevel: 0, // 総合レベル（すべての能力が上がる）
+            rarity: 0, // レア魚の確率
+            hitTime: 0, // ヒット猶予時間
         };
 
         // アップグレードの最大レベル
         this.maxLevels = {
-            totalLevel: 30, // 最大30レベルまで
+            totalLevel: 30,
+            rarity: 10,
+            hitTime: 10,
         };
 
-        // アップグレードのコスト計算式（ベースコスト × レベル）
+        // アップグレードのコスト計算式（ベースコスト × 倍率^(レベル-1)）
         this.baseCosts = {
-            totalLevel: 100, // レベル1: 100, レベル2: 200, ...
+            totalLevel: 100,
+            rarity: 100,
+            hitTime: 120,
+        };
+
+        // コストの増加倍率（指数的増加）
+        this.costMultipliers = {
+            totalLevel: 1.3,
+            rarity: 1.5,
+            hitTime: 1.6,
         };
 
         // LocalStorageから読み込み
@@ -84,7 +97,7 @@ export class UpgradeManager {
     }
 
     /**
-     * 次のレベルのコストを取得
+     * 次のレベルのコストを取得（指数的増加）
      * @param {string} upgradeKey - アップグレードのキー
      * @returns {number} コスト（最大レベルの場合は-1）
      */
@@ -92,8 +105,11 @@ export class UpgradeManager {
         if (!this.canUpgrade(upgradeKey)) {
             return -1; // 最大レベル
         }
-        const currentLevel = this.upgrades[upgradeKey];
-        return this.baseCosts[upgradeKey] * (currentLevel + 1);
+        const currentLevel = this.upgrades[upgradeKey] || 0;
+        const baseCost = this.baseCosts[upgradeKey] || 100;
+        const multiplier = this.costMultipliers[upgradeKey] || 1.5;
+        // cost = baseCost * multiplier^currentLevel
+        return Math.floor(baseCost * Math.pow(multiplier, currentLevel));
     }
 
     /**
@@ -260,5 +276,25 @@ export class UpgradeManager {
     getFishValueMultiplierOld() {
         // レベル1で1.1倍、レベル10で2.0倍
         return 1.0 + this.upgrades.fishValue * 0.1;
+    }
+
+    /**
+     * レア魚の確率倍率を取得
+     * @returns {number} 倍率（1.0 = 通常、1.5 = 1.5倍など）
+     */
+    getRareFishRateMultiplier() {
+        const level = this.upgrades.rarity || 0;
+        // レベル1で1.1倍、レベル10で2.0倍
+        return 1.0 + level * 0.1;
+    }
+
+    /**
+     * ヒット時間の延長倍率を取得
+     * @returns {number} 倍率（1.0 = 通常、2.0 = 2倍など）
+     */
+    getHitTimeMultiplier() {
+        const level = this.upgrades.hitTime || 0;
+        // レベル1で1.15倍、レベル10で2.35倍
+        return 1.0 + level * 0.15;
     }
 }

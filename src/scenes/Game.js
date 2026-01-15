@@ -466,7 +466,7 @@ export class Game extends Phaser.Scene {
      * ゲーム時間初期化
      */
     initGameTime() {
-        this.gameTimeManager = new GameTimeManager(this);
+        this.gameTimeManager = new GameTimeManager(this, this.upgradeManager);
         this.timeOfDayManager = new TimeOfDayManager(
             this,
             this.gameTimeManager
@@ -880,6 +880,29 @@ export class Game extends Phaser.Scene {
      */
     selectFishByWeight() {
         const weights = { ...GAME_CONST.FISH_WEIGHT };
+
+        // アップグレード倍率を取得（レア魚の確率向上）
+        const rarityMultiplier =
+            this.upgradeManager.getRareFishRateMultiplier();
+
+        // 魚のレア度定義（値が高いほどレア）
+        const fishRarity = {
+            fish_funa: 1.0, // 普通（そのまま）
+            fish_ebi: 1.2, // 少しレア
+            fish_nijimasu: 1.5, // 中レア
+            fish_tuna: 2.0, // レア
+            fish_tai: 3.0, // 激レア
+            bottle_letter: 1.0, // 特殊（影響なし）
+        };
+
+        // レア度に応じて重みを調整（アップグレード適用）
+        // 公式: 新重み = 元重み * ((rarityMultiplier - 1) * (レア度 - 1) + 1)
+        // 例: rarityMultiplier=1.5, フナ(1.0)→1.0倍, タイ(3.0)→2.0倍
+        Object.keys(weights).forEach((fishName) => {
+            const rarity = fishRarity[fishName] || 1.0;
+            const multiplier = (rarityMultiplier - 1) * (rarity - 1) + 1;
+            weights[fishName] = Math.floor(weights[fishName] * multiplier);
+        });
 
         // 未読の手紙がない場合はメッセージボトルを除外
         if (!this.letterManager.hasAnyUnreadLetters(this)) {

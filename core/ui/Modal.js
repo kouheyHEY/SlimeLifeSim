@@ -47,6 +47,7 @@ export class Modal {
             y: config.y,
             messageAlignTop: config.messageAlignTop || false,
             fontFamily: config.fontFamily || "Arial",
+            verticalButtons: config.verticalButtons || false,
         };
 
         this.container = null;
@@ -318,20 +319,34 @@ export class Modal {
         // ボタン表示
         if (this.config.buttons.length > 0) {
             const buttonSpacing = 20;
-            const totalButtonWidth =
-                this.config.buttons.length * 200 +
-                (this.config.buttons.length - 1) * buttonSpacing;
-            let buttonX = -totalButtonWidth / 2 + 100;
 
-            this.config.buttons.forEach((buttonConfig) => {
-                const button = this.createButton(
-                    buttonX,
-                    currentY,
-                    buttonConfig
-                );
-                this.container.add(button);
-                buttonX += 200 + buttonSpacing;
-            });
+            if (this.config.verticalButtons) {
+                // 縦並び
+                let buttonY =
+                    currentY - ((this.config.buttons.length - 1) * 70) / 2;
+                this.config.buttons.forEach((buttonConfig) => {
+                    const button = this.createButton(0, buttonY, buttonConfig);
+                    this.container.add(button);
+                    buttonY +=
+                        (buttonConfig.style?.height || 60) + buttonSpacing;
+                });
+            } else {
+                // 横並び（デフォルト）
+                const totalButtonWidth =
+                    this.config.buttons.length * 200 +
+                    (this.config.buttons.length - 1) * buttonSpacing;
+                let buttonX = -totalButtonWidth / 2 + 100;
+
+                this.config.buttons.forEach((buttonConfig) => {
+                    const button = this.createButton(
+                        buttonX,
+                        currentY,
+                        buttonConfig
+                    );
+                    this.container.add(button);
+                    buttonX += 200 + buttonSpacing;
+                });
+            }
         }
 
         // フェードインアニメーション

@@ -10,9 +10,11 @@ export class GameTimeManager {
     /**
      * コンストラクタ
      * @param {Phaser.Scene} scene - 所属するシーン
+     * @param {UpgradeManager} upgradeManager - アップグレードマネージャー
      */
-    constructor(scene) {
+    constructor(scene, upgradeManager = null) {
         this.scene = scene;
+        this.upgradeManager = upgradeManager;
 
         // ゲーム開始時刻（ゲーム内時間）
         this.gameStartTime = { ...GAME_TIME_CONST.GAME_START_TIME };
@@ -251,16 +253,27 @@ export class GameTimeManager {
         this.lotteryActive = false;
 
         // ヒット持続時間をランダムに決定（4～20分）
-        const duration = Phaser.Math.Between(
+        const baseDuration = Phaser.Math.Between(
             GAME_CONST.FISH_HIT_DURATION_MIN,
             GAME_CONST.FISH_HIT_DURATION_MAX
         );
+
+        // アップグレード倍率を適用
+        const hitTimeMultiplier = this.upgradeManager
+            ? this.upgradeManager.getHitTimeMultiplier()
+            : 1.0;
+        const duration = Math.floor(baseDuration * hitTimeMultiplier);
+
         this.fishHitEndTime = this.getTotalMinutes() + duration;
 
         // 最後にヒットが発生した時刻を記録（天井システム用）
         this.lastFishHitTime = this.getTotalMinutes();
 
-        console.log(`魚ヒット発生！ ${duration}分間有効`);
+        console.log(
+            `魚ヒット発生！ ${duration}分間有効 (倍率: ${hitTimeMultiplier.toFixed(
+                2
+            )}x)`
+        );
 
         // イベントを発火してUIを更新
         this.scene.events.emit("fishHit", true);

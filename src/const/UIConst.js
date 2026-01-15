@@ -275,7 +275,7 @@ export const UI_CONST = {
     /** 一時停止ボタンの高さ */
     PAUSE_BUTTON_HEIGHT: 50,
     /** アップグレードボタンの幅 */
-    UPGRADE_BUTTON_WIDTH: 150,
+    UPGRADE_BUTTON_WIDTH: 160,
     /** アップグレードボタンの高さ */
     UPGRADE_BUTTON_HEIGHT: 60,
 
@@ -346,13 +346,13 @@ export const UI_CONST = {
     /** トップバー: 時間帯バーのY座標オフセット（下） */
     TOP_BAR_TIME_LINE_Y_OFFSET: 15,
     /** トップバー: ステータス/コイン表示のX座標オフセット（アイコン） */
-    TOP_BAR_STATUS_ICON_X_OFFSET: 35,
+    TOP_BAR_STATUS_ICON_X_OFFSET: 55,
     /** トップバー: ステータス/コイン表示のX座標オフセット（テキスト） */
-    TOP_BAR_STATUS_TEXT_X_OFFSET: 10,
+    TOP_BAR_STATUS_TEXT_X_OFFSET: 25,
     /** トップバー: ステータス/コインアイコンのスケール */
-    TOP_BAR_STATUS_ICON_SCALE: 0.6,
+    TOP_BAR_STATUS_ICON_SCALE: 0.8,
     /** トップバー: ステータス/コインテキストのフォントサイズ */
-    TOP_BAR_STATUS_TEXT_FONT_SIZE: "20px",
+    TOP_BAR_STATUS_TEXT_FONT_SIZE: "28px",
     /** トップバー: 日数/時刻テキストのフォントサイズ */
     TOP_BAR_DAY_TIME_FONT_SIZE: "24px",
     /** トップバー: 日数/時刻テキストのY座標オフセット（上段） */
@@ -411,18 +411,120 @@ export const UI_TEXT = {
     },
     /** アップグレードモーダルのテキスト */
     UPGRADE_MODAL: {
-        TITLE: { JP: "アップグレード", EN: "Upgrades" },
-        FISH_CATCH_RATE: { JP: "魚の釣れやすさ", EN: "Fish Catch Rate" },
-        LINE_POWER: { JP: "釣り糸引っ張り力", EN: "Line Power" },
-        FISH_VALUE: { JP: "魚の価値上昇", EN: "Fish Value" },
-        AUTO_FISHING: { JP: "釣り全自動化", EN: "Auto Fishing" },
-        LEVEL: { JP: "レベル", EN: "Level" },
-        MAX_LEVEL: { JP: "最大レベル", EN: "Max Level" },
-        COST: { JP: "コスト:", EN: "Cost:" },
-        UPGRADE: { JP: "アップグレード", EN: "Upgrade" },
+        TITLE: { JP: "釣竿アップグレード", EN: "Rod Upgrade" },
+        UPGRADE_BUTTON: { JP: "強化", EN: "Upgrade" },
+        CANCEL_BUTTON: { JP: "キャンセル", EN: "Cancel" },
         NOT_ENOUGH_COINS: { JP: "コイン不足", EN: "Not Enough Coins" },
-        CLOSE: { JP: "閉じる", EN: "Close" },
+        MAX: { JP: "最大レベル到達", EN: "Max Level Reached" },
     },
+    /** アップグレードモーダルのスタイル */
+    UPGRADE_MODAL_STYLE: {
+        WIDTH: 500,
+        HEIGHT: 450,
+        BACKGROUND_COLOR: 0x222222,
+        BACKGROUND_ALPHA: 0.98,
+        BORDER_WIDTH: 3,
+        BORDER_COLOR: 0xffffff,
+        OVERLAY_COLOR: 0x000000,
+        OVERLAY_ALPHA: 0.7,
+    },
+    /** アップグレードモーダルのタイトルスタイル */
+    UPGRADE_MODAL_TITLE_STYLE: {
+        FONT_SIZE: "28px",
+        COLOR: "#ffffff",
+        STROKE: "#000000",
+        STROKE_THICKNESS: 2,
+        Y_OFFSET: 25,
+    },
+    /** アップグレードモーダルの項目スタイル */
+    UPGRADE_MODAL_ITEM_STYLE: {
+        START_Y_OFFSET: 120,
+        HEIGHT: 110,
+        SPACING: 15,
+        BG_ALPHA: 0.3,
+        BORDER_WIDTH: 2,
+        NAME_FONT_SIZE: "22px",
+        NAME_COLOR: "#ffffff",
+        NAME_Y_OFFSET: 20,
+        LEVEL_FONT_SIZE: "22px",
+        LEVEL_COLOR: "#ffff88",
+        LEVEL_Y_OFFSET: 20,
+        DESC_FONT_SIZE: "18px",
+        DESC_COLOR: "#cccccc",
+        DESC_Y_OFFSET: 50,
+        DESC_X_OFFSET: 40,
+    },
+    /** アップグレードモーダルのコスト表示スタイル */
+    UPGRADE_MODAL_COST_STYLE: {
+        ICON_RADIUS: 8,
+        ICON_COLOR: 0xffd700,
+        ICON_STROKE: 0xffaa00,
+        FONT_SIZE: "20px",
+        COLOR: "#ffd700",
+        STROKE: "#000000",
+        STROKE_THICKNESS: 2,
+        Y_OFFSET: -20,
+        ICON_X_OFFSET: 40,
+        TEXT_X_OFFSET: 55,
+    },
+    /** アップグレードモーダルのボタンスタイル */
+    UPGRADE_MODAL_BUTTON_STYLE: {
+        WIDTH: 140,
+        HEIGHT: 45,
+        FONT_SIZE: "20px",
+        COLOR: "#ffffff",
+        STROKE: "#000000",
+        STROKE_THICKNESS: 2,
+        BORDER_WIDTH: 2,
+        BORDER_COLOR: 0xffffff,
+        X_OFFSET: -110,
+        Y_OFFSET: -40,
+    },
+    /** アップグレードモーダルのキャンセルボタンスタイル */
+    UPGRADE_MODAL_CANCEL_BUTTON_STYLE: {
+        WIDTH: 120,
+        HEIGHT: 44,
+        FONT_SIZE: "20px",
+        COLOR: "#ffffff",
+        STROKE: "#000000",
+        STROKE_THICKNESS: 2,
+        BORDER_WIDTH: 2,
+        BORDER_COLOR: 0xffffff,
+        BACKGROUND_COLOR: 0x888888,
+        HOVER_COLOR: 0xaaaaaa,
+        Y_OFFSET: -40,
+    },
+    /** アップグレード項目の定義 */
+    UPGRADE_ITEMS: [
+        {
+            id: "rarity",
+            name: { JP: "レア魚の確率", EN: "Rare Fish Rate" },
+            description: {
+                JP: "レアな魚が釣れやすくなります",
+                EN: "Increases rare fish catch rate",
+            },
+            maxLevel: 10,
+            baseCost: 100,
+            costMultiplier: 1.2, // 指数的増加: cost = baseCost * (multiplier ^ (level-1))
+            gainCoins: 0,
+            color: 0x3388ff,
+            hoverColor: 0x66aaff,
+        },
+        {
+            id: "hitTime",
+            name: { JP: "ヒット猶予", EN: "Hit Time" },
+            description: {
+                JP: "魚のヒット時間が延長されます",
+                EN: "Extends fish hit time window",
+            },
+            maxLevel: 10,
+            baseCost: 120,
+            costMultiplier: 1.2,
+            gainCoins: 0,
+            color: 0xff8833,
+            hoverColor: 0xffaa66,
+        },
+    ],
     /** トップバーのテキスト */
     TOP_BAR: {
         PAUSE: { JP: "一時停止", EN: "Pause" },

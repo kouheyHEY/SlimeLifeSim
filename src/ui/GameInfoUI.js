@@ -7,6 +7,7 @@ import {
     getCurrentLanguage,
 } from "../const/CommonConst.js";
 import { GAME_CONST, TIME_PERIOD_DISPLAY_NAME } from "../const/GameConst.js";
+import { Modal } from "../../core/ui/Modal.js";
 
 /**
  * ゲーム情報表示UI
@@ -68,26 +69,13 @@ export class GameInfoUI {
         this.rodSprite = this.scene.add
             .sprite(centerX, currentY, "rod")
             .setOrigin(0.5, 0)
-            .setScale(0.35);
+            .setScale(0.55);
         this.infoContainer.add(this.rodSprite);
         this.scene.cameras.main.ignore(this.rodSprite);
 
         // 釣竿の高さを取得
         const rodHeight = this.rodSprite.displayHeight;
-        currentY += rodHeight + 10;
-
-        // 釣竿レベルテキスト（釣竿の下、中央揃え）
-        this.rodLevelText = this.scene.add
-            .text(centerX, currentY, "Lv 0", {
-                fontSize: "20px",
-                color: UI_CONST.GAME_INFO_FONT_COLOR,
-                fontFamily: FONT_NAME.CP_PERIOD,
-            })
-            .setOrigin(0.5, 0);
-        this.infoContainer.add(this.rodLevelText);
-        this.scene.cameras.main.ignore(this.rodLevelText);
-
-        currentY += 30;
+        currentY += rodHeight + 25;
 
         // アップグレードボタン（レベルテキストの下、中央揃え）
         const upgradeButtonX =
@@ -130,9 +118,9 @@ export class GameInfoUI {
 
         // アップグレードテキスト（コンテナ内の座標）
         this.upgradeButtonText = this.scene.add
-            .text(0, -12, getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE), {
+            .text(0, 0, "アップグレード", {
                 fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "16px",
+                fontSize: "18px",
                 color: "#FFFFFF",
                 align: "center",
                 stroke: "#000000",
@@ -142,33 +130,6 @@ export class GameInfoUI {
         this.upgradeButtonContentContainer.add(this.upgradeButtonText);
         this.scene.cameras.main.ignore(this.upgradeButtonText);
 
-        // コスト表示用のコンテナ（コインアイコン+テキスト）
-        this.upgradeCostContainer = this.scene.add.container(0, 11);
-        this.upgradeButtonContentContainer.add(this.upgradeCostContainer);
-        this.scene.cameras.main.ignore(this.upgradeCostContainer);
-
-        // コインアイコン（コストコンテナ内）
-        this.upgradeCoinIcon = this.scene.add
-            .sprite(-16, 2, "coin")
-            .setOrigin(1, 0.5)
-            .setScale(0.4);
-        this.upgradeCostContainer.add(this.upgradeCoinIcon);
-        this.scene.cameras.main.ignore(this.upgradeCoinIcon);
-
-        // コストテキスト（コストコンテナ内）
-        this.upgradeCostText = this.scene.add
-            .text(-12, 0, "0", {
-                fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "16px",
-                color: "#FFFFFF",
-                align: "left",
-                stroke: "#000000",
-                strokeThickness: 2,
-            })
-            .setOrigin(0, 0.5);
-        this.upgradeCostContainer.add(this.upgradeCostText);
-        this.scene.cameras.main.ignore(this.upgradeCostText);
-
         // アップグレードボタンのクリックイベント（簡略化版）
         this.upgradeButton.on("pointerdown", () => {
             // プレス効果
@@ -176,22 +137,8 @@ export class GameInfoUI {
             this.upgradeButton.y += 2;
             this.upgradeButtonContentContainer.y += 2;
 
-            // アップグレードマネージャーを使用して総合アップグレードを実行
-            const upgradeManager = this.scene.upgradeManager;
-            const cost = upgradeManager.getTotalUpgradeCost();
-
-            if (this.coins >= cost) {
-                const result = upgradeManager.upgradeAll(this.coins);
-                if (result.success) {
-                    this.setCoins(result.newCoins);
-                    // アップグレード成功のフィードバック
-                    console.log(
-                        `アップグレード成功! 新しいレベル: ${result.newLevel}`
-                    );
-                }
-            } else {
-                console.log(`コイン不足: 必要${cost}, 所持${this.coins}`);
-            }
+            // アップグレードモーダルを表示
+            this.showUpgradeModal();
 
             // 少し遅延してから元に戻す
             this.scene.time.delayedCall(100, () => {
@@ -200,6 +147,352 @@ export class GameInfoUI {
                 this.upgradeButtonContentContainer.y -= 2;
             });
         });
+    }
+
+    /**
+     * アップグレード選択モーダルを表示
+     */
+    showUpgradeModal() {
+        // デバッグ：UI_TEXTの内容確認
+        console.log("UI_TEXT:", UI_TEXT);
+        console.log("UPGRADE_MODAL_STYLE:", UI_TEXT.UPGRADE_MODAL_STYLE);
+
+        // 時間を停止
+        if (this.gameTimeManager) {
+            this.gameTimeManager.pause();
+            this.gameTimeManager.pauseFishSystem();
+        }
+
+        // 既存のモーダルがあれば削除
+        if (this.upgradeModal) {
+            this.upgradeModal.destroy();
+        }
+
+        const screenWidth = COMMON_CONST.SCREEN_WIDTH;
+        const screenHeight = COMMON_CONST.SCREEN_HEIGHT;
+        const modalWidth = UI_TEXT.UPGRADE_MODAL_STYLE.WIDTH;
+        const modalHeight = UI_TEXT.UPGRADE_MODAL_STYLE.HEIGHT;
+        const centerX = screenWidth / 2;
+        const centerY = screenHeight / 2;
+
+        // モーダルコンテナを作成
+        this.upgradeModal = this.scene.add.container(centerX, centerY);
+
+        // オーバーレイ背景
+        const overlay = this.scene.add
+            .rectangle(
+                -centerX,
+                -centerY,
+                screenWidth,
+                screenHeight,
+                UI_TEXT.UPGRADE_MODAL_STYLE.OVERLAY_COLOR,
+                UI_TEXT.UPGRADE_MODAL_STYLE.OVERLAY_ALPHA
+            )
+            .setOrigin(0, 0)
+            .setInteractive();
+        this.upgradeModal.add(overlay);
+
+        // モーダル背景
+        const modalBg = this.scene.add
+            .rectangle(
+                0,
+                0,
+                modalWidth,
+                modalHeight,
+                UI_TEXT.UPGRADE_MODAL_STYLE.BACKGROUND_COLOR,
+                UI_TEXT.UPGRADE_MODAL_STYLE.BACKGROUND_ALPHA
+            )
+            .setStrokeStyle(
+                UI_TEXT.UPGRADE_MODAL_STYLE.BORDER_WIDTH,
+                UI_TEXT.UPGRADE_MODAL_STYLE.BORDER_COLOR
+            );
+        this.upgradeModal.add(modalBg);
+
+        // タイトル
+        const title = this.scene.add.text(
+            0,
+            -modalHeight / 2 + UI_TEXT.UPGRADE_MODAL_TITLE_STYLE.Y_OFFSET,
+            getLocalizedText(UI_TEXT.UPGRADE_MODAL.TITLE),
+            {
+                fontFamily: FONT_NAME.CP_PERIOD,
+                fontSize: UI_TEXT.UPGRADE_MODAL_TITLE_STYLE.FONT_SIZE,
+                color: UI_TEXT.UPGRADE_MODAL_TITLE_STYLE.COLOR,
+                stroke: UI_TEXT.UPGRADE_MODAL_TITLE_STYLE.STROKE,
+                strokeThickness:
+                    UI_TEXT.UPGRADE_MODAL_TITLE_STYLE.STROKE_THICKNESS,
+            }
+        );
+        title.setOrigin(0.5, 0.5);
+        this.upgradeModal.add(title);
+
+        // アップグレード情報の定義（定数から取得、レベルを追加、コールバックを実装）
+        const upgrades = UI_TEXT.UPGRADE_ITEMS.map((item) => {
+            const upgradeManager = this.scene.upgradeManager;
+            const currentLevel = upgradeManager.getLevel(item.id);
+            const cost = upgradeManager.getUpgradeCost(item.id);
+            const isMaxLevel = cost === -1;
+
+            return {
+                ...item,
+                name: getLocalizedText(item.name),
+                description: getLocalizedText(item.description),
+                level: currentLevel,
+                cost: isMaxLevel ? 0 : cost,
+                isMaxLevel: isMaxLevel,
+                callback: () => {
+                    if (isMaxLevel) {
+                        console.log(`${item.name.JP}は既に最大レベルです`);
+                        return;
+                    }
+
+                    const result = upgradeManager.upgrade(item.id, this.coins);
+                    if (result.success) {
+                        this.coins = result.newCoins;
+                        this.updateCoinCount();
+                        console.log(
+                            `${getLocalizedText(
+                                item.name
+                            )}をアップグレードしました！`
+                        );
+                        // モーダルを閉じて再度開く（レベル・コスト更新のため）
+                        this.closeUpgradeModal();
+                        this.showUpgradeModal();
+                    } else {
+                        console.log(
+                            getLocalizedText(
+                                UI_TEXT.UPGRADE_MODAL.NOT_ENOUGH_COINS
+                            )
+                        );
+                    }
+                },
+            };
+        });
+
+        // アップグレード項目を描画
+        const itemStyle = UI_TEXT.UPGRADE_MODAL_ITEM_STYLE;
+        let startY = -modalHeight / 2 + itemStyle.START_Y_OFFSET;
+        const itemHeight = itemStyle.HEIGHT;
+        const itemSpacing = itemStyle.SPACING;
+
+        upgrades.forEach((upgrade, index) => {
+            const itemY = startY + index * (itemHeight + itemSpacing);
+
+            // 項目背景
+            const itemBg = this.scene.add
+                .rectangle(
+                    0,
+                    itemY,
+                    modalWidth - 40,
+                    itemHeight,
+                    upgrade.color,
+                    itemStyle.BG_ALPHA
+                )
+                .setStrokeStyle(itemStyle.BORDER_WIDTH, upgrade.color);
+            this.upgradeModal.add(itemBg);
+
+            // 強化要素名（左寄せ）
+            const nameText = this.scene.add.text(
+                -modalWidth / 2 + 30,
+                itemY - itemHeight / 2 + itemStyle.NAME_Y_OFFSET,
+                upgrade.name,
+                {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: itemStyle.NAME_FONT_SIZE,
+                    color: itemStyle.NAME_COLOR,
+                    stroke: "#000000",
+                    strokeThickness: 2,
+                }
+            );
+            nameText.setOrigin(0, 0.5);
+            this.upgradeModal.add(nameText);
+
+            // レベル表記（右寄せ）
+            const levelText = this.scene.add.text(
+                modalWidth / 2 - 30,
+                itemY - itemHeight / 2 + itemStyle.LEVEL_Y_OFFSET,
+                `Lv.${upgrade.level}`,
+                {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: itemStyle.LEVEL_FONT_SIZE,
+                    color: itemStyle.LEVEL_COLOR,
+                    stroke: "#000000",
+                    strokeThickness: 2,
+                }
+            );
+            levelText.setOrigin(1, 0.5);
+            this.upgradeModal.add(levelText);
+
+            // 説明
+            const descText = this.scene.add.text(
+                -modalWidth / 2 + itemStyle.DESC_X_OFFSET,
+                itemY - itemHeight / 2 + itemStyle.DESC_Y_OFFSET,
+                upgrade.description,
+                {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: itemStyle.DESC_FONT_SIZE,
+                    color: itemStyle.DESC_COLOR,
+                    stroke: "#000000",
+                    strokeThickness: 1,
+                }
+            );
+            descText.setOrigin(0, 0.5);
+            this.upgradeModal.add(descText);
+
+            // コスト表示（最大レベルの場合は「MAX」と表示）
+            const costStyle = UI_TEXT.UPGRADE_MODAL_COST_STYLE;
+            if (!upgrade.isMaxLevel) {
+                const coinIcon = this.scene.add
+                    .sprite(
+                        -modalWidth / 2 + costStyle.ICON_X_OFFSET,
+                        itemY + itemHeight / 2 + costStyle.Y_OFFSET,
+                        "coin"
+                    )
+                    .setOrigin(0.5, 0.5)
+                    .setScale(0.6);
+                this.upgradeModal.add(coinIcon);
+
+                const costText = this.scene.add.text(
+                    -modalWidth / 2 + costStyle.TEXT_X_OFFSET,
+                    itemY + itemHeight / 2 + costStyle.Y_OFFSET,
+                    `${upgrade.cost}`,
+                    {
+                        fontFamily: FONT_NAME.CP_PERIOD,
+                        fontSize: costStyle.FONT_SIZE,
+                        color: costStyle.COLOR,
+                        stroke: costStyle.STROKE,
+                        strokeThickness: costStyle.STROKE_THICKNESS,
+                    }
+                );
+                costText.setOrigin(0, 0.5);
+                this.upgradeModal.add(costText);
+            } else {
+                const maxText = this.scene.add.text(
+                    -modalWidth / 2 + costStyle.ICON_X_OFFSET,
+                    itemY + itemHeight / 2 + costStyle.Y_OFFSET,
+                    getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX),
+                    {
+                        fontFamily: FONT_NAME.CP_PERIOD,
+                        fontSize: "18px",
+                        color: "#88ff88",
+                        stroke: "#000000",
+                        strokeThickness: 2,
+                    }
+                );
+                maxText.setOrigin(0, 0.5);
+                this.upgradeModal.add(maxText);
+            }
+
+            // 購入ボタン
+            const btnStyle = UI_TEXT.UPGRADE_MODAL_BUTTON_STYLE;
+            const btnX = modalWidth / 2 + btnStyle.X_OFFSET;
+            const btnY = itemY + itemHeight / 2 + btnStyle.Y_OFFSET;
+
+            // 最大レベルまたはコイン不足の場合はボタンを無効化
+            const canAfford = this.coins >= upgrade.cost;
+            const isDisabled = upgrade.isMaxLevel || !canAfford;
+            const buttonColor = isDisabled ? 0x666666 : upgrade.color;
+
+            const buyButton = this.scene.add
+                .rectangle(
+                    btnX,
+                    btnY,
+                    btnStyle.WIDTH,
+                    btnStyle.HEIGHT,
+                    buttonColor
+                )
+                .setStrokeStyle(btnStyle.BORDER_WIDTH, btnStyle.BORDER_COLOR);
+
+            if (!isDisabled) {
+                buyButton.setInteractive({ useHandCursor: true });
+            }
+            this.upgradeModal.add(buyButton);
+
+            const buttonText = upgrade.isMaxLevel
+                ? getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX)
+                : getLocalizedText(UI_TEXT.UPGRADE_MODAL.UPGRADE_BUTTON);
+
+            const buyText = this.scene.add.text(btnX, btnY, buttonText, {
+                fontFamily: FONT_NAME.CP_PERIOD,
+                fontSize: btnStyle.FONT_SIZE,
+                color: isDisabled ? "#888888" : btnStyle.COLOR,
+                stroke: btnStyle.STROKE,
+                strokeThickness: btnStyle.STROKE_THICKNESS,
+            });
+            buyText.setOrigin(0.5, 0.5);
+            this.upgradeModal.add(buyText);
+
+            if (!isDisabled) {
+                buyButton.on("pointerdown", upgrade.callback);
+                buyButton.on("pointerover", () =>
+                    buyButton.setFillStyle(upgrade.hoverColor)
+                );
+                buyButton.on("pointerout", () =>
+                    buyButton.setFillStyle(upgrade.color)
+                );
+            }
+        });
+
+        // キャンセルボタン
+        const cancelStyle = UI_TEXT.UPGRADE_MODAL_CANCEL_BUTTON_STYLE;
+        const cancelY = modalHeight / 2 + cancelStyle.Y_OFFSET;
+        const cancelButton = this.scene.add
+            .rectangle(
+                0,
+                cancelY,
+                cancelStyle.WIDTH,
+                cancelStyle.HEIGHT,
+                cancelStyle.BACKGROUND_COLOR
+            )
+            .setStrokeStyle(cancelStyle.BORDER_WIDTH, cancelStyle.BORDER_COLOR)
+            .setInteractive({ useHandCursor: true });
+        this.upgradeModal.add(cancelButton);
+
+        const cancelText = this.scene.add.text(
+            0,
+            cancelY,
+            getLocalizedText(UI_TEXT.UPGRADE_MODAL.CANCEL_BUTTON),
+            {
+                fontFamily: FONT_NAME.CP_PERIOD,
+                fontSize: cancelStyle.FONT_SIZE,
+                color: cancelStyle.COLOR,
+                stroke: cancelStyle.STROKE,
+                strokeThickness: cancelStyle.STROKE_THICKNESS,
+            }
+        );
+        cancelText.setOrigin(0.5, 0.5);
+        this.upgradeModal.add(cancelText);
+
+        cancelButton.on("pointerdown", () => this.closeUpgradeModal());
+        cancelButton.on("pointerover", () =>
+            cancelButton.setFillStyle(cancelStyle.HOVER_COLOR)
+        );
+        cancelButton.on("pointerout", () =>
+            cancelButton.setFillStyle(cancelStyle.BACKGROUND_COLOR)
+        );
+
+        // オーバーレイクリックで閉じる
+        overlay.on("pointerdown", () => this.closeUpgradeModal());
+
+        // メインカメラから除外（UIカメラ専用）
+        this.upgradeModal.each((child) => {
+            this.scene.cameras.main.ignore(child);
+        });
+    }
+
+    /**
+     * アップグレードモーダルを閉じる
+     */
+    closeUpgradeModal() {
+        if (this.upgradeModal) {
+            this.upgradeModal.destroy();
+            this.upgradeModal = null;
+        }
+
+        // 時間を再開
+        if (this.gameTimeManager) {
+            this.gameTimeManager.resume();
+            this.gameTimeManager.resumeFishSystem();
+        }
     }
 
     /**
@@ -216,36 +509,20 @@ export class GameInfoUI {
         if (this.upgradeButtonText && this.scene.upgradeManager) {
             const upgradeManager = this.scene.upgradeManager;
             const level = upgradeManager.getTotalLevel();
-            const cost = upgradeManager.getTotalUpgradeCost();
             const maxLevel = upgradeManager.getTotalMaxLevel();
 
             if (level >= maxLevel) {
                 this.upgradeButtonText.setText(
-                    getLocalizedText({ JP: "MAX", EN: "MAX" })
+                    getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX)
                 );
-                this.upgradeCostContainer.setVisible(false);
                 this.upgradeButton.setFillStyle(0x00dd00);
                 this.upgradeButtonOuter.setFillStyle(0x008800);
             } else {
                 this.upgradeButtonText.setText(
-                    getLocalizedText(UI_TEXT.TOP_BAR.UPGRADE)
+                    getLocalizedText(UI_TEXT.UPGRADE_MODAL.UPGRADE_BUTTON)
                 );
-                this.upgradeCostContainer.setVisible(true);
-                this.upgradeCostText.setText(`${cost}`);
-
-                // コストコンテナの幅を計算して中央揃えに調整
-                const costTextWidth = this.upgradeCostText.width;
-                const iconWidth = 16; // コインアイコンの幅（スケール0.4で約16px）
-                const totalWidth = iconWidth + costTextWidth;
-                this.upgradeCostContainer.x = 0; // 中央に配置
-
-                if (this.coins >= cost) {
-                    this.upgradeButton.setFillStyle(0x00dd00);
-                    this.upgradeButtonOuter.setFillStyle(0x008800);
-                } else {
-                    this.upgradeButton.setFillStyle(0x888888);
-                    this.upgradeButtonOuter.setFillStyle(0x555555);
-                }
+                this.upgradeButton.setFillStyle(0x00dd00);
+                this.upgradeButtonOuter.setFillStyle(0x008800);
             }
         }
     }

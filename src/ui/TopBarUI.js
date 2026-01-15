@@ -209,7 +209,7 @@ export class TopBarUI {
 
         const statusSectionCenterX = (statusSectionStart + daySectionStart) / 2;
 
-        // コインアイコン（下段）
+        // コインアイコン
         this.coinSprite = this.scene.add
             .sprite(
                 statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_ICON_X_OFFSET,
@@ -221,7 +221,7 @@ export class TopBarUI {
         this.topBarContainer.add(this.coinSprite);
         this.scene.cameras.main.ignore(this.coinSprite);
 
-        // コイン数テキスト（下段）
+        // コイン数テキスト
         this.coinCountText = this.scene.add
             .text(
                 statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_TEXT_X_OFFSET,
@@ -284,8 +284,8 @@ export class TopBarUI {
     update() {
         // チュートリアル状態に基づいて Pause ボタンの表示を制御
         // コインチュートリアルが完了するまで非表示
-        const shouldShowPauseButton = 
-            this.tutorialManager && 
+        const shouldShowPauseButton =
+            this.tutorialManager &&
             this.tutorialManager.isCoinTutorialCompleted();
         this.pauseButton.setVisible(shouldShowPauseButton);
         this.pauseButtonOuter.setVisible(shouldShowPauseButton);
