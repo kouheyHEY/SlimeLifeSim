@@ -282,7 +282,7 @@ export const UI_CONST = {
     /** 一時停止モーダルの幅 */
     PAUSE_MODAL_WIDTH: 450,
     /** 一時停止モーダルの高さ */
-    PAUSE_MODAL_HEIGHT: 320,
+    PAUSE_MODAL_HEIGHT: 400,
 
     /** スライダーの幅 */
     SLIDER_WIDTH: 180,

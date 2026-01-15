@@ -149,4 +149,24 @@ export class LetterManager {
             this.hasUnreadLetters(categoryKey, scene)
         );
     }
+
+    /**
+     * セーブ用のデータを取得
+     * @returns {Object} セーブ用データ
+     */
+    getSaveData() {
+        return {
+            categories: JSON.parse(JSON.stringify(this.categories)),
+        };
+    }
+
+    /**
+     * セーブデータから状態を復元
+     * @param {Object} data - 復元するデータ
+     */
+    loadSaveData(data) {
+        if (data.categories) {
+            this.categories = JSON.parse(JSON.stringify(data.categories));
+        }
+    }
 }

@@ -478,4 +478,57 @@ export class GameTimeManager {
             this.scene.events.emit("fishHit", false);
         }
     }
+
+    /**
+     * セーブ用のデータを取得
+     * @returns {Object} セーブ用データ
+     */
+    getSaveData() {
+        return {
+            currentTime: { ...this.currentTime },
+            elapsedSeconds: this.elapsedSeconds,
+            currentWeather: this.currentWeather,
+            fishHitActive: this.fishHitActive,
+            fishHitEndTime: this.fishHitEndTime,
+            lotteryActive: this.lotteryActive,
+            lastLotteryMinute: this.lastLotteryMinute,
+            cooldownEndTime: this.cooldownEndTime,
+            lastFishHitTime: this.lastFishHitTime,
+        };
+    }
+
+    /**
+     * セーブデータから状態を復元
+     * @param {Object} data - 復元するデータ
+     */
+    loadSaveData(data) {
+        if (data.currentTime) {
+            this.currentTime = { ...data.currentTime };
+        }
+        if (data.elapsedSeconds !== undefined) {
+            this.elapsedSeconds = data.elapsedSeconds;
+        }
+        if (data.currentWeather) {
+            this.currentWeather = data.currentWeather;
+        }
+        if (data.fishHitActive !== undefined) {
+            this.fishHitActive = data.fishHitActive;
+        }
+        if (data.fishHitEndTime !== undefined) {
+            this.fishHitEndTime = data.fishHitEndTime;
+        }
+        if (data.lotteryActive !== undefined) {
+            this.lotteryActive = data.lotteryActive;
+        }
+        if (data.lastLotteryMinute !== undefined) {
+            this.lastLotteryMinute = data.lastLotteryMinute;
+        }
+        if (data.cooldownEndTime !== undefined) {
+            this.cooldownEndTime = data.cooldownEndTime;
+        }
+        if (data.lastFishHitTime !== undefined) {
+            this.lastFishHitTime = data.lastFishHitTime;
+        }
+        this.lastUpdateTime = Date.now();
+    }
 }

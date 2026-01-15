@@ -191,6 +191,47 @@ export class Pause extends Phaser.Scene {
         resumeButton.on("pointerout", () => {
             resumeButton.setFillStyle(0x00cc00);
         });
+
+        // セーブボタンを追加（OKボタンの上に配置）
+        const saveButtonY = UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60 - 70;
+        const saveButton = this.add
+            .rectangle(0, saveButtonY, 200, 50, 0x3366ff)
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        pauseContainer.add(saveButton);
+
+        const saveText = this.add
+            .text(0, saveButtonY, "Save", {
+                fontFamily: FONT_NAME.CP_PERIOD,
+                fontSize: "24px",
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 2,
+            })
+            .setOrigin(0.5);
+        pauseContainer.add(saveText);
+
+        saveButton.on("pointerdown", () => {
+            // ゲームをセーブ
+            if (this.gameScene && this.gameScene.saveGame) {
+                const success = this.gameScene.saveGame();
+                if (success) {
+                    // セーブ成功のフィードバック
+                    saveText.setText("Saved!");
+                    this.time.delayedCall(1000, () => {
+                        saveText.setText("Save");
+                    });
+                }
+            }
+        });
+
+        saveButton.on("pointerover", () => {
+            saveButton.setFillStyle(0x5588ff);
+        });
+
+        saveButton.on("pointerout", () => {
+            saveButton.setFillStyle(0x3366ff);
+        });
     }
 
     /**
