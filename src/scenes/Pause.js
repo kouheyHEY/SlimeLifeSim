@@ -141,19 +141,6 @@ export class Pause extends Phaser.Scene {
         });
         currentY += lineHeight;
 
-        // ステータス変化トグル
-        this.createToggle(
-            pauseContainer,
-            -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
-            currentY,
-            getLocalizedText(UI_TEXT.PAUSE_MODAL.STATUS_CHANGE),
-            this.gameScene.settingsManager.isStatusChangeEnabled(),
-            (enabled) => {
-                this.gameScene.settingsManager.setStatusChange(enabled);
-            }
-        );
-        currentY += lineHeight;
-
         // 自動釣りトグル（アップグレードがある場合のみ）
         if (this.gameScene.upgradeManager.isAutoFishingEnabled()) {
             this.createToggle(

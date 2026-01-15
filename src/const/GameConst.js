@@ -4,16 +4,8 @@ export const GAME_CONST = {
     /** プレイヤーの高さ */
     PLAYER_HEIGHT: 192,
 
-    /** プレイヤーの初期状態 */
-    PLAYER_INITIAL_STATUS: "status_normal",
     /** プレイヤーの初期コイン数 */
     PLAYER_INITIAL_COINS: 0,
-    /** プレイヤー状態の表示名 */
-    PLAYER_STATUS_DISPLAY_NAME: {
-        status_smile: { JP: "健康", EN: "Healthy" },
-        status_normal: { JP: "普通", EN: "Normal" },
-        status_bad: { JP: "不調", EN: "Poor" },
-    },
 
     /** 魚の名前 */
     FISH_NAME: {
@@ -148,8 +140,8 @@ export const GAME_CONST = {
     /** インベントリの一つのアイテムのストック数 */
     INVENTORY_ITEM_STOCK: 5,
 
-    /** 魚ヒット抽選の確率 (1/この値) */
-    FISH_HIT_LOTTERY_PROBABILITY: 256,
+    /** 魚ヒット抽選の確率 (1/この値) TODO: リリース時は要調整 */
+    FISH_HIT_LOTTERY_PROBABILITY: 2,
     /** 魚ヒットの最小持続時間（ゲーム内分） */
     FISH_HIT_DURATION_MIN: 4,
     /** 魚ヒットの最大持続時間（ゲーム内分） */

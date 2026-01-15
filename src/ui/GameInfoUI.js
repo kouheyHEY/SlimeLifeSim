@@ -30,8 +30,7 @@ export class GameInfoUI {
         this.gameTimeManager = gameTimeManager;
         this.x = x;
         this.y = y;
-        // プレイヤーの状態とコイン
-        this.playerStatus = GAME_CONST.PLAYER_INITIAL_STATUS;
+        // コイン
         this.coins = GAME_CONST.PLAYER_INITIAL_COINS;
         this.createUI();
     }
@@ -252,49 +251,6 @@ export class GameInfoUI {
     }
 
     /**
-     * プレイヤーの状態を更新
-     * @param {string} status - 新しい状態のキー（例: "status_smile", "status_normal", "status_bad"）
-     */
-    setPlayerStatus(status) {
-        console.log(`setPlayerStatus: ${this.playerStatus} → ${status}`);
-        this.playerStatus = status;
-    }
-
-    /**
-     * プレイヤーの状態を1段階向上させる
-     * status_bad → status_normal → status_smile
-     */
-    improvePlayerStatus() {
-        if (this.playerStatus === "status_bad") {
-            this.setPlayerStatus("status_normal");
-        } else if (this.playerStatus === "status_normal") {
-            this.setPlayerStatus("status_smile");
-        }
-        // status_smileの場合はこれ以上上がらない
-    }
-
-    /**
-     * プレイヤーの状態を1段階低下させる
-     * status_smile → status_normal → status_bad
-     * @returns {boolean} - これ以上下がらない場合false
-     */
-    decreasePlayerStatus() {
-        console.log(
-            `decreasePlayerStatus: 現在のステータス = ${this.playerStatus}`
-        );
-        if (this.playerStatus === "status_smile") {
-            this.setPlayerStatus("status_normal");
-            return true;
-        } else if (this.playerStatus === "status_normal") {
-            this.setPlayerStatus("status_bad");
-            return true;
-        }
-        // status_badの場合はこれ以上下がらない
-        console.log("これ以上ステータスを下げられません");
-        return false;
-    }
-
-    /**
      * コイン枚数を設定
      * @param {number} amount - コイン枚数
      */
@@ -307,8 +263,12 @@ export class GameInfoUI {
      * @param {number} amount - 追加するコイン枚数
      */
     addCoins(amount) {
+        const oldCoins = this.coins;
         this.coins += amount;
         this.coins = Math.max(0, this.coins);
+        console.log(
+            `GameInfoUI.addCoins: ${oldCoins} + ${amount} = ${this.coins}`
+        );
     }
 
     /**

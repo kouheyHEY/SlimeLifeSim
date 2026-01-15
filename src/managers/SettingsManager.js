@@ -18,7 +18,6 @@ export class SettingsManager {
             seVolume: 0.3, // SE音量（0.0-1.0）
             backgroundColorChange: true, // 背景色の変化
             playerAnimation: true, // プレイヤーのアニメーション
-            statusChange: true, // ステータスの変化
             autoFishing: false, // 釣り全自動化（アップグレードで有効化）
         };
 
@@ -116,23 +115,6 @@ export class SettingsManager {
      */
     setPlayerAnimation(enabled) {
         this.settings.playerAnimation = enabled;
-        this.saveSettings();
-    }
-
-    /**
-     * ステータス変化が有効かチェック
-     * @returns {boolean}
-     */
-    isStatusChangeEnabled() {
-        return this.settings.statusChange;
-    }
-
-    /**
-     * ステータス変化を設定
-     * @param {boolean} enabled
-     */
-    setStatusChange(enabled) {
-        this.settings.statusChange = enabled;
         this.saveSettings();
     }
 

@@ -16,7 +16,7 @@ export class TopBarUI {
     static SECTION_WIDTHS = {
         PAUSE_BUTTON: 120, // 一時停止ボタンセクション
         TIME_PERIOD: 350, // 時間帯セクション
-        STATUS_COIN: 180, // ステータス+コインセクション
+        STATUS_COIN: 180, // コインセクション
         DAY_TIME: 180, // 日数+時間セクション
     };
 
@@ -207,41 +207,7 @@ export class TopBarUI {
         this.topBarContainer.add(this.separatorGraphics);
         this.scene.cameras.main.ignore(this.separatorGraphics);
 
-        // ステータス表示群のセクションを計算
         const statusSectionCenterX = (statusSectionStart + daySectionStart) / 2;
-
-        // 右側: ステータスとコイン（中央揃え）
-        // アイコン（幅30px）+ 間隔（25px）+ テキスト（約45px）で全体約100pxと想定
-
-        // ステータスアイコン（上段）
-        this.statusSprite = this.scene.add
-            .sprite(
-                statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_ICON_X_OFFSET,
-                UI_CONST.TOP_BAR_HEIGHT / 2 -
-                    UI_CONST.TOP_BAR_STATUS_TOP_Y_OFFSET,
-                this.gameInfoUI ? this.gameInfoUI.playerStatus : "status_normal"
-            )
-            .setOrigin(0.5, 0.5)
-            .setScale(UI_CONST.TOP_BAR_STATUS_ICON_SCALE);
-        this.topBarContainer.add(this.statusSprite);
-        this.scene.cameras.main.ignore(this.statusSprite);
-
-        // ステータステキスト（上段）
-        this.statusText = this.scene.add
-            .text(
-                statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_TEXT_X_OFFSET,
-                UI_CONST.TOP_BAR_HEIGHT / 2 -
-                    UI_CONST.TOP_BAR_STATUS_TOP_Y_OFFSET,
-                "",
-                {
-                    fontSize: UI_CONST.TOP_BAR_STATUS_TEXT_FONT_SIZE,
-                    color: UI_CONST.GAME_INFO_FONT_COLOR,
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                }
-            )
-            .setOrigin(0, 0.5);
-        this.topBarContainer.add(this.statusText);
-        this.scene.cameras.main.ignore(this.statusText);
 
         // コインアイコン（下段）
         this.coinSprite = this.scene.add
@@ -319,13 +285,9 @@ export class TopBarUI {
      */
     update() {
         // チュートリアル状態に基づいて Pause ボタンの表示を制御
-        if (this.tutorialManager) {
-            const shouldShowPauseButton =
-                this.tutorialManager.isStatusTutorialCompleted();
-            this.pauseButton.setVisible(shouldShowPauseButton);
-            this.pauseButtonOuter.setVisible(shouldShowPauseButton);
-            this.pauseIcon.setVisible(shouldShowPauseButton);
-        }
+        this.pauseButton.setVisible(true);
+        this.pauseButtonOuter.setVisible(true);
+        this.pauseIcon.setVisible(true);
 
         // 日数を更新
         const day = this.gameTimeManager.currentTime.day;
@@ -353,30 +315,8 @@ export class TopBarUI {
         this.drawTimeLine(timePeriod, progress);
 
         // ステータスとコインの更新
-        if (this.gameInfoUI) {
-            // ステータススプライトの更新
-            if (this.statusSprite) {
-                this.statusSprite.setTexture(this.gameInfoUI.playerStatus);
-            }
-            // ステータステキストの更新
-            if (this.statusText) {
-                const statusTextMap = {
-                    status_smile: getLocalizedText(
-                        UI_TEXT.TOP_BAR.STATUS_SMILE
-                    ),
-                    status_normal: getLocalizedText(
-                        UI_TEXT.TOP_BAR.STATUS_NORMAL
-                    ),
-                    status_bad: getLocalizedText(UI_TEXT.TOP_BAR.STATUS_BAD),
-                };
-                this.statusText.setText(
-                    statusTextMap[this.gameInfoUI.playerStatus] || ""
-                );
-            }
-            // コイン数の更新
-            if (this.coinCountText) {
-                this.coinCountText.setText(`${this.gameInfoUI.coins}`);
-            }
+        if (this.gameInfoUI && this.coinCountText) {
+            this.coinCountText.setText(`${this.gameInfoUI.coins}`);
         }
     }
 

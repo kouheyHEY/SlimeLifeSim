@@ -169,7 +169,7 @@ export class InventoryUI {
             // アイテム情報を保存して、チュートリアル後に使用
             this.pendingItemDetail = item;
             this.scene.time.delayedCall(100, () => {
-                this.scene.tutorialManager.showStep3EatFish();
+                this.scene.tutorialManager.showStep3SellFish(item);
             });
             return; // アイテム詳細モーダルは表示しない
         }
@@ -252,6 +252,10 @@ export class InventoryUI {
 
         // 価値
         const value = GAME_CONST.ITEM_VALUE[item.itemKey] || 0;
+        // TutorialManager用に保存（チュートリアル時にアイテムの価値を参照するため）
+        this.lastItemDetail = item;
+        this.lastItemValue = value;
+
         const valueText = this.scene.add
             .text(
                 0,
@@ -272,80 +276,10 @@ export class InventoryUI {
         // ボタンのY座標
         const buttonY = 200;
 
-        // 食べるボタン
-        const eatButton = this.scene.add
-            .rectangle(
-                -130,
-                buttonY,
-                UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
-                UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
-                0x44aa44
-            )
-            .setStrokeStyle(2, 0xffffff)
-            .setInteractive({ useHandCursor: true });
-        this.itemDetailModal.add(eatButton);
-
-        const eatText = this.scene.add
-            .text(
-                -130,
-                buttonY,
-                getLocalizedText(UI_TEXT.ITEM_DETAIL.EAT_BUTTON),
-                {
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "20px",
-                    color: "#FFFFFF",
-                    align: "center",
-                    stroke: "#000000",
-                    strokeThickness: 2,
-                }
-            )
-            .setOrigin(0.5, 0.5);
-        this.itemDetailModal.add(eatText);
-
-        eatButton.on("pointerdown", () => {
-            // チュートリアル中の場合、モーダルとハイライトをクリア
-            if (
-                this.scene.tutorialManager &&
-                this.scene.tutorialManager.getCurrentStep() ===
-                    TUTORIAL_STEP.EAT_FISH
-            ) {
-                // チュートリアルのモーダルを閉じる
-                if (this.scene.tutorialManager.currentModal) {
-                    this.scene.tutorialManager.currentModal.close();
-                    this.scene.tutorialManager.currentModal = null;
-                }
-                // ハイライトをクリア
-                this.scene.tutorialManager.clearHighlight();
-            }
-
-            // 魚を食べる処理
-            if (this.inventoryManager.removeItem(item.itemKey, 1)) {
-                console.log("食べる:", item.itemKey);
-                // ステータスを1段階向上
-                if (this.gameInfoUI) {
-                    this.gameInfoUI.improvePlayerStatus();
-                }
-                // インベントリを更新
-                this.update();
-
-                // チュートリアルステップ4をトリガー
-                if (
-                    this.scene.tutorialManager &&
-                    this.scene.tutorialManager.getCurrentStep() ===
-                        TUTORIAL_STEP.EAT_FISH
-                ) {
-                    this.scene.time.delayedCall(500, () => {
-                        this.scene.tutorialManager.showStep4StatusExplanation();
-                    });
-                }
-            }
-            this.closeItemDetail();
-        });
-
         // 売るボタン
         const sellButton = this.scene.add
             .rectangle(
-                0,
+                -65,
                 buttonY,
                 UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                 UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
@@ -357,7 +291,7 @@ export class InventoryUI {
 
         const sellText = this.scene.add
             .text(
-                0,
+                -65,
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_BUTTON),
                 {
@@ -373,25 +307,33 @@ export class InventoryUI {
         this.itemDetailModal.add(sellText);
 
         sellButton.on("pointerdown", () => {
-            // チュートリアル中は売るボタンを無視
-            if (
+            // チュートリアル中かどうかを確認
+            const isTutorialSell =
                 this.scene.tutorialManager &&
                 this.scene.tutorialManager.getCurrentStep() ===
-                    TUTORIAL_STEP.EAT_FISH
-            ) {
-                return; // チュートリアル中は何もしない
+                    TUTORIAL_STEP.SELL_FISH;
+
+            if (isTutorialSell) {
+                // チュートリアル中：TutorialManagerのハイライト処理に任せて何もしない
+                return;
             }
 
-            // 魚を売る処理
+            // 通常時：魚を売る処理
             if (this.inventoryManager.removeItem(item.itemKey, 1)) {
                 console.log("売る:", item.itemKey, value);
 
                 // コインを追加し、初回かどうかをチェック
                 if (this.gameInfoUI) {
-                    // Capture zero-coin state before adding coins to detect first sale
-                    // This prevents race conditions if addCoins triggers any events
                     const hadZeroCoins = this.gameInfoUI.coins === 0;
                     this.gameInfoUI.addCoins(value);
+                    console.log(
+                        `コイン追加: +${value}, 合計: ${this.gameInfoUI.coins}`
+                    );
+
+                    // トップバーを更新してコイン表示を反映
+                    if (this.scene.topBarUI) {
+                        this.scene.topBarUI.update();
+                    }
 
                     // 初めてコインを獲得した場合、コインチュートリアルを開始
                     if (hadZeroCoins && this.scene.tutorialManager) {
@@ -408,7 +350,7 @@ export class InventoryUI {
         // 閉じるボタン（×）
         const closeButton = this.scene.add
             .rectangle(
-                130,
+                65,
                 buttonY,
                 UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                 UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
@@ -420,7 +362,7 @@ export class InventoryUI {
 
         const closeText = this.scene.add
             .text(
-                130,
+                65,
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.CLOSE_BUTTON),
                 {
@@ -436,14 +378,6 @@ export class InventoryUI {
         this.itemDetailModal.add(closeText);
 
         closeButton.on("pointerdown", () => {
-            // チュートリアル中は閉じるボタンを無視
-            if (
-                this.scene.tutorialManager &&
-                this.scene.tutorialManager.getCurrentStep() ===
-                    TUTORIAL_STEP.EAT_FISH
-            ) {
-                return; // チュートリアル中は何もしない
-            }
             this.closeItemDetail();
         });
 
@@ -566,9 +500,6 @@ export class InventoryUI {
             // クリック時の処理
             itemBg.on("pointerdown", () => {
                 if (this.inventoryManager.removeItem(item.itemKey, 1)) {
-                    if (this.gameInfoUI) {
-                        this.gameInfoUI.improvePlayerStatus();
-                    }
                     this.update();
                     if (onSelectCallback) {
                         onSelectCallback();

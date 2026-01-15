@@ -90,11 +90,6 @@ export class Game extends Phaser.Scene {
             ) {
                 this.timeOfDayManager.updateBackgroundColor();
             }
-
-            // ステータス管理用の時間帯が変わったかチェック
-            if (this.settingsManager.isStatusChangeEnabled()) {
-                this.gameTimeManager.hasTimeOfDayChanged();
-            }
         }
 
         // 一時停止中は背景・プレイヤー等の変化を止める
@@ -416,9 +411,6 @@ export class Game extends Phaser.Scene {
                 this.hideFishHitIndicator();
             }
         });
-
-        // ステータス低下イベントを購読
-        this.events.on("statusDecreaseTime", this.handleStatusDecrease, this);
     }
 
     /**
@@ -906,47 +898,6 @@ export class Game extends Phaser.Scene {
 
         // フォールバック（通常は到達しない）
         return targets[0];
-    }
-
-    /**
-     * ステータス低下処理
-     */
-    handleStatusDecrease() {
-        console.log("handleStatusDecreaseが呼ばれました");
-        const canDecrease = this.sidebarUI.gameInfoUI.decreasePlayerStatus();
-        console.log(`ステータス低下結果: ${canDecrease}`);
-
-        if (!canDecrease) {
-            // これ以上下がらない（status_bad）
-            // 魚があるか確認
-            const fishItems = this.inventoryManager.items.filter(
-                (item) => item.itemKey && item.itemKey.startsWith("fish_")
-            );
-
-            if (fishItems.length > 0) {
-                // 魚がある場合は選択モーダルを表示
-                this.sidebarUI.inventoryUI.showFishSelectionModal(() => {
-                    // 魚を食べた後の処理
-                    console.log("魚を食べて体力回復");
-                });
-            } else {
-                // 魚がない場合はゲームオーバー
-                this.triggerGameOver();
-            }
-        }
-    }
-
-    /**
-     * ゲームオーバー処理
-     */
-    triggerGameOver() {
-        console.log("ゲームオーバー: 体力が尽きました");
-        // ゲーム時間を停止
-        this.gameTimeManager.pause();
-        this.gameTimeManager.pauseFishSystem();
-
-        // ゲームオーバーシーンへ移行
-        this.scene.start("GameOver");
     }
 
     GameOver() {

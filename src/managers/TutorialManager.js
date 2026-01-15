@@ -5,6 +5,8 @@ import {
     STORAGE_KEY,
     COMMON_CONST,
 } from "../const/CommonConst.js";
+import { UI_CONST } from "../const/UIConst.js";
+import { GAME_CONST } from "../const/GameConst.js";
 
 /**
  * チュートリアルステップの定数
@@ -13,9 +15,8 @@ export const TUTORIAL_STEP = {
     NOT_STARTED: 0,
     FISH_HIT: 1,
     CLICK_FISH: 2,
-    EAT_FISH: 3,
-    STATUS_EXPLANATION: 4,
-    COMPLETED: 5,
+    SELL_FISH: 3,
+    COMPLETED: 4,
     // コインチュートリアル
     FIRST_COIN_EARNED: 6,
     UPGRADE_ROD_EXPLANATION: 7,
@@ -60,16 +61,11 @@ const STEP_CONFIG = {
         x: null, // 画面中央
         y: null, // 画面中央
     },
-    // ステップ3: 食べるボタン
+    // ステップ3: 売るボタン
     STEP3: {
         x: null, // 画面中央
         y: "top", // 画面上部
         topMargin: 80, // 上マージン
-    },
-    // ステップ4: ステータス説明（大モーダル）
-    STEP4: {
-        x: null, // 画面中央
-        y: null, // 画面中央
     },
     // コインチュートリアルステップ1: コインを獲得
     COIN_STEP1: {
@@ -97,15 +93,10 @@ const TUTORIAL_TEXT = {
         JP: "釣り成功！\n魚をタップ！",
         EN: "Caught it!\nTap the fish!",
     },
-    // ステップ3: 食べるボタン
+    // ステップ3: 売るボタン
     STEP3: {
-        JP: "「食べる」をタップ！",
-        EN: "Tap 'Eat'!",
-    },
-    // ステップ4: ステータス説明
-    STEP4: {
-        JP: "魚を食べるとステータスUP！\n\n朝と夕方の終わりに\nステータスが下がります。\n\n最低になると\nゲームオーバー！\n\n定期的に魚を食べましょう！",
-        EN: "Eating fish boosts status!\n\nStatus drops at the end\nof morning & evening.\n\nGame over if it hits zero!\n\nEat fish regularly!",
+        JP: "「売る」をタップ！",
+        EN: "Tap 'Sell'!",
     },
     // コインチュートリアルステップ1: コイン獲得
     COIN_STEP1: {
@@ -158,6 +149,7 @@ export class TutorialManager {
         this.tutorialTriggered = false;
         this.coinTutorialCompleted = false;
         this.firstCoinEarned = false;
+        this.pendingTutorialItem = null; // チュートリアル中に売るアイテムを保存
     }
 
     // ==================== 公開API ====================
@@ -191,14 +183,6 @@ export class TutorialManager {
         return this.tutorialStep;
     }
 
-    /**
-     * ステータスチュートリアルが完了しているかチェック
-     * @returns {boolean} ステータスチュートリアル（STATUS_EXPLANATION）以降が完了していればtrue
-     */
-    isStatusTutorialCompleted() {
-        return this.tutorialStep >= TUTORIAL_STEP.STATUS_EXPLANATION;
-    }
-
     // ==================== 各ステップ ====================
 
     showStep1FishHit() {
@@ -225,37 +209,26 @@ export class TutorialManager {
         this.scene.gameTimeManager?.pause();
     }
 
-    showStep3EatFish() {
+    showStep3SellFish(item) {
         if (this.tutorialStep !== TUTORIAL_STEP.CLICK_FISH) return;
-        this.tutorialStep = TUTORIAL_STEP.EAT_FISH;
+        this.tutorialStep = TUTORIAL_STEP.SELL_FISH;
 
         this.clearHighlight();
 
+        // アイテムを直接保存（パラメータから取得）
+        if (item) {
+            this.pendingTutorialItem = item;
+        }
+
         const inventoryUI = this.scene.sidebarUI?.inventoryUI;
-        if (inventoryUI?.pendingItemDetail) {
-            const item = inventoryUI.pendingItemDetail;
+        if (inventoryUI && item) {
             inventoryUI.pendingItemDetail = null;
             inventoryUI.showItemDetail(item);
-            this.scene.time.delayedCall(200, () => this.highlightEatButton());
+            this.scene.time.delayedCall(200, () => this.highlightSellButton());
         }
 
         const msg = this._getText(TUTORIAL_TEXT.STEP3);
         this._showSmallModal(msg, STEP_CONFIG.STEP3);
-    }
-
-    showStep4StatusExplanation() {
-        if (this.tutorialStep !== TUTORIAL_STEP.EAT_FISH) return;
-        this.tutorialStep = TUTORIAL_STEP.STATUS_EXPLANATION;
-
-        this.highlightStatus();
-
-        const msg = this._getText(TUTORIAL_TEXT.STEP4);
-        this._showLargeModal(
-            msg,
-            () => this.completeTutorial(),
-            STEP_CONFIG.STEP4
-        );
-        this.scene.gameTimeManager?.pause();
     }
 
     completeTutorial() {
@@ -590,54 +563,7 @@ export class TutorialManager {
         this._updateInv();
     }
 
-    highlightStatus() {
-        this.clearHighlight();
-
-        const topBarUI = this.scene.topBarUI;
-        const sprite = topBarUI?.statusSprite;
-        const statusText = topBarUI?.statusText;
-        const container = topBarUI?.topBarContainer;
-        if (!sprite || !container) return;
-
-        this.highlightTarget = {
-            statusSprite: sprite,
-            statusText: statusText,
-            topBarContainer: container,
-            type: "status",
-        };
-
-        // ステータスはUIカメラで表示されるので、メインカメラで無視してUIカメラで表示
-        this.overlayGraphics = this.scene.add
-            .graphics()
-            .setDepth(1000)
-            .setScrollFactor(0);
-        this.scene.cameras.main.ignore(this.overlayGraphics);
-
-        this.highlightGraphics = this.scene.add
-            .graphics()
-            .setDepth(1001)
-            .setScrollFactor(0);
-        this.scene.cameras.main.ignore(this.highlightGraphics);
-
-        this._createBlockingArea(true);
-        this.scene.cameras.main.ignore(this.blockingArea);
-
-        // ステータスアイコンとテキストを含む領域を計算
-        const bounds = this._getStatusBounds();
-        this._draw4Region(
-            bounds.x - 10,
-            bounds.y - 10,
-            bounds.width + 20,
-            bounds.height + 20
-        );
-
-        this._startAnimation(TUTORIAL_STEP.STATUS_EXPLANATION, () =>
-            this._updateStatus()
-        );
-        this._updateStatus();
-    }
-
-    highlightEatButton() {
+    highlightSellButton() {
         this.clearHighlight();
 
         const inventoryUI = this.scene.sidebarUI?.inventoryUI;
@@ -647,13 +573,14 @@ export class TutorialManager {
         const cy = this.scene.cameras.main.height / 2;
 
         // ボタンの左上座標と大きさ
-        const buttonX = cx - 190;
-        const buttonY = cy + 180;
-        const buttonW = 120;
-        const buttonH = 40;
+        const buttonW = UI_CONST.ITEM_DETAIL_BUTTON_WIDTH;
+        const buttonH = UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT;
+        const buttonCenterX = cx - 65;
+        const buttonX = buttonCenterX - buttonW / 2;
+        const buttonY = cy + 200 - buttonH / 2;
 
         this.highlightTarget = {
-            type: "eatButton",
+            type: "sellButton",
             x: buttonX,
             y: buttonY,
             width: buttonW,
@@ -676,7 +603,7 @@ export class TutorialManager {
         this._createBlockingArea(false);
         this.scene.cameras.main.ignore(this.blockingArea);
 
-        // 食べるボタンの上にクリック可能な透明エリアを作成
+        // 売るボタンの上にクリック可能な透明エリアを作成
         const clickArea = this.scene.add
             .rectangle(buttonX, buttonY, buttonW, buttonH, 0x000000, 0.01)
             .setOrigin(0, 0)
@@ -691,29 +618,39 @@ export class TutorialManager {
             this._closeModal();
             this.clearHighlight();
 
-            // 食べる処理を実行
-            const items = this.scene.inventoryManager.items;
-            const item = items.find((i) => i && i.itemKey);
+            // InventoryUIに保存されたアイテムと価値を取得
+            const item = inventoryUI.lastItemDetail;
+            const value = inventoryUI.lastItemValue;
+
             if (
                 item &&
                 this.scene.inventoryManager.removeItem(item.itemKey, 1)
             ) {
-                console.log("食べる:", item.itemKey);
-                // ステータスを1段階向上
+                console.log("売る:", item.itemKey, value);
                 if (inventoryUI.gameInfoUI) {
-                    inventoryUI.gameInfoUI.improvePlayerStatus();
+                    // 初回コイン獲得かどうかをチェック
+                    const hadZeroCoins = inventoryUI.gameInfoUI.coins === 0;
+                    inventoryUI.gameInfoUI.addCoins(value);
+                    // トップバーを更新してコイン表示を反映
+                    if (this.scene.topBarUI) {
+                        this.scene.topBarUI.update();
+                    }
+                    // メインチュートリアルを先に完了
+                    this.completeTutorial();
+                    // 初めてコインを獲得した場合、コインチュートリアルを開始
+                    if (hadZeroCoins) {
+                        this.scene.time.delayedCall(500, () => {
+                            this.onFirstFishSold();
+                        });
+                    }
                 }
                 // インベントリを更新
                 inventoryUI.update();
-
-                // アイテム詳細モーダルを閉じる
-                inventoryUI.closeItemDetail();
-
-                // チュートリアルステップ4をトリガー
-                this.scene.time.delayedCall(500, () => {
-                    this.showStep4StatusExplanation();
-                });
             }
+            // アイテムディテールモーダルを閉じる
+            inventoryUI.closeItemDetail();
+            // アイテム参照をクリア
+            this.pendingTutorialItem = null;
         });
 
         this.highlightTarget.clickableArea = clickArea;
@@ -726,8 +663,8 @@ export class TutorialManager {
             buttonH + 20
         );
 
-        this._startAnimation(TUTORIAL_STEP.EAT_FISH, () => this._updateEat());
-        this._updateEat();
+        this._startAnimation(TUTORIAL_STEP.SELL_FISH, () => this._updateSell());
+        this._updateSell();
     }
 
     highlightUpgradeButton() {
@@ -830,18 +767,7 @@ export class TutorialManager {
         this._drawBorder(pos.x - 10, pos.y - 10, f.width + 20, f.height + 20);
     }
 
-    _updateStatus() {
-        if (!this.highlightGraphics || !this.highlightTarget) return;
-        const bounds = this._getStatusBounds();
-        this._drawBorder(
-            bounds.x - 10,
-            bounds.y - 10,
-            bounds.width + 20,
-            bounds.height + 20
-        );
-    }
-
-    _updateEat() {
+    _updateSell() {
         if (!this.highlightGraphics || !this.highlightTarget) return;
         const { x, y, width, height } = this.highlightTarget;
         this._drawBorder(x - 10, y - 10, width + 20, height + 20);
@@ -864,8 +790,7 @@ export class TutorialManager {
             {
                 1: "FISH_HIT",
                 2: "CLICK_FISH",
-                3: "EAT_FISH",
-                4: "STATUS_EXPLANATION",
+                3: "SELL_FISH",
                 6: "FIRST_COIN_EARNED",
                 7: "UPGRADE_ROD_EXPLANATION",
             }[this.tutorialStep] || "UNKNOWN";
@@ -926,44 +851,6 @@ export class TutorialManager {
             },
             loop: true,
         });
-    }
-
-    _getStatusBounds() {
-        const { statusSprite, statusText, topBarContainer } =
-            this.highlightTarget;
-        const spriteX = topBarContainer.x + statusSprite.x;
-        const spriteY = topBarContainer.y + statusSprite.y;
-        const spriteW = statusSprite.displayWidth;
-        const spriteH = statusSprite.displayHeight;
-
-        // ステータステキストがある場合は含める
-        if (statusText) {
-            const textX = topBarContainer.x + statusText.x;
-            const textY = topBarContainer.y + statusText.y;
-            const textW = statusText.width;
-            const textH = statusText.height;
-
-            // アイコンとテキストを含む領域を計算
-            const minX = Math.min(spriteX - spriteW / 2, textX);
-            const maxX = Math.max(spriteX + spriteW / 2, textX + textW);
-            const minY = Math.min(spriteY - spriteH / 2, textY - textH / 2);
-            const maxY = Math.max(spriteY + spriteH / 2, textY + textH / 2);
-
-            return {
-                x: minX,
-                y: minY,
-                width: maxX - minX,
-                height: maxY - minY,
-            };
-        }
-
-        // テキストがない場合はアイコンのみ
-        return {
-            x: spriteX - spriteW / 2,
-            y: spriteY - spriteH / 2,
-            width: spriteW,
-            height: spriteH,
-        };
     }
 
     _getFishHitBounds() {
