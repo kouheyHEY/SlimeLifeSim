@@ -149,11 +149,11 @@ export const GAME_CONST = {
     INVENTORY_ITEM_STOCK: 5,
 
     /** 魚ヒット抽選の確率 (1/この値) */
-    FISH_HIT_LOTTERY_PROBABILITY: 3,
+    FISH_HIT_LOTTERY_PROBABILITY: 256,
     /** 魚ヒットの最小持続時間（ゲーム内分） */
-    FISH_HIT_DURATION_MIN: 20,
+    FISH_HIT_DURATION_MIN: 4,
     /** 魚ヒットの最大持続時間（ゲーム内分） */
-    FISH_HIT_DURATION_MAX: 40,
+    FISH_HIT_DURATION_MAX: 20,
 };
 
 /**
