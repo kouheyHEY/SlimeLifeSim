@@ -11,6 +11,7 @@ import { GameTimeManager } from "../managers/GameTimeManager.js";
 import { UpgradeManager } from "../managers/UpgradeManager.js";
 import { SettingsManager } from "../managers/SettingsManager.js";
 import { TutorialManager, TUTORIAL_STEP } from "../managers/TutorialManager.js";
+import { SaveManager } from "../managers/SaveManager.js";
 import { TopBarUI } from "../ui/TopBarUI.js";
 import { SidebarUI } from "../ui/SidebarUI.js";
 import { MAP_CONST } from "../const/MapConst.js";
@@ -386,6 +387,10 @@ export class Game extends Phaser.Scene {
 
             // タイトル画面からの再開時、ゲームを開始
             if (data.from === "title") {
+                // セーブデータがあり、かつContinueで始める場合はロード
+                if (data.loadSave) {
+                    this.loadGame();
+                }
                 this.startGame();
                 return;
             }
@@ -410,6 +415,18 @@ export class Game extends Phaser.Scene {
             } else {
                 this.hideFishHitIndicator();
             }
+        });
+
+        // 定期的にオートセーブ（1分ごと）
+        this.time.addEvent({
+            delay: 60000, // 1分 = 60000ミリ秒
+            callback: () => {
+                if (this.gameStarted && !this.isPaused) {
+                    this.saveGame();
+                    console.log("オートセーブしました");
+                }
+            },
+            loop: true,
         });
     }
 
@@ -1408,5 +1425,106 @@ export class Game extends Phaser.Scene {
                 }
             },
         };
+    }
+
+    /**
+     * ゲームをセーブ
+     */
+    saveGame() {
+        if (!this.saveManager) {
+            this.saveManager = new SaveManager();
+        }
+
+        const gameData = {
+            gameTime: this.gameTimeManager.getSaveData(),
+            inventory: this.inventoryManager.getSaveData(),
+            coins: this.sidebarUI.gameInfoUI.getSaveData(),
+            letters: this.letterManager.getSaveData(),
+            tutorial: {
+                tutorialCompleted: this.tutorialManager.tutorialCompleted,
+                coinTutorialCompleted:
+                    this.tutorialManager.coinTutorialCompleted,
+                firstCoinEarned: this.tutorialManager.firstCoinEarned,
+            },
+            upgrades: this.upgradeManager.upgrades,
+            settings: {
+                bgmVolume: this.settingsManager.getBgmVolume(),
+                seVolume: this.settingsManager.getSeVolume(),
+                playerAnimation:
+                    this.settingsManager.isPlayerAnimationEnabled(),
+                backgroundColorChange:
+                    this.settingsManager.isBackgroundColorChangeEnabled(),
+                autoFishing: this.settingsManager.isAutoFishingEnabled(),
+            },
+        };
+
+        return this.saveManager.saveGame(gameData);
+    }
+
+    /**
+     * ゲームをロード
+     */
+    loadGame() {
+        if (!this.saveManager) {
+            this.saveManager = new SaveManager();
+        }
+
+        const gameData = this.saveManager.loadGame();
+        if (!gameData) {
+            return false;
+        }
+
+        // 各マネージャーにデータを復元
+        if (gameData.gameTime) {
+            this.gameTimeManager.loadSaveData(gameData.gameTime);
+        }
+        if (gameData.inventory) {
+            this.inventoryManager.loadSaveData(gameData.inventory);
+        }
+        if (gameData.coins) {
+            this.sidebarUI.gameInfoUI.loadSaveData(gameData.coins);
+        }
+        if (gameData.letters) {
+            this.letterManager.loadSaveData(gameData.letters);
+        }
+        if (gameData.tutorial) {
+            this.tutorialManager.tutorialCompleted =
+                gameData.tutorial.tutorialCompleted || false;
+            this.tutorialManager.coinTutorialCompleted =
+                gameData.tutorial.coinTutorialCompleted || false;
+            this.tutorialManager.firstCoinEarned =
+                gameData.tutorial.firstCoinEarned || false;
+            if (this.tutorialManager.tutorialCompleted) {
+                this.tutorialManager.tutorialStep = TUTORIAL_STEP.COMPLETED;
+            }
+        }
+        if (gameData.upgrades) {
+            this.upgradeManager.upgrades = { ...gameData.upgrades };
+        }
+        if (gameData.settings) {
+            this.settingsManager.setBgmVolume(
+                gameData.settings.bgmVolume || 0.5
+            );
+            this.settingsManager.setSeVolume(gameData.settings.seVolume || 0.5);
+            this.settingsManager.setPlayerAnimation(
+                gameData.settings.playerAnimation !== false
+            );
+            this.settingsManager.setBackgroundColorChange(
+                gameData.settings.backgroundColorChange !== false
+            );
+            this.settingsManager.setAutoFishing(
+                gameData.settings.autoFishing || false
+            );
+        }
+
+        // UIを更新
+        this.sidebarUI.update();
+        this.topBarUI.update();
+        this.sidebarUI.updateLetterButton();
+
+        // 背景色を更新
+        this.timeOfDayManager.updateBackgroundColor();
+
+        return true;
     }
 }

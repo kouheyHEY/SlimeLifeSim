@@ -1,5 +1,6 @@
 import { COMMON_CONST, FONT_NAME } from "../const/CommonConst.js";
 import { UI_CONST } from "../const/UIConst.js";
+import { SaveManager } from "../managers/SaveManager.js";
 
 /**
  * タイトルシーン
@@ -15,6 +16,10 @@ export class Title extends Phaser.Scene {
      * タイトル画面とスタートボタンを表示
      */
     create() {
+        // SaveManagerを初期化
+        this.saveManager = new SaveManager();
+        const hasSaveData = this.saveManager.hasSaveData();
+
         // 背景全体に透過オーバーレイをかける
         const overlay = this.add
             .rectangle(
@@ -105,6 +110,13 @@ export class Title extends Phaser.Scene {
             )
             .setOrigin(0.5, 0.5);
 
+        // セーブデータがない場合はContinueボタンを無効化
+        if (!hasSaveData) {
+            continueButton.setAlpha(0.5);
+            continueText.setAlpha(0.5);
+            continueButton.disableInteractive();
+        }
+
         // Store UI elements for fade-out animation
         this.titleElements = [
             overlay,
@@ -123,26 +135,35 @@ export class Title extends Phaser.Scene {
             newGameButton.setFillStyle(UI_CONST.TITLE_BUTTON_BACKGROUND_COLOR);
         });
 
-        continueButton.on("pointerover", () => {
-            continueButton.setFillStyle(UI_CONST.TITLE_BUTTON_HOVER_COLOR);
-        });
-        continueButton.on("pointerout", () => {
-            continueButton.setFillStyle(UI_CONST.TITLE_BUTTON_BACKGROUND_COLOR);
-        });
+        if (hasSaveData) {
+            continueButton.on("pointerover", () => {
+                continueButton.setFillStyle(UI_CONST.TITLE_BUTTON_HOVER_COLOR);
+            });
+            continueButton.on("pointerout", () => {
+                continueButton.setFillStyle(
+                    UI_CONST.TITLE_BUTTON_BACKGROUND_COLOR
+                );
+            });
+        }
 
         // Button click handlers
         newGameButton.on("pointerdown", () => {
-            this.startGame();
+            this.startGame(false); // New Gameはロードしない
         });
 
         continueButton.on("pointerdown", () => {
-            this.startGame();
+            this.startGame(true); // Continueはロードする
         });
     }
 
-    startGame() {
+    startGame(loadSave = false) {
         // Disable further interactions
         this.input.enabled = false;
+
+        // New Gameの場合はセーブデータを削除
+        if (!loadSave) {
+            this.saveManager.resetSave();
+        }
 
         // Fade out all title elements
         this.tweens.add({
@@ -155,6 +176,7 @@ export class Title extends Phaser.Scene {
                 this.scene.stop("Title");
                 this.scene.resume("Game", {
                     from: "title",
+                    loadSave: loadSave, // ロードするかどうかを伝える
                 });
             },
         });

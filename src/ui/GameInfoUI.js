@@ -283,4 +283,24 @@ export class GameInfoUI {
         }
         return false;
     }
+
+    /**
+     * セーブ用のデータを取得
+     * @returns {Object} セーブ用データ
+     */
+    getSaveData() {
+        return {
+            coins: this.coins,
+        };
+    }
+
+    /**
+     * セーブデータから状態を復元
+     * @param {Object} data - 復元するデータ
+     */
+    loadSaveData(data) {
+        if (data.coins !== undefined) {
+            this.coins = data.coins;
+        }
+    }
 }

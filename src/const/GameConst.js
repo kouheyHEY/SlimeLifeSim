@@ -177,7 +177,7 @@ export const TIME_PERIOD_DISPLAY_NAME = {
  */
 export const GAME_TIME_CONST = {
     /** ゲーム時間のスケール: 実時間1秒 = ゲーム内N分 */
-    TIME_SCALE_MINUTES_PER_REAL_SECOND: 2,
+    TIME_SCALE_MINUTES_PER_REAL_SECOND: 1,
 
     /** ゲーム時間の更新判定時間（秒） */
     UPDATE_THRESHOLD_SECONDS: 0.5,

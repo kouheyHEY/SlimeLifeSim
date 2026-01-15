@@ -26,7 +26,7 @@ export const TUTORIAL_STEP = {
 /**
  * チュートリアル開始までの分数（ゲーム内時間）
  */
-export const TUTORIAL_START_GAME_MINUTES = 2; // ゲーム開始から2分後
+export const TUTORIAL_START_GAME_MINUTES = 1; // ゲーム開始から1分後
 
 /**
  * モーダルサイズ定数
@@ -105,8 +105,8 @@ const TUTORIAL_TEXT = {
     },
     // コインチュートリアルステップ2: アップグレード説明
     COIN_STEP2: {
-        JP: "釣り竿を強化すると...\n\n・魚の釣れる確率が上がる\n・レアな魚が釣れやすくなる\n・魚の価値が上がる\n・一定レベルで釣りが自動化\n\n左下のボタンで強化できます！",
-        EN: "Upgrading your rod gives:\n\n・Better catch rate\n・More rare fish\n・Higher fish value\n・Auto-fishing at high levels\n\nUpgrade via bottom-left button!",
+        JP: "釣り竿を強化すると...\n\n\n・レアな魚が釣れやすくなる\n・魚のヒット持続時間が延びる\n\n釣竿の下のボタンで強化できます！",
+        EN: "Upgrading your rod gives:\n\n・More rare fish\n・Longer fish hit duration\n\nUpgrade via the button below the rod!",
     },
     // OKボタン
     OK_BUTTON: "OK",

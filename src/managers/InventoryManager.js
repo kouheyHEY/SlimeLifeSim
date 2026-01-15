@@ -87,4 +87,28 @@ export class InventoryManager {
         }
         return false;
     }
+
+    /**
+     * セーブ用のデータを取得
+     * @returns {Object} セーブ用データ
+     */
+    getSaveData() {
+        return {
+            items: this.items.map((item) => ({ ...item })),
+            size: this.size,
+        };
+    }
+
+    /**
+     * セーブデータから状態を復元
+     * @param {Object} data - 復元するデータ
+     */
+    loadSaveData(data) {
+        if (data.items) {
+            this.items = data.items.map((item) => ({ ...item }));
+        }
+        if (data.size !== undefined) {
+            this.size = data.size;
+        }
+    }
 }
