@@ -154,6 +154,10 @@ export const GAME_CONST = {
     FISH_HIT_DURATION_MIN: 4,
     /** 魚ヒットの最大持続時間（ゲーム内分） */
     FISH_HIT_DURATION_MAX: 20,
+    /** 釣った後のクールダウン時間（ゲーム内分） */
+    FISH_HIT_COOLDOWN_AFTER_CATCH: 5,
+    /** 天井システム：この時間ヒットがなければ確定ヒット（ゲーム内分） */
+    FISH_HIT_CEILING_TIME: 60,
 };
 
 /**

@@ -35,6 +35,8 @@ export class GameTimeManager {
         this.fishHitEndTime = null; // ヒット終了時刻（ゲーム内分の合計）
         this.lotteryActive = true; // 抽選が有効かどうか
         this.lastLotteryMinute = this.getTotalMinutes(); // 最後に抽選を行った時刻
+        this.cooldownEndTime = null; // クールダウン終了時刻（ゲーム内分の合計）
+        this.lastFishHitTime = this.getTotalMinutes(); // 最後にヒットが発生した時刻（天井用）
 
         // ゲーム時間のポーズ状態
         this.isPausedFlag = false; // ゲーム時間が一時停止中かどうか
@@ -192,9 +194,27 @@ export class GameTimeManager {
             return;
         }
 
+        // クールダウン中は抽選を行わない
+        if (
+            this.cooldownEndTime !== null &&
+            currentTotalMinutes < this.cooldownEndTime
+        ) {
+            return;
+        }
+
         // 1分ごとに抽選を行う
         if (currentTotalMinutes > this.lastLotteryMinute) {
             this.lastLotteryMinute = currentTotalMinutes;
+
+            // 天井システム：長時間ヒットがない場合は確定でヒット
+            const timeSinceLastHit = currentTotalMinutes - this.lastFishHitTime;
+            if (timeSinceLastHit >= GAME_CONST.FISH_HIT_CEILING_TIME) {
+                console.log(
+                    `天井到達！最後のヒットから${timeSinceLastHit}分経過`
+                );
+                this.triggerFishHit();
+                return;
+            }
 
             // アップグレードによる確率倍率を取得
             let catchRateMultiplier = 1.0;
@@ -237,6 +257,9 @@ export class GameTimeManager {
         );
         this.fishHitEndTime = this.getTotalMinutes() + duration;
 
+        // 最後にヒットが発生した時刻を記録（天井システム用）
+        this.lastFishHitTime = this.getTotalMinutes();
+
         console.log(`魚ヒット発生！ ${duration}分間有効`);
 
         // イベントを発火してUIを更新
@@ -265,7 +288,13 @@ export class GameTimeManager {
         this.fishHitActive = false;
         this.lotteryActive = true;
         this.lastLotteryMinute = this.getTotalMinutes();
-        console.log("魚ヒットシステム再開");
+
+        // クールダウンを設定（釣った後は一定時間ヒットしない）
+        this.cooldownEndTime =
+            this.getTotalMinutes() + GAME_CONST.FISH_HIT_COOLDOWN_AFTER_CATCH;
+        console.log(
+            `魚ヒットシステム再開（${GAME_CONST.FISH_HIT_COOLDOWN_AFTER_CATCH}分間のクールダウン）`
+        );
 
         // イベントを発火してUIを更新
         this.scene.events.emit("fishHit", false);
@@ -448,14 +477,5 @@ export class GameTimeManager {
             // 魚ヒットインジケーターを非表示にするイベントを発行
             this.scene.events.emit("fishHit", false);
         }
-    }
-
-    /**
-     * 魚ヒットシステムを再開
-     */
-    resumeFishSystem() {
-        this.lotteryActive = true;
-        // 再開時に最後の抽選時刻を現在時刻に更新（すぐに抽選が始まらないようにする）
-        this.lastLotteryMinute = this.getTotalMinutes();
     }
 }
