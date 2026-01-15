@@ -349,10 +349,6 @@ export const UI_CONST = {
     TOP_BAR_STATUS_ICON_X_OFFSET: 35,
     /** トップバー: ステータス/コイン表示のX座標オフセット（テキスト） */
     TOP_BAR_STATUS_TEXT_X_OFFSET: 10,
-    /** トップバー: ステータス/コイン表示のY座標オフセット（上段） */
-    TOP_BAR_STATUS_TOP_Y_OFFSET: 20,
-    /** トップバー: ステータス/コイン表示のY座標オフセット（下段） */
-    TOP_BAR_STATUS_BOTTOM_Y_OFFSET: 20,
     /** トップバー: ステータス/コインアイコンのスケール */
     TOP_BAR_STATUS_ICON_SCALE: 0.6,
     /** トップバー: ステータス/コインテキストのフォントサイズ */

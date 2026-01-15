@@ -213,8 +213,7 @@ export class TopBarUI {
         this.coinSprite = this.scene.add
             .sprite(
                 statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_ICON_X_OFFSET,
-                UI_CONST.TOP_BAR_HEIGHT / 2 +
-                    UI_CONST.TOP_BAR_STATUS_BOTTOM_Y_OFFSET,
+                UI_CONST.TOP_BAR_HEIGHT / 2,
                 "coin"
             )
             .setOrigin(0.5, 0.5)
@@ -226,8 +225,7 @@ export class TopBarUI {
         this.coinCountText = this.scene.add
             .text(
                 statusSectionCenterX - UI_CONST.TOP_BAR_STATUS_TEXT_X_OFFSET,
-                UI_CONST.TOP_BAR_HEIGHT / 2 +
-                    UI_CONST.TOP_BAR_STATUS_BOTTOM_Y_OFFSET,
+                UI_CONST.TOP_BAR_HEIGHT / 2,
                 UI_TEXT.TOP_BAR.INITIAL_COIN_COUNT,
                 {
                     fontSize: UI_CONST.TOP_BAR_STATUS_TEXT_FONT_SIZE,
@@ -285,9 +283,13 @@ export class TopBarUI {
      */
     update() {
         // チュートリアル状態に基づいて Pause ボタンの表示を制御
-        this.pauseButton.setVisible(true);
-        this.pauseButtonOuter.setVisible(true);
-        this.pauseIcon.setVisible(true);
+        // コインチュートリアルが完了するまで非表示
+        const shouldShowPauseButton = 
+            this.tutorialManager && 
+            this.tutorialManager.isCoinTutorialCompleted();
+        this.pauseButton.setVisible(shouldShowPauseButton);
+        this.pauseButtonOuter.setVisible(shouldShowPauseButton);
+        this.pauseIcon.setVisible(shouldShowPauseButton);
 
         // 日数を更新
         const day = this.gameTimeManager.currentTime.day;
