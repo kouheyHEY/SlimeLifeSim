@@ -531,17 +531,16 @@ export class Game extends Phaser.Scene {
      */
     handleFishingSuccess(fishName, letterIndex, letterCategory) {
         console.log(`釣り成功: ${fishName}`);
-        
+
         // チュートリアル完了後、未読の手紙がある場合は交互パターンを切り替え
         const tutorialCompleted =
-            this.tutorialManager &&
-            this.tutorialManager.isTutorialCompleted();
+            this.tutorialManager && this.tutorialManager.isTutorialCompleted();
         const hasUnreadLetters = this.letterManager.hasAnyUnreadLetters(this);
-        
+
         if (tutorialCompleted && hasUnreadLetters) {
             this.letterManager.toggleLetterPattern();
         }
-        
+
         // メッセージボトルの場合はインベントリに追加しない
         if (fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
             // 手紙を読んだことを記録
@@ -600,7 +599,7 @@ export class Game extends Phaser.Scene {
         this.fishHitIndicator = this.add
             .image(0, 0, assets.image.rod.key)
             .setOrigin(0.5, 0.5)
-            .setScale(0.5);
+            .setScale(0.75);
 
         // UIカメラから除外（プレイヤーと一緒に動く）
         this.uiCamera.ignore(this.fishHitIndicator);
@@ -643,7 +642,7 @@ export class Game extends Phaser.Scene {
                 buttonHeight,
                 0xff6600
             )
-            .setStrokeStyle(3, 0xffffff)
+            .setStrokeStyle(4, 0xffffff)
             .setOrigin(0.5, 0.5);
 
         this.uiCamera.ignore(this.fishHitButton);
@@ -923,16 +922,14 @@ export class Game extends Phaser.Scene {
 
         // チュートリアル中はメッセージボトルを除外
         const tutorialCompleted =
-            this.tutorialManager &&
-            this.tutorialManager.isTutorialCompleted();
+            this.tutorialManager && this.tutorialManager.isTutorialCompleted();
         if (!tutorialCompleted) {
             delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
         }
 
         // チュートリアル終了後、未読の手紙がある場合は交互パターンを適用
         if (tutorialCompleted && hasUnreadLetters) {
-            const shouldGetLetter =
-                this.letterManager.getShouldGetLetterNext();
+            const shouldGetLetter = this.letterManager.getShouldGetLetterNext();
             if (shouldGetLetter) {
                 // 手紙の番：手紙のみを返す
                 return GAME_CONST.FISH_NAME.BOTTLE_LETTER;

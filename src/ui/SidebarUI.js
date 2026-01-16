@@ -101,7 +101,7 @@ export class SidebarUI {
      */
     createLetterButton(x, y, width) {
         this.letterButton = this.scene.add
-            .rectangle(x, y, width, 60, 0x3366cc)
+            .rectangle(x, y, width, 70, 0x3366cc)
             .setOrigin(0, 0)
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true })
@@ -109,19 +109,19 @@ export class SidebarUI {
 
         // ボトルのアイコンを追加
         this.letterButtonIcon = this.scene.add
-            .image(x + 25, y + 30, "bottle_letter")
+            .image(x + 25, y + 35, "bottle_letter")
             .setOrigin(0.5, 0.5)
-            .setScale(0.3)
+            .setScale(0.4)
             .setVisible(false);
 
         this.letterButtonText = this.scene.add
             .text(
                 x + 50,
-                y + 30,
+                y + 35,
                 getLocalizedText(UI_TEXT.LETTER.READ_BUTTON),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "28px",
+                    fontSize: "32px",
                     color: "#FFFFFF",
                     align: "left",
                 }

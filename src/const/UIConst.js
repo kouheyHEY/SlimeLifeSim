@@ -20,7 +20,7 @@ export const UI_CONST = {
         EN: "Hit!!",
     },
     /** 魚ヒットテキストのフォントサイズ */
-    FISH_HIT_TEXT_FONT_SIZE: 24,
+    FISH_HIT_TEXT_FONT_SIZE: 40,
     /** 魚ヒットテキストの色 */
     FISH_HIT_TEXT_COLOR: "#ffffff",
     /** 魚ヒットテキストの縁取り色 */
@@ -165,7 +165,7 @@ export const UI_CONST = {
     /** ゲーム情報UIの幅 */
     GAME_INFO_WIDTH: 240,
     /** ゲーム情報UIの高さ */
-    GAME_INFO_HEIGHT: 220,
+    GAME_INFO_HEIGHT: 210,
     /** ゲーム情報UIのX座標（トップバー内での相対位置） */
     GAME_INFO_X: 20,
     /** ゲーム情報UIのY座標（トップバー内での相対位置） */
@@ -454,7 +454,7 @@ export const UI_CONST = {
     OVERLAY_DEPTH: 1999,
 
     /** 魚ヒットインジケーターのY座標オフセット（プレイヤー位置からの相対値） */
-    FISH_HIT_INDICATOR_Y_OFFSET: -120,
+    FISH_HIT_INDICATOR_Y_OFFSET: -160,
 
     /** プレイヤーアニメーションの最小遅延時間（ミリ秒） */
     PLAYER_ANIMATION_DELAY_MIN: 2000,
@@ -546,8 +546,8 @@ export const UI_TEXT = {
     /** 一時停止モーダルのテキスト */
     PAUSE_MODAL: {
         TITLE: { JP: "設定", EN: "Settings" },
-        BGM_VOLUME: { JP: "BGM音量", EN: "BGM Volume" },
-        SE_VOLUME: { JP: "SE音量", EN: "SE Volume" },
+        BGM_VOLUME: { JP: "BGM", EN: "BGM" },
+        SE_VOLUME: { JP: "SE", EN: "SE" },
         BACKGROUND_COLOR: { JP: "背景色の変化", EN: "Background Color" },
         PLAYER_ANIMATION: {
             JP: "プレイヤーアニメーション",

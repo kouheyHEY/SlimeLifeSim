@@ -575,7 +575,7 @@ export class TutorialManager {
         // ボタンの左上座標と大きさ
         const buttonW = UI_CONST.ITEM_DETAIL_BUTTON_WIDTH;
         const buttonH = UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT;
-        const buttonCenterX = cx - 65;
+        const buttonCenterX = cx - 80;
         const buttonX = buttonCenterX - buttonW / 2;
         const buttonY = cy + 200 - buttonH / 2;
 
