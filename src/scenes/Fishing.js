@@ -519,11 +519,12 @@ export class Fishing extends Phaser.Scene {
             const pageNumber = this.add
                 .text(
                     0,
-                    UI_CONST.LETTER_WINDOW_HEIGHT / 2 - 40,
+                    UI_CONST.LETTER_WINDOW_HEIGHT / 2 -
+                        UI_CONST.LETTER_CONTENT_PAGE_NUMBER_Y_OFFSET,
                     `${this.currentLetterIndex + 1}/${this.totalLetters}`,
                     {
                         fontFamily: FONT_NAME.CP_PERIOD,
-                        fontSize: "20px",
+                        fontSize: UI_CONST.LETTER_CONTENT_PAGE_NUMBER_FONT_SIZE,
                         color: UI_CONST.LETTER_TEXT_COLOR,
                         align: "center",
                     }

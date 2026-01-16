@@ -280,7 +280,7 @@ export class InventoryUI {
         // 売るボタン
         const sellButton = this.scene.add
             .rectangle(
-                -65,
+                -80,
                 buttonY,
                 UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                 UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
@@ -292,12 +292,12 @@ export class InventoryUI {
 
         const sellText = this.scene.add
             .text(
-                -65,
+                -80,
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_BUTTON),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "24px",
+                    fontSize: "36px",
                     color: "#FFFFFF",
                     align: "center",
                     stroke: "#000000",
@@ -351,7 +351,7 @@ export class InventoryUI {
         // 閉じるボタン（×）
         const closeButton = this.scene.add
             .rectangle(
-                65,
+                80,
                 buttonY,
                 UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                 UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
@@ -363,7 +363,7 @@ export class InventoryUI {
 
         const closeText = this.scene.add
             .text(
-                65,
+                80,
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.CLOSE_BUTTON),
                 {

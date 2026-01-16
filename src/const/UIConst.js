@@ -54,7 +54,7 @@ export const UI_CONST = {
     /** 釣り結果のスプライト表示Y座標 */
     FISHING_RESULT_SPRITE_Y: -100,
     /** 釣り結果テキストのフォントサイズ */
-    FISHING_RESULT_TEXT_FONT_SIZE: 32,
+    FISHING_RESULT_TEXT_FONT_SIZE: 40,
     /** 釣り結果テキストの色 */
     FISHING_RESULT_TEXT_COLOR: "#FFFFFF",
     /** 釣り結果テキストの文字列Y座標 */
@@ -62,11 +62,11 @@ export const UI_CONST = {
     /** 釣り結果の遷移用ボタン文字列 */
     FISHING_RESULT_BUTTON_TEXT: "OK",
     /** 釣り結果ボタンの幅 */
-    FISHING_RESULT_BUTTON_WIDTH: 150,
+    FISHING_RESULT_BUTTON_WIDTH: 160,
     /** 釣り結果ボタンの高さ */
-    FISHING_RESULT_BUTTON_HEIGHT: 50,
+    FISHING_RESULT_BUTTON_HEIGHT: 60,
     /** 釣り結果ボタンの文字の大きさ */
-    FISHING_RESULT_BUTTON_FONT_SIZE: 24,
+    FISHING_RESULT_BUTTON_FONT_SIZE: 36,
     /** 釣り結果ボタンの文字色 */
     FISHING_RESULT_BUTTON_TEXT_COLOR: "#FFFFFF",
     /** 釣り結果の遷移用ボタンの背景色 */
@@ -118,11 +118,11 @@ export const UI_CONST = {
     /** アイテム詳細のフォントサイズ */
     ITEM_DETAIL_FONT_SIZE: 32,
     /** アイテム詳細の説明フォントサイズ */
-    ITEM_DETAIL_DESC_FONT_SIZE: 28,
+    ITEM_DETAIL_DESC_FONT_SIZE: 32,
     /** アイテム詳細のボタン幅 */
-    ITEM_DETAIL_BUTTON_WIDTH: 120,
+    ITEM_DETAIL_BUTTON_WIDTH: 130,
     /** アイテム詳細のボタン高さ */
-    ITEM_DETAIL_BUTTON_HEIGHT: 50,
+    ITEM_DETAIL_BUTTON_HEIGHT: 60,
 
     /** タイトル画面の背景の色 */
     TITLE_BACKGROUND_COLOR: 0x000000,
@@ -218,9 +218,9 @@ export const UI_CONST = {
     SIDEBAR_PADDING: 20,
 
     /** 手紙表示ウィンドウの幅 */
-    LETTER_WINDOW_WIDTH: 700,
+    LETTER_WINDOW_WIDTH: 800,
     /** 手紙表示ウィンドウの高さ */
-    LETTER_WINDOW_HEIGHT: 500,
+    LETTER_WINDOW_HEIGHT: 600,
     /** 手紙表示ウィンドウの長方形の色 */
     LETTER_WINDOW_RECTANGLE_COLOR: 0x000000,
     /** 手紙表示ウィンドウの長方形の枠の色 */
@@ -228,25 +228,25 @@ export const UI_CONST = {
     /** 手紙表示ウィンドウの長方形の枠の太さ */
     LETTER_WINDOW_RECTANGLE_LINE_WIDTH: 2,
     /** 手紙テキストのフォントサイズ */
-    LETTER_TEXT_FONT_SIZE: 24,
+    LETTER_TEXT_FONT_SIZE: 32,
     /** 手紙テキストのフォントサイズ（英語） */
-    LETTER_TEXT_FONT_SIZE_EN: 20,
+    LETTER_TEXT_FONT_SIZE_EN: 28,
     /** 手紙テキストの色 */
     LETTER_TEXT_COLOR: "#FFFFFF",
     /** 手紙テキストのY座標 */
-    LETTER_TEXT_Y: -230,
+    LETTER_TEXT_Y: -260,
     /** 手紙テキストの行間 */
     LETTER_TEXT_LINE_SPACING: 30,
     /** 手紙テキストのテキスト最大幅 */
-    LETTER_TEXT_MAX_WIDTH: 600,
+    LETTER_TEXT_MAX_WIDTH: 740,
     /** 手紙ウィンドウの閉じるボタンのテキスト */
     LETTER_CLOSE_BUTTON_TEXT: "OK",
     /** 手紙ウィンドウの閉じるボタンの幅 */
-    LETTER_CLOSE_BUTTON_WIDTH: 150,
+    LETTER_CLOSE_BUTTON_WIDTH: 160,
     /** 手紙ウィンドウの閉じるボタンの高さ */
-    LETTER_CLOSE_BUTTON_HEIGHT: 50,
+    LETTER_CLOSE_BUTTON_HEIGHT: 60,
     /** 手紙ウィンドウの閉じるボタンのフォントサイズ */
-    LETTER_CLOSE_BUTTON_FONT_SIZE: 24,
+    LETTER_CLOSE_BUTTON_FONT_SIZE: 36,
     /** 手紙ウィンドウの閉じるボタンのテキスト色 */
     LETTER_CLOSE_BUTTON_TEXT_COLOR: "#FFFFFF",
     /** 手紙ウィンドウの閉じるボタンの背景色 */
@@ -257,6 +257,64 @@ export const UI_CONST = {
     LETTER_CLOSE_BUTTON_BORDER_WIDTH: 2,
     /** 手紙ウィンドウの閉じるボタンのY座標 */
     LETTER_CLOSE_BUTTON_Y: 170,
+
+    /** 手紙リストのカテゴリタイトルのフォントサイズ */
+    LETTER_LIST_CATEGORY_FONT_SIZE: "40px",
+    /** 手紙リストのカテゴリタイトルの色 */
+    LETTER_LIST_CATEGORY_COLOR: "#FFDD00",
+    /** 手紙リストのカテゴリタイトルのストローク色 */
+    LETTER_LIST_CATEGORY_STROKE_COLOR: "#000000",
+    /** 手紙リストのカテゴリタイトルのストローク太さ */
+    LETTER_LIST_CATEGORY_STROKE_THICKNESS: 2,
+    /** 手紙リストの開始Y座標 */
+    LETTER_LIST_START_Y: -250,
+    /** 手紙リストのアイテム高さ */
+    LETTER_LIST_ITEM_HEIGHT: 60,
+    /** 手紙リストのカテゴリ間スペース */
+    LETTER_LIST_CATEGORY_SPACING: 20,
+    /** 手紙リストのアイテム背景色 */
+    LETTER_LIST_ITEM_BG_COLOR: 0x2244aa,
+    /** 手紙リストのアイテム背景の枠色 */
+    LETTER_LIST_ITEM_BORDER_COLOR: 0xffffff,
+    /** 手紙リストのアイテム背景の枠の太さ */
+    LETTER_LIST_ITEM_BORDER_WIDTH: 2,
+    /** 手紙リストのアイテム幅 */
+    LETTER_LIST_ITEM_WIDTH: 700,
+    /** 手紙リストのアイテムのフォントサイズ */
+    LETTER_LIST_ITEM_FONT_SIZE: "28px",
+    /** 手紙リストのアイテムのストローク色 */
+    LETTER_LIST_ITEM_STROKE_COLOR: "#000000",
+    /** 手紙リストのアイテムのストローク太さ */
+    LETTER_LIST_ITEM_STROKE_THICKNESS: 2,
+    /** 手紙リストのアイテムのプレビューテキストの最大長 */
+    LETTER_LIST_PREVIEW_MAX_LENGTH: 20,
+
+    /** 手紙コンテンツ表示のページ番号のY座標オフセット */
+    LETTER_CONTENT_PAGE_NUMBER_Y_OFFSET: 40,
+    /** 手紙コンテンツ表示のページ番号のフォントサイズ */
+    LETTER_CONTENT_PAGE_NUMBER_FONT_SIZE: "32px",
+    /** 手紙コンテンツ表示のページ番号の色 */
+    LETTER_CONTENT_PAGE_NUMBER_COLOR: "#FFFFFF",
+    /** 手紙コンテンツ表示のページ番号のストローク色 */
+    LETTER_CONTENT_PAGE_NUMBER_STROKE_COLOR: "#000000",
+    /** 手紙コンテンツ表示のページ番号のストローク太さ */
+    LETTER_CONTENT_PAGE_NUMBER_STROKE_THICKNESS: 1,
+    /** 手紙コンテンツ表示の前へボタンのX座標オフセット */
+    LETTER_CONTENT_PREV_BUTTON_X_OFFSET: -200,
+    /** 手紙コンテンツ表示の前へボタンの色 */
+    LETTER_CONTENT_PREV_BUTTON_COLOR: 0x5566dd,
+    /** 手紙コンテンツ表示の前へボタンのテキスト */
+    LETTER_CONTENT_PREV_BUTTON_TEXT: "＜",
+    /** 手紙コンテンツ表示の前へボタンのフォントサイズ */
+    LETTER_CONTENT_PREV_BUTTON_FONT_SIZE: "32px",
+    /** 手紙コンテンツ表示の次へボタンのX座標オフセット */
+    LETTER_CONTENT_NEXT_BUTTON_X_OFFSET: 200,
+    /** 手紙コンテンツ表示の次へボタンの色 */
+    LETTER_CONTENT_NEXT_BUTTON_COLOR: 0x5566dd,
+    /** 手紙コンテンツ表示の次へボタンのテキスト */
+    LETTER_CONTENT_NEXT_BUTTON_TEXT: "＞",
+    /** 手紙コンテンツ表示の次へボタンのフォントサイズ */
+    LETTER_CONTENT_NEXT_BUTTON_FONT_SIZE: "32px",
 
     /** トップバーの高さ */
     TOP_BAR_HEIGHT: 120,
@@ -280,18 +338,110 @@ export const UI_CONST = {
     UPGRADE_BUTTON_HEIGHT: 70,
 
     /** 一時停止モーダルの幅 */
-    PAUSE_MODAL_WIDTH: 450,
+    PAUSE_MODAL_WIDTH: 800,
     /** 一時停止モーダルの高さ */
-    PAUSE_MODAL_HEIGHT: 400,
+    PAUSE_MODAL_HEIGHT: 500,
+    /** 一時停止モーダルの背景色 */
+    PAUSE_MODAL_BG_COLOR: 0x222222,
+    /** 一時停止モーダルの背景透明度 */
+    PAUSE_MODAL_BG_ALPHA: 0.95,
+    /** 一時停止モーダルの枠の色 */
+    PAUSE_MODAL_BORDER_COLOR: 0xffffff,
+    /** 一時停止モーダルの枠の太さ */
+    PAUSE_MODAL_BORDER_WIDTH: 4,
+    /** 一時停止モーダルのオーバーレイの色 */
+    PAUSE_MODAL_OVERLAY_COLOR: 0x000000,
+    /** 一時停止モーダルのオーバーレイの透明度 */
+    PAUSE_MODAL_OVERLAY_ALPHA: 0.7,
+    /** 一時停止モーダルのタイトルの色 */
+    PAUSE_MODAL_TITLE_COLOR: "#ffff00",
+    /** 一時停止モーダルのタイトルのストローク色 */
+    PAUSE_MODAL_TITLE_STROKE_COLOR: "#000000",
+    /** 一時停止モーダルのタイトルのストローク太さ */
+    PAUSE_MODAL_TITLE_STROKE_THICKNESS: 1,
+    /** 一時停止モーダルのタイトルのフォントサイズ */
+    PAUSE_MODAL_TITLE_FONT_SIZE: "40px",
+    /** 一時停止モーダルのタイトルのY座標オフセット */
+    PAUSE_MODAL_TITLE_Y_OFFSET: 40,
+    /** 一時停止モーダルのクローズボタンのフォントサイズ */
+    PAUSE_MODAL_CLOSE_BUTTON_FONT_SIZE: "48px",
+    /** 一時停止モーダルのクローズボタンの色 */
+    PAUSE_MODAL_CLOSE_BUTTON_COLOR: "#ffffff",
+    /** 一時停止モーダルのクローズボタンの色（ホバー） */
+    PAUSE_MODAL_CLOSE_BUTTON_HOVER_COLOR: "#ff0000",
+    /** 一時停止モーダルのクローズボタンのストローク色 */
+    PAUSE_MODAL_CLOSE_BUTTON_STROKE_COLOR: "#000000",
+    /** 一時停止モーダルのクローズボタンのストローク太さ */
+    PAUSE_MODAL_CLOSE_BUTTON_STROKE_THICKNESS: 2,
+    /** 一時停止モーダルのクローズボタンのX座標オフセット */
+    PAUSE_MODAL_CLOSE_BUTTON_X_OFFSET: 40,
+    /** 一時停止モーダルのクローズボタンのY座標オフセット */
+    PAUSE_MODAL_CLOSE_BUTTON_Y_OFFSET: 40,
+    /** 一時停止モーダルの設定項目の行高 */
+    PAUSE_MODAL_LINE_HEIGHT: 50,
+    /** 一時停止モーダルの設定項目の最初のY座標オフセット */
+    PAUSE_MODAL_SETTINGS_START_Y_OFFSET: 120,
+    /** 一時停止モーダルの設定項目のX座標オフセット */
+    PAUSE_MODAL_SETTINGS_X_OFFSET: 60,
+    /** 一時停止モーダルの設定テキストのフォントサイズ */
+    PAUSE_MODAL_SETTINGS_FONT_SIZE: "36px",
+    /** 一時停止モーダルの設定テキストの色 */
+    PAUSE_MODAL_SETTINGS_TEXT_COLOR: "#ffffff",
+    /** 一時停止モーダルの設定テキストのストローク色 */
+    PAUSE_MODAL_SETTINGS_STROKE_COLOR: "#000000",
+    /** 一時停止モーダルの設定テキストのストローク太さ */
+    PAUSE_MODAL_SETTINGS_STROKE_THICKNESS: 1,
+    /** 一時停止モーダルの設定テキスト（ホバー）の色 */
+    PAUSE_MODAL_SETTINGS_HOVER_COLOR: "#ffff00",
+    /** 一時停止モーダルの再開ボタンの幅 */
+    PAUSE_MODAL_RESUME_BUTTON_WIDTH: 200,
+    /** 一時停止モーダルの再開ボタンの高さ */
+    PAUSE_MODAL_RESUME_BUTTON_HEIGHT: 80,
+    /** 一時停止モーダルの再開ボタンの色 */
+    PAUSE_MODAL_RESUME_BUTTON_COLOR: 0x00cc00,
+    /** 一時停止モーダルの再開ボタンの色（ホバー） */
+    PAUSE_MODAL_RESUME_BUTTON_HOVER_COLOR: 0x00ff00,
+    /** 一時停止モーダルの再開ボタンの枠の色 */
+    PAUSE_MODAL_RESUME_BUTTON_BORDER_COLOR: 0xffffff,
+    /** 一時停止モーダルの再開ボタンの枠の太さ */
+    PAUSE_MODAL_RESUME_BUTTON_BORDER_WIDTH: 2,
+    /** 一時停止モーダルの再開ボタンのテキストのフォントサイズ */
+    PAUSE_MODAL_RESUME_BUTTON_TEXT_FONT_SIZE: "36px",
+    /** 一時停止モーダルの再開ボタンのテキストの色 */
+    PAUSE_MODAL_RESUME_BUTTON_TEXT_COLOR: "#ffffff",
+    /** 一時停止モーダルの再開ボタンのテキストのストローク太さ */
+    PAUSE_MODAL_RESUME_BUTTON_TEXT_STROKE_THICKNESS: 2,
+    /** 一時停止モーダルの再開ボタンのY座標オフセット */
+    PAUSE_MODAL_RESUME_BUTTON_Y_OFFSET: 80,
+    /** 一時停止モーダルのセーブボタンの幅 */
+    PAUSE_MODAL_SAVE_BUTTON_WIDTH: 200,
+    /** 一時停止モーダルのセーブボタンの高さ */
+    PAUSE_MODAL_SAVE_BUTTON_HEIGHT: 80,
+    /** 一時停止モーダルのセーブボタンの色 */
+    PAUSE_MODAL_SAVE_BUTTON_COLOR: 0x3366ff,
+    /** 一時停止モーダルのセーブボタンの色（ホバー） */
+    PAUSE_MODAL_SAVE_BUTTON_HOVER_COLOR: 0x5588ff,
+    /** 一時停止モーダルのセーブボタンの枠の色 */
+    PAUSE_MODAL_SAVE_BUTTON_BORDER_COLOR: 0xffffff,
+    /** 一時停止モーダルのセーブボタンの枠の太さ */
+    PAUSE_MODAL_SAVE_BUTTON_BORDER_WIDTH: 2,
+    /** 一時停止モーダルのセーブボタンのテキストのフォントサイズ */
+    PAUSE_MODAL_SAVE_BUTTON_TEXT_FONT_SIZE: "36px",
+    /** 一時停止モーダルのセーブボタンのテキストの色 */
+    PAUSE_MODAL_SAVE_BUTTON_TEXT_COLOR: "#ffffff",
+    /** 一時停止モーダルのセーブボタンのテキストのストローク太さ */
+    PAUSE_MODAL_SAVE_BUTTON_TEXT_STROKE_THICKNESS: 2,
+    /** 一時停止モーダルのセーブボタンのY座標オフセット */
+    PAUSE_MODAL_SAVE_BUTTON_Y_OFFSET: 120,
 
     /** スライダーの幅 */
-    SLIDER_WIDTH: 180,
+    SLIDER_WIDTH: 300,
     /** スライダーつまみの半径 */
-    SLIDER_HANDLE_RADIUS: 10,
+    SLIDER_HANDLE_RADIUS: 24,
     /** スライダーつまみのX座標オフセット（ラベルの右側） */
-    SLIDER_HANDLE_OFFSET_X: 210,
+    SLIDER_HANDLE_OFFSET_X: 340,
     /** スライダーパーセンテージ表示のX座標オフセット（ラベルの右側） */
-    SLIDER_PERCENT_OFFSET_X: 320,
+    SLIDER_PERCENT_OFFSET_X: 520,
 
     /** アップグレードモーダルの幅 */
     UPGRADE_MODAL_WIDTH: 900,

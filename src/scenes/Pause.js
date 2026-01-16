@@ -39,8 +39,8 @@ export class Pause extends Phaser.Scene {
                 0,
                 this.cameras.main.width,
                 this.cameras.main.height,
-                0x000000,
-                0.7
+                UI_CONST.PAUSE_MODAL_OVERLAY_COLOR,
+                UI_CONST.PAUSE_MODAL_OVERLAY_ALPHA
             )
             .setOrigin(0, 0);
 
@@ -57,24 +57,29 @@ export class Pause extends Phaser.Scene {
                 0,
                 UI_CONST.PAUSE_MODAL_WIDTH,
                 UI_CONST.PAUSE_MODAL_HEIGHT,
-                0x222222,
-                0.95
+                UI_CONST.PAUSE_MODAL_BG_COLOR,
+                UI_CONST.PAUSE_MODAL_BG_ALPHA
             )
-            .setStrokeStyle(4, 0xffffff);
+            .setStrokeStyle(
+                UI_CONST.PAUSE_MODAL_BORDER_WIDTH,
+                UI_CONST.PAUSE_MODAL_BORDER_COLOR
+            );
         pauseContainer.add(modalBg);
 
         // タイトル
         const title = this.add
             .text(
                 0,
-                -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 40,
+                -UI_CONST.PAUSE_MODAL_HEIGHT / 2 +
+                    UI_CONST.PAUSE_MODAL_TITLE_Y_OFFSET,
                 getLocalizedText(UI_TEXT.PAUSE_MODAL.TITLE),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "32px",
-                    color: "#ffff00",
-                    stroke: "#000000",
-                    strokeThickness: 1,
+                    fontSize: UI_CONST.PAUSE_MODAL_TITLE_FONT_SIZE,
+                    color: UI_CONST.PAUSE_MODAL_TITLE_COLOR,
+                    stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
+                    strokeThickness:
+                        UI_CONST.PAUSE_MODAL_TITLE_STROKE_THICKNESS,
                 }
             )
             .setOrigin(0.5);
@@ -83,15 +88,18 @@ export class Pause extends Phaser.Scene {
         // ×ボタン
         const closeButton = this.add
             .text(
-                UI_CONST.PAUSE_MODAL_WIDTH / 2 - 40,
-                -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 40,
+                UI_CONST.PAUSE_MODAL_WIDTH / 2 -
+                    UI_CONST.PAUSE_MODAL_CLOSE_BUTTON_X_OFFSET,
+                -UI_CONST.PAUSE_MODAL_HEIGHT / 2 +
+                    UI_CONST.PAUSE_MODAL_CLOSE_BUTTON_Y_OFFSET,
                 "×",
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "48px",
-                    color: "#ffffff",
-                    stroke: "#000000",
-                    strokeThickness: 1,
+                    fontSize: UI_CONST.PAUSE_MODAL_CLOSE_BUTTON_FONT_SIZE,
+                    color: UI_CONST.PAUSE_MODAL_CLOSE_BUTTON_COLOR,
+                    stroke: UI_CONST.PAUSE_MODAL_CLOSE_BUTTON_STROKE_COLOR,
+                    strokeThickness:
+                        UI_CONST.PAUSE_MODAL_CLOSE_BUTTON_STROKE_THICKNESS,
                 }
             )
             .setOrigin(0.5)
@@ -103,19 +111,23 @@ export class Pause extends Phaser.Scene {
         });
 
         closeButton.on("pointerover", () => {
-            closeButton.setColor("#ff0000");
+            closeButton.setColor(UI_CONST.PAUSE_MODAL_CLOSE_BUTTON_HOVER_COLOR);
         });
 
         closeButton.on("pointerout", () => {
-            closeButton.setColor("#ffffff");
+            closeButton.setColor(UI_CONST.PAUSE_MODAL_CLOSE_BUTTON_COLOR);
         });
 
-        let currentY = -UI_CONST.PAUSE_MODAL_HEIGHT / 2 + 100;
-        const lineHeight = 50;
+        let currentY =
+            -UI_CONST.PAUSE_MODAL_HEIGHT / 2 +
+            UI_CONST.PAUSE_MODAL_SETTINGS_START_Y_OFFSET;
+        const lineHeight = UI_CONST.PAUSE_MODAL_LINE_HEIGHT;
 
         // BGM音量スライダー
         const bgmSlider = new Slider(this, pauseContainer, {
-            x: -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+            x:
+                -UI_CONST.PAUSE_MODAL_WIDTH / 2 +
+                UI_CONST.PAUSE_MODAL_SETTINGS_X_OFFSET,
             y: currentY,
             label: getLocalizedText(UI_TEXT.PAUSE_MODAL.BGM_VOLUME),
             value: this.gameScene.settingsManager.getBgmVolume(),
@@ -131,6 +143,8 @@ export class Pause extends Phaser.Scene {
                 barBorderWidth: 2,
                 labelColor: "#ffff00",
                 percentColor: "#ffffff",
+                percentFontSize: "36px",
+                labelFontSize: "36px",
             },
             onChange: (volume) => {
                 this.gameScene.settingsManager.setBgmVolume(volume);
@@ -145,7 +159,8 @@ export class Pause extends Phaser.Scene {
         if (this.gameScene.upgradeManager.isAutoFishingEnabled()) {
             this.createToggle(
                 pauseContainer,
-                -UI_CONST.PAUSE_MODAL_WIDTH / 2 + 40,
+                -UI_CONST.PAUSE_MODAL_WIDTH / 2 +
+                    UI_CONST.PAUSE_MODAL_SETTINGS_X_OFFSET,
                 currentY,
                 getLocalizedText(UI_TEXT.PAUSE_MODAL.AUTO_FISHING),
                 this.gameScene.settingsManager.isAutoFishingEnabled(),
@@ -160,23 +175,34 @@ export class Pause extends Phaser.Scene {
         const resumeButton = this.add
             .rectangle(
                 0,
-                UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60,
-                150,
-                50,
-                0x00cc00
+                UI_CONST.PAUSE_MODAL_HEIGHT / 2 -
+                    UI_CONST.PAUSE_MODAL_RESUME_BUTTON_Y_OFFSET,
+                UI_CONST.PAUSE_MODAL_RESUME_BUTTON_WIDTH,
+                UI_CONST.PAUSE_MODAL_RESUME_BUTTON_HEIGHT,
+                UI_CONST.PAUSE_MODAL_RESUME_BUTTON_COLOR
             )
-            .setStrokeStyle(2, 0xffffff)
+            .setStrokeStyle(
+                UI_CONST.PAUSE_MODAL_RESUME_BUTTON_BORDER_WIDTH,
+                UI_CONST.PAUSE_MODAL_RESUME_BUTTON_BORDER_COLOR
+            )
             .setInteractive({ useHandCursor: true });
         pauseContainer.add(resumeButton);
 
         const resumeText = this.add
-            .text(0, UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60, "OK", {
-                fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "24px",
-                color: "#ffffff",
-                stroke: "#000000",
-                strokeThickness: 2,
-            })
+            .text(
+                0,
+                UI_CONST.PAUSE_MODAL_HEIGHT / 2 -
+                    UI_CONST.PAUSE_MODAL_RESUME_BUTTON_Y_OFFSET,
+                "OK",
+                {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: UI_CONST.PAUSE_MODAL_RESUME_BUTTON_TEXT_FONT_SIZE,
+                    color: UI_CONST.PAUSE_MODAL_RESUME_BUTTON_TEXT_COLOR,
+                    stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
+                    strokeThickness:
+                        UI_CONST.PAUSE_MODAL_RESUME_BUTTON_TEXT_STROKE_THICKNESS,
+                }
+            )
             .setOrigin(0.5);
         pauseContainer.add(resumeText);
 
@@ -185,28 +211,43 @@ export class Pause extends Phaser.Scene {
         });
 
         resumeButton.on("pointerover", () => {
-            resumeButton.setFillStyle(0x00ff00);
+            resumeButton.setFillStyle(
+                UI_CONST.PAUSE_MODAL_RESUME_BUTTON_HOVER_COLOR
+            );
         });
 
         resumeButton.on("pointerout", () => {
-            resumeButton.setFillStyle(0x00cc00);
+            resumeButton.setFillStyle(UI_CONST.PAUSE_MODAL_RESUME_BUTTON_COLOR);
         });
 
         // セーブボタンを追加（OKボタンの上に配置）
-        const saveButtonY = UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60 - 70;
+        const saveButtonY =
+            UI_CONST.PAUSE_MODAL_HEIGHT / 2 -
+            UI_CONST.PAUSE_MODAL_RESUME_BUTTON_Y_OFFSET -
+            UI_CONST.PAUSE_MODAL_SAVE_BUTTON_Y_OFFSET;
         const saveButton = this.add
-            .rectangle(0, saveButtonY, 200, 50, 0x3366ff)
-            .setStrokeStyle(2, 0xffffff)
+            .rectangle(
+                0,
+                saveButtonY,
+                UI_CONST.PAUSE_MODAL_SAVE_BUTTON_WIDTH,
+                UI_CONST.PAUSE_MODAL_SAVE_BUTTON_HEIGHT,
+                UI_CONST.PAUSE_MODAL_SAVE_BUTTON_COLOR
+            )
+            .setStrokeStyle(
+                UI_CONST.PAUSE_MODAL_SAVE_BUTTON_BORDER_WIDTH,
+                UI_CONST.PAUSE_MODAL_SAVE_BUTTON_BORDER_COLOR
+            )
             .setInteractive({ useHandCursor: true });
         pauseContainer.add(saveButton);
 
         const saveText = this.add
             .text(0, saveButtonY, "Save", {
                 fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "24px",
-                color: "#ffffff",
-                stroke: "#000000",
-                strokeThickness: 2,
+                fontSize: UI_CONST.PAUSE_MODAL_SAVE_BUTTON_TEXT_FONT_SIZE,
+                color: UI_CONST.PAUSE_MODAL_SAVE_BUTTON_TEXT_COLOR,
+                stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
+                strokeThickness:
+                    UI_CONST.PAUSE_MODAL_SAVE_BUTTON_TEXT_STROKE_THICKNESS,
             })
             .setOrigin(0.5);
         pauseContainer.add(saveText);
@@ -226,11 +267,13 @@ export class Pause extends Phaser.Scene {
         });
 
         saveButton.on("pointerover", () => {
-            saveButton.setFillStyle(0x5588ff);
+            saveButton.setFillStyle(
+                UI_CONST.PAUSE_MODAL_SAVE_BUTTON_HOVER_COLOR
+            );
         });
 
         saveButton.on("pointerout", () => {
-            saveButton.setFillStyle(0x3366ff);
+            saveButton.setFillStyle(UI_CONST.PAUSE_MODAL_SAVE_BUTTON_COLOR);
         });
     }
 
@@ -241,10 +284,10 @@ export class Pause extends Phaser.Scene {
         const text = this.add
             .text(x, y, `${label}: ${initialValue ? "ON" : "OFF"}`, {
                 fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "24px",
-                color: "#ffffff",
-                stroke: "#000000",
-                strokeThickness: 1,
+                fontSize: UI_CONST.PAUSE_MODAL_SETTINGS_FONT_SIZE,
+                color: UI_CONST.PAUSE_MODAL_SETTINGS_TEXT_COLOR,
+                stroke: UI_CONST.PAUSE_MODAL_SETTINGS_STROKE_COLOR,
+                strokeThickness: UI_CONST.PAUSE_MODAL_SETTINGS_STROKE_THICKNESS,
             })
             .setOrigin(0, 0.5)
             .setInteractive({ useHandCursor: true });
@@ -257,11 +300,11 @@ export class Pause extends Phaser.Scene {
         });
 
         text.on("pointerover", () => {
-            text.setColor("#ffff00");
+            text.setColor(UI_CONST.PAUSE_MODAL_SETTINGS_HOVER_COLOR);
         });
 
         text.on("pointerout", () => {
-            text.setColor("#ffffff");
+            text.setColor(UI_CONST.PAUSE_MODAL_SETTINGS_TEXT_COLOR);
         });
 
         container.add(text);

@@ -59,8 +59,8 @@ export class LetterList extends Phaser.Scene {
 
         // カテゴリ別に手紙を表示
         const categories = this.letterManager.getAllCategories();
-        const startY = -150;
-        const itemHeight = 50;
+        const startY = UI_CONST.LETTER_LIST_START_Y;
+        const itemHeight = UI_CONST.LETTER_LIST_ITEM_HEIGHT;
         let currentY = startY;
 
         categories.forEach((categoryKey) => {
@@ -70,11 +70,12 @@ export class LetterList extends Phaser.Scene {
             const categoryTitle = this.add
                 .text(0, currentY, `【${categoryName}】`, {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "22px",
-                    color: "#FFDD00",
+                    fontSize: UI_CONST.LETTER_LIST_CATEGORY_FONT_SIZE,
+                    color: UI_CONST.LETTER_LIST_CATEGORY_COLOR,
                     align: "center",
-                    stroke: "#000000",
-                    strokeThickness: 2,
+                    stroke: UI_CONST.LETTER_LIST_CATEGORY_STROKE_COLOR,
+                    strokeThickness:
+                        UI_CONST.LETTER_LIST_CATEGORY_STROKE_THICKNESS,
                 })
                 .setOrigin(0.5, 0.5);
             this.letterListContainer.add(categoryTitle);
@@ -89,8 +90,17 @@ export class LetterList extends Phaser.Scene {
             readLetters.forEach((letterIndex) => {
                 // 手紙アイテムの背景
                 const itemBg = this.add
-                    .rectangle(0, currentY, 600, 45, 0x2244aa)
-                    .setStrokeStyle(1, 0xffffff)
+                    .rectangle(
+                        0,
+                        currentY,
+                        UI_CONST.LETTER_LIST_ITEM_WIDTH,
+                        UI_CONST.LETTER_LIST_ITEM_HEIGHT - 5,
+                        UI_CONST.LETTER_LIST_ITEM_BG_COLOR
+                    )
+                    .setStrokeStyle(
+                        UI_CONST.LETTER_LIST_ITEM_BORDER_WIDTH,
+                        UI_CONST.LETTER_LIST_ITEM_BORDER_COLOR
+                    )
                     .setInteractive({ useHandCursor: true });
                 this.letterListContainer.add(itemBg);
 
@@ -98,7 +108,8 @@ export class LetterList extends Phaser.Scene {
                 const previewText =
                     letterMessages[letterIndex]
                         .replace(/\n/g, " ")
-                        .substring(0, 20) + "...";
+                        .substring(0, UI_CONST.LETTER_LIST_PREVIEW_MAX_LENGTH) +
+                    "...";
                 const itemText = this.add
                     .text(
                         0,
@@ -108,11 +119,12 @@ export class LetterList extends Phaser.Scene {
                         }: ${previewText}`,
                         {
                             fontFamily: FONT_NAME.CP_PERIOD,
-                            fontSize: "18px",
+                            fontSize: UI_CONST.LETTER_LIST_ITEM_FONT_SIZE,
                             color: UI_CONST.LETTER_TEXT_COLOR,
                             align: "center",
-                            stroke: "#000000",
-                            strokeThickness: 2,
+                            stroke: UI_CONST.LETTER_LIST_ITEM_STROKE_COLOR,
+                            strokeThickness:
+                                UI_CONST.LETTER_LIST_ITEM_STROKE_THICKNESS,
                         }
                     )
                     .setOrigin(0.5, 0.5);
@@ -126,7 +138,7 @@ export class LetterList extends Phaser.Scene {
                 currentY += itemHeight;
             });
 
-            currentY += 10; // カテゴリ間のスペース
+            currentY += UI_CONST.LETTER_LIST_CATEGORY_SPACING;
         });
 
         // 閉じるボタンを追加
@@ -149,10 +161,10 @@ export class LetterList extends Phaser.Scene {
         const closeButtonText = this.add
             .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "×", {
                 fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "32px",
+                fontSize: UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE,
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",
-                stroke: "#000000",
+                stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
                 strokeThickness: 2,
             })
             .setOrigin(0.5, 0.5);
@@ -240,15 +252,17 @@ export class LetterList extends Phaser.Scene {
         const pageNumber = this.add
             .text(
                 0,
-                UI_CONST.LETTER_WINDOW_HEIGHT / 2 - 40,
+                UI_CONST.LETTER_WINDOW_HEIGHT / 2 -
+                    UI_CONST.LETTER_CONTENT_PAGE_NUMBER_Y_OFFSET,
                 `${letterIndex + 1}/${totalLetters}`,
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "20px",
-                    color: UI_CONST.LETTER_TEXT_COLOR,
+                    fontSize: UI_CONST.LETTER_CONTENT_PAGE_NUMBER_FONT_SIZE,
+                    color: UI_CONST.LETTER_CONTENT_PAGE_NUMBER_COLOR,
                     align: "center",
-                    stroke: "#000000",
-                    strokeThickness: 1,
+                    stroke: UI_CONST.LETTER_CONTENT_PAGE_NUMBER_STROKE_COLOR,
+                    strokeThickness:
+                        UI_CONST.LETTER_CONTENT_PAGE_NUMBER_STROKE_THICKNESS,
                 }
             )
             .setOrigin(0.5, 0.5);
@@ -262,11 +276,11 @@ export class LetterList extends Phaser.Scene {
         if (currentIndexInReadList > 0) {
             const prevButton = this.add
                 .rectangle(
-                    -200,
+                    UI_CONST.LETTER_CONTENT_PREV_BUTTON_X_OFFSET,
                     UI_CONST.LETTER_CLOSE_BUTTON_Y,
                     UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
                     UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
-                    0x5566dd
+                    UI_CONST.LETTER_CONTENT_PREV_BUTTON_COLOR
                 )
                 .setStrokeStyle(
                     UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
@@ -277,14 +291,19 @@ export class LetterList extends Phaser.Scene {
             this.letterContentContainer.add(prevButton);
 
             const prevButtonText = this.add
-                .text(-200, UI_CONST.LETTER_CLOSE_BUTTON_Y, "＜", {
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "32px",
-                    color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
-                    align: "center",
-                    stroke: "#000000",
-                    strokeThickness: 2,
-                })
+                .text(
+                    UI_CONST.LETTER_CONTENT_PREV_BUTTON_X_OFFSET,
+                    UI_CONST.LETTER_CLOSE_BUTTON_Y,
+                    UI_CONST.LETTER_CONTENT_PREV_BUTTON_TEXT,
+                    {
+                        fontFamily: FONT_NAME.CP_PERIOD,
+                        fontSize: UI_CONST.LETTER_CONTENT_PREV_BUTTON_FONT_SIZE,
+                        color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
+                        align: "center",
+                        stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
+                        strokeThickness: 2,
+                    }
+                )
                 .setOrigin(0.5, 0.5);
             this.letterContentContainer.add(prevButtonText);
 
@@ -300,11 +319,11 @@ export class LetterList extends Phaser.Scene {
         if (currentIndexInReadList < readLetters.length - 1) {
             const nextButton = this.add
                 .rectangle(
-                    200,
+                    UI_CONST.LETTER_CONTENT_NEXT_BUTTON_X_OFFSET,
                     UI_CONST.LETTER_CLOSE_BUTTON_Y,
                     UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
                     UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
-                    0x5566dd
+                    UI_CONST.LETTER_CONTENT_NEXT_BUTTON_COLOR
                 )
                 .setStrokeStyle(
                     UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
@@ -315,14 +334,19 @@ export class LetterList extends Phaser.Scene {
             this.letterContentContainer.add(nextButton);
 
             const nextButtonText = this.add
-                .text(200, UI_CONST.LETTER_CLOSE_BUTTON_Y, "＞", {
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "32px",
-                    color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
-                    align: "center",
-                    stroke: "#000000",
-                    strokeThickness: 2,
-                })
+                .text(
+                    UI_CONST.LETTER_CONTENT_NEXT_BUTTON_X_OFFSET,
+                    UI_CONST.LETTER_CLOSE_BUTTON_Y,
+                    UI_CONST.LETTER_CONTENT_NEXT_BUTTON_TEXT,
+                    {
+                        fontFamily: FONT_NAME.CP_PERIOD,
+                        fontSize: UI_CONST.LETTER_CONTENT_NEXT_BUTTON_FONT_SIZE,
+                        color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
+                        align: "center",
+                        stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
+                        strokeThickness: 2,
+                    }
+                )
                 .setOrigin(0.5, 0.5);
             this.letterContentContainer.add(nextButtonText);
 
@@ -354,10 +378,10 @@ export class LetterList extends Phaser.Scene {
         const backButtonText = this.add
             .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "×", {
                 fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "32px",
+                fontSize: UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE,
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",
-                stroke: "#000000",
+                stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
                 strokeThickness: 2,
             })
             .setOrigin(0.5, 0.5);
