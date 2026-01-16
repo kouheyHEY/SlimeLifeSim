@@ -531,6 +531,17 @@ export class Game extends Phaser.Scene {
      */
     handleFishingSuccess(fishName, letterIndex, letterCategory) {
         console.log(`釣り成功: ${fishName}`);
+        
+        // チュートリアル完了後、未読の手紙がある場合は交互パターンを切り替え
+        const tutorialCompleted =
+            this.tutorialManager &&
+            this.tutorialManager.isTutorialCompleted();
+        const hasUnreadLetters = this.letterManager.hasAnyUnreadLetters(this);
+        
+        if (tutorialCompleted && hasUnreadLetters) {
+            this.letterManager.toggleLetterPattern();
+        }
+        
         // メッセージボトルの場合はインベントリに追加しない
         if (fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
             // 手紙を読んだことを記録
@@ -905,16 +916,30 @@ export class Game extends Phaser.Scene {
         });
 
         // 未読の手紙がない場合はメッセージボトルを除外
-        if (!this.letterManager.hasAnyUnreadLetters(this)) {
+        const hasUnreadLetters = this.letterManager.hasAnyUnreadLetters(this);
+        if (!hasUnreadLetters) {
             delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
         }
 
         // チュートリアル中はメッセージボトルを除外
-        if (
+        const tutorialCompleted =
             this.tutorialManager &&
-            !this.tutorialManager.isTutorialCompleted()
-        ) {
+            this.tutorialManager.isTutorialCompleted();
+        if (!tutorialCompleted) {
             delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
+        }
+
+        // チュートリアル終了後、未読の手紙がある場合は交互パターンを適用
+        if (tutorialCompleted && hasUnreadLetters) {
+            const shouldGetLetter =
+                this.letterManager.getShouldGetLetterNext();
+            if (shouldGetLetter) {
+                // 手紙の番：手紙のみを返す
+                return GAME_CONST.FISH_NAME.BOTTLE_LETTER;
+            } else {
+                // 魚の番：手紙を除外して魚のみから選択
+                delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
+            }
         }
 
         const targets = Object.keys(weights);
