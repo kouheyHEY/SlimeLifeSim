@@ -14,6 +14,7 @@ export class LetterManager {
         // { categoryKey: { currentIndex: 0, readLetters: [] } }
         this.categories = {};
         // 次の釣りで手紙を釣るかどうか（チュートリアル終了後の交互パターン用）
+        // falseで始めることで、最初は魚、次は手紙、という交互パターンになる
         this.shouldGetLetterNext = false;
     }
 
