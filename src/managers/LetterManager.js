@@ -13,6 +13,8 @@ export class LetterManager {
         // カテゴリごとの手紙進行状況
         // { categoryKey: { currentIndex: 0, readLetters: [] } }
         this.categories = {};
+        // 次の釣りで手紙を釣るかどうか（チュートリアル終了後の交互パターン用）
+        this.shouldGetLetterNext = false;
     }
 
     /**
@@ -151,12 +153,36 @@ export class LetterManager {
     }
 
     /**
+     * 次の釣りで手紙を釣るべきかどうかを取得（交互パターン用）
+     * @returns {boolean} 次が手紙の番ならtrue
+     */
+    getShouldGetLetterNext() {
+        return this.shouldGetLetterNext;
+    }
+
+    /**
+     * 次の釣りで手紙を釣るかどうかを設定（交互パターン用）
+     * @param {boolean} value 設定値
+     */
+    setShouldGetLetterNext(value) {
+        this.shouldGetLetterNext = value;
+    }
+
+    /**
+     * 交互パターンの状態を切り替え
+     */
+    toggleLetterPattern() {
+        this.shouldGetLetterNext = !this.shouldGetLetterNext;
+    }
+
+    /**
      * セーブ用のデータを取得
      * @returns {Object} セーブ用データ
      */
     getSaveData() {
         return {
             categories: JSON.parse(JSON.stringify(this.categories)),
+            shouldGetLetterNext: this.shouldGetLetterNext,
         };
     }
 
@@ -167,6 +193,9 @@ export class LetterManager {
     loadSaveData(data) {
         if (data.categories) {
             this.categories = JSON.parse(JSON.stringify(data.categories));
+        }
+        if (data.shouldGetLetterNext !== undefined) {
+            this.shouldGetLetterNext = data.shouldGetLetterNext;
         }
     }
 }
