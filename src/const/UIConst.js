@@ -83,7 +83,7 @@ export const UI_CONST = {
     /** インベントリの列数 */
     INVENTORY_COLUMNS: 2,
     /** インベントリのアイテムの枠のサイズ */
-    INVENTORY_ITEM_FRAME_SIZE: 96,
+    INVENTORY_ITEM_FRAME_SIZE: 120,
     /** インベントリの色 */
     INVENTORY_COLOR: 0x000000,
     /** インベントリの枠の色 */
@@ -97,18 +97,18 @@ export const UI_CONST = {
     /** インベントリのY座標（トップバー内での相対位置） */
     INVENTORY_Y: 20,
     /** インベントリの数量のフォントサイズ */
-    INVENTORY_QUANTITY_FONT_SIZE: 16,
+    INVENTORY_QUANTITY_FONT_SIZE: 30,
     /** インベントリのフォント色 */
     INVENTORY_FONT_COLOR: "#FFFFFF",
     /** インベントリに表示するアイテムのサイズ */
-    INVENTORY_ITEM_DISPLAY_SIZE: 80,
+    INVENTORY_ITEM_DISPLAY_SIZE: 96,
 
     /** アイテム詳細モーダルの幅 */
     ITEM_DETAIL_WIDTH: 500,
     /** アイテム詳細モーダルの高さ */
     ITEM_DETAIL_HEIGHT: 600,
     /** アイテム詳細モーダルの背景色 */
-    ITEM_DETAIL_BG_COLOR: 0x2a2a2a,
+    ITEM_DETAIL_BG_COLOR: 0x222222,
     /** アイテム詳細モーダルの枠色 */
     ITEM_DETAIL_BORDER_COLOR: 0xffffff,
     /** アイテム詳細モーダルの枠の太さ */
@@ -116,9 +116,9 @@ export const UI_CONST = {
     /** アイテム詳細のテクスチャサイズ */
     ITEM_DETAIL_TEXTURE_SIZE: 128,
     /** アイテム詳細のフォントサイズ */
-    ITEM_DETAIL_FONT_SIZE: 20,
+    ITEM_DETAIL_FONT_SIZE: 32,
     /** アイテム詳細の説明フォントサイズ */
-    ITEM_DETAIL_DESC_FONT_SIZE: 18,
+    ITEM_DETAIL_DESC_FONT_SIZE: 28,
     /** アイテム詳細のボタン幅 */
     ITEM_DETAIL_BUTTON_WIDTH: 120,
     /** アイテム詳細のボタン高さ */
@@ -163,9 +163,9 @@ export const UI_CONST = {
     /** ゲームシーン初期化後、タイトルシーンを表示するまでの遅延（ミリ秒） */
     TITLE_SCENE_LAUNCH_DELAY: 50,
     /** ゲーム情報UIの幅 */
-    GAME_INFO_WIDTH: 192,
+    GAME_INFO_WIDTH: 240,
     /** ゲーム情報UIの高さ */
-    GAME_INFO_HEIGHT: 190,
+    GAME_INFO_HEIGHT: 220,
     /** ゲーム情報UIのX座標（トップバー内での相対位置） */
     GAME_INFO_X: 20,
     /** ゲーム情報UIのY座標（トップバー内での相対位置） */
@@ -189,7 +189,7 @@ export const UI_CONST = {
     /** 時間円グラフの線の太さ */
     TIME_CIRCLE_LINE_WIDTH: 10,
     /** 時間数直線の長さ（英語版） */
-    TIME_LINE_WIDTH: 500,
+    TIME_LINE_WIDTH: 400,
     /** 時間数直線の高さ（英語版） */
     TIME_LINE_HEIGHT: 10,
     /** プレイヤー状態アイコンのサイズ */
@@ -205,7 +205,7 @@ export const UI_CONST = {
     },
 
     /** サイドバーUIの幅 */
-    SIDEBAR_WIDTH: 240,
+    SIDEBAR_WIDTH: 280,
     /** サイドバーUIの背景色 */
     SIDEBAR_COLOR: 0x000000,
     /** サイドバーUIの背景透明度 */
@@ -259,7 +259,7 @@ export const UI_CONST = {
     LETTER_CLOSE_BUTTON_Y: 170,
 
     /** トップバーの高さ */
-    TOP_BAR_HEIGHT: 100,
+    TOP_BAR_HEIGHT: 120,
     /** トップバーの背景色 */
     TOP_BAR_COLOR: 0x000000,
     /** トップバーの背景透明度 */
@@ -273,11 +273,11 @@ export const UI_CONST = {
     /** 一時停止ボタンの幅 */
     PAUSE_BUTTON_WIDTH: 120,
     /** 一時停止ボタンの高さ */
-    PAUSE_BUTTON_HEIGHT: 50,
+    PAUSE_BUTTON_HEIGHT: 80,
     /** アップグレードボタンの幅 */
-    UPGRADE_BUTTON_WIDTH: 160,
+    UPGRADE_BUTTON_WIDTH: 200,
     /** アップグレードボタンの高さ */
-    UPGRADE_BUTTON_HEIGHT: 60,
+    UPGRADE_BUTTON_HEIGHT: 70,
 
     /** 一時停止モーダルの幅 */
     PAUSE_MODAL_WIDTH: 450,
@@ -294,7 +294,7 @@ export const UI_CONST = {
     SLIDER_PERCENT_OFFSET_X: 320,
 
     /** アップグレードモーダルの幅 */
-    UPGRADE_MODAL_WIDTH: 700,
+    UPGRADE_MODAL_WIDTH: 900,
     /** アップグレードモーダルの高さ */
     UPGRADE_MODAL_HEIGHT: 600,
 
@@ -326,11 +326,11 @@ export const UI_CONST = {
     /** トップバー: 一時停止ボタンの内側のサイズオフセット */
     TOP_BAR_PAUSE_BUTTON_INNER_OFFSET: 6,
     /** トップバー: 一時停止アイコンの線の幅 */
-    TOP_BAR_PAUSE_ICON_WIDTH: 5,
+    TOP_BAR_PAUSE_ICON_WIDTH: 10,
     /** トップバー: 一時停止アイコンの線の高さ */
-    TOP_BAR_PAUSE_ICON_HEIGHT: 24,
+    TOP_BAR_PAUSE_ICON_HEIGHT: 40,
     /** トップバー: 一時停止アイコンの線の間隔 */
-    TOP_BAR_PAUSE_ICON_GAP: 6,
+    TOP_BAR_PAUSE_ICON_GAP: 10,
     /** トップバー: 一時停止アイコンの色 */
     TOP_BAR_PAUSE_ICON_COLOR: 0xffffff,
     /** トップバー: ボタン押下時のY座標オフセット */
@@ -338,11 +338,11 @@ export const UI_CONST = {
     /** トップバー: ボタン押下後の復元遅延（ミリ秒） */
     TOP_BAR_BUTTON_PRESS_DELAY: 100,
     /** トップバー: 時間帯テキストのY座標オフセット（上） */
-    TOP_BAR_TIME_PERIOD_TEXT_Y_OFFSET: 25,
+    TOP_BAR_TIME_PERIOD_TEXT_Y_OFFSET: 24,
     /** トップバー: 時間帯テキストのフォントサイズ（日本語） */
-    TOP_BAR_TIME_PERIOD_FONT_SIZE_JP: "22px",
+    TOP_BAR_TIME_PERIOD_FONT_SIZE_JP: "32px",
     /** トップバー: 時間帯テキストのフォントサイズ（英語） */
-    TOP_BAR_TIME_PERIOD_FONT_SIZE_EN: "20px",
+    TOP_BAR_TIME_PERIOD_FONT_SIZE_EN: "32px",
     /** トップバー: 時間帯バーのY座標オフセット（下） */
     TOP_BAR_TIME_LINE_Y_OFFSET: 15,
     /** トップバー: ステータス/コイン表示のX座標オフセット（アイコン） */
@@ -350,15 +350,15 @@ export const UI_CONST = {
     /** トップバー: ステータス/コイン表示のX座標オフセット（テキスト） */
     TOP_BAR_STATUS_TEXT_X_OFFSET: 25,
     /** トップバー: ステータス/コインアイコンのスケール */
-    TOP_BAR_STATUS_ICON_SCALE: 0.8,
+    TOP_BAR_STATUS_ICON_SCALE: 0.9,
     /** トップバー: ステータス/コインテキストのフォントサイズ */
-    TOP_BAR_STATUS_TEXT_FONT_SIZE: "28px",
+    TOP_BAR_STATUS_TEXT_FONT_SIZE: "32px",
     /** トップバー: 日数/時刻テキストのフォントサイズ */
-    TOP_BAR_DAY_TIME_FONT_SIZE: "24px",
+    TOP_BAR_DAY_TIME_FONT_SIZE: "32px",
     /** トップバー: 日数/時刻テキストのY座標オフセット（上段） */
-    TOP_BAR_DAY_TIME_TOP_Y_OFFSET: 20,
+    TOP_BAR_DAY_TIME_TOP_Y_OFFSET: 24,
     /** トップバー: 日数/時刻テキストのY座標オフセット（下段） */
-    TOP_BAR_DAY_TIME_BOTTOM_Y_OFFSET: 20,
+    TOP_BAR_DAY_TIME_BOTTOM_Y_OFFSET: 24,
     /** トップバー: セクション境界線の上下マージン */
     TOP_BAR_SEPARATOR_MARGIN: 10,
     /** トップバー: セクション境界線の色 */
@@ -419,8 +419,8 @@ export const UI_TEXT = {
     },
     /** アップグレードモーダルのスタイル */
     UPGRADE_MODAL_STYLE: {
-        WIDTH: 500,
-        HEIGHT: 450,
+        WIDTH: 700,
+        HEIGHT: 600,
         BACKGROUND_COLOR: 0x222222,
         BACKGROUND_ALPHA: 0.98,
         BORDER_WIDTH: 3,
@@ -438,53 +438,53 @@ export const UI_TEXT = {
     },
     /** アップグレードモーダルの項目スタイル */
     UPGRADE_MODAL_ITEM_STYLE: {
-        START_Y_OFFSET: 120,
-        HEIGHT: 110,
-        SPACING: 15,
+        START_Y_OFFSET: 140,
+        HEIGHT: 160,
+        SPACING: 28,
         BG_ALPHA: 0.3,
         BORDER_WIDTH: 2,
-        NAME_FONT_SIZE: "22px",
+        NAME_FONT_SIZE: "32px",
         NAME_COLOR: "#ffffff",
-        NAME_Y_OFFSET: 20,
-        LEVEL_FONT_SIZE: "22px",
+        NAME_Y_OFFSET: 28,
+        LEVEL_FONT_SIZE: "32px",
         LEVEL_COLOR: "#ffff88",
-        LEVEL_Y_OFFSET: 20,
-        DESC_FONT_SIZE: "18px",
+        LEVEL_Y_OFFSET: 28,
+        DESC_FONT_SIZE: "28px",
         DESC_COLOR: "#cccccc",
-        DESC_Y_OFFSET: 50,
-        DESC_X_OFFSET: 40,
+        DESC_Y_OFFSET: 68,
+        DESC_X_OFFSET: 44,
     },
     /** アップグレードモーダルのコスト表示スタイル */
     UPGRADE_MODAL_COST_STYLE: {
-        ICON_RADIUS: 8,
+        ICON_RADIUS: 12,
         ICON_COLOR: 0xffd700,
         ICON_STROKE: 0xffaa00,
-        FONT_SIZE: "20px",
+        FONT_SIZE: "32px",
         COLOR: "#ffd700",
         STROKE: "#000000",
         STROKE_THICKNESS: 2,
-        Y_OFFSET: -20,
-        ICON_X_OFFSET: 40,
-        TEXT_X_OFFSET: 55,
+        Y_OFFSET: -28,
+        ICON_X_OFFSET: 48,
+        TEXT_X_OFFSET: 66,
     },
     /** アップグレードモーダルのボタンスタイル */
     UPGRADE_MODAL_BUTTON_STYLE: {
         WIDTH: 140,
-        HEIGHT: 45,
-        FONT_SIZE: "20px",
+        HEIGHT: 64,
+        FONT_SIZE: "32px",
         COLOR: "#ffffff",
         STROKE: "#000000",
         STROKE_THICKNESS: 2,
         BORDER_WIDTH: 2,
         BORDER_COLOR: 0xffffff,
         X_OFFSET: -110,
-        Y_OFFSET: -40,
+        Y_OFFSET: -56,
     },
     /** アップグレードモーダルのキャンセルボタンスタイル */
     UPGRADE_MODAL_CANCEL_BUTTON_STYLE: {
-        WIDTH: 120,
-        HEIGHT: 44,
-        FONT_SIZE: "20px",
+        WIDTH: 200,
+        HEIGHT: 64,
+        FONT_SIZE: "32px",
         COLOR: "#ffffff",
         STROKE: "#000000",
         STROKE_THICKNESS: 2,
@@ -492,7 +492,7 @@ export const UI_TEXT = {
         BORDER_COLOR: 0xffffff,
         BACKGROUND_COLOR: 0x888888,
         HOVER_COLOR: 0xaaaaaa,
-        Y_OFFSET: -40,
+        Y_OFFSET: -56,
     },
     /** アップグレード項目の定義 */
     UPGRADE_ITEMS: [

@@ -178,6 +178,7 @@ export class InventoryUI {
         const centerX = this.scene.cameras.main.width / 2;
         const centerY = this.scene.cameras.main.height / 2;
         this.itemDetailModal = this.scene.add.container(centerX, centerY);
+        this.itemDetailModal.setDepth(200);
 
         // 背景
         const bg = this.scene.add
@@ -207,7 +208,7 @@ export class InventoryUI {
             GAME_CONST.FISH_DISPLAY_NAME[item.itemKey] || item.itemKey;
         const displayName = getLocalizedText(itemName);
         const nameText = this.scene.add
-            .text(0, -100, displayName, {
+            .text(0, -120, displayName, {
                 fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                 color: "#FFFFFF",
@@ -296,7 +297,7 @@ export class InventoryUI {
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_BUTTON),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "20px",
+                    fontSize: "24px",
                     color: "#FFFFFF",
                     align: "center",
                     stroke: "#000000",
@@ -367,7 +368,7 @@ export class InventoryUI {
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.CLOSE_BUTTON),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "32px",
+                    fontSize: "36px",
                     color: "#FFFFFF",
                     align: "center",
                     stroke: "#000000",
@@ -423,6 +424,7 @@ export class InventoryUI {
         const centerX = this.scene.cameras.main.width / 2;
         const centerY = this.scene.cameras.main.height / 2;
         this.fishSelectionModal = this.scene.add.container(centerX, centerY);
+        this.fishSelectionModal.setDepth(200);
 
         // 背景
         const bg = this.scene.add

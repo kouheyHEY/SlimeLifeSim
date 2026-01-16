@@ -1567,6 +1567,7 @@ export class Game extends Phaser.Scene {
 
         // UIを更新
         this.sidebarUI.update();
+        this.sidebarUI.updateInventory();
         this.topBarUI.update();
         this.sidebarUI.updateLetterButton();
 

@@ -29,16 +29,16 @@ export class SidebarUI {
      * UIの作成
      */
     createUI() {
-        // サイドバーのX位置（画面右端）とY位置（トップバーの下）
+        // サイドバーのX位置（画面右端）とY位置（画面上端）
         const sidebarX = COMMON_CONST.SCREEN_WIDTH - UI_CONST.SIDEBAR_WIDTH;
-        const sidebarY = UI_CONST.TOP_BAR_HEIGHT;
+        const sidebarY = 0;
 
-        // サイドバーのコンテナを作成（トップバーの下から開始）
+        // サイドバーのコンテナを作成（画面上端から開始）
         this.sidebarContainer = this.scene.add.container(sidebarX, sidebarY);
+        this.sidebarContainer.setDepth(100);
 
-        // 背景を作成（トップバーの高さ分を引く）
-        const sidebarHeight =
-            COMMON_CONST.SCREEN_HEIGHT - UI_CONST.TOP_BAR_HEIGHT;
+        // 背景を作成（画面全体の高さ）
+        const sidebarHeight = COMMON_CONST.SCREEN_HEIGHT;
         this.background = this.scene.add
             .rectangle(
                 0,
@@ -55,14 +55,15 @@ export class SidebarUI {
             );
         this.sidebarContainer.add(this.background);
 
-        // ゲーム情報UIを作成（中央に配置）
+        // ゲーム情報UIを作成（中央に配置、トップバーの下から）
         const gameInfoX =
             (UI_CONST.SIDEBAR_WIDTH - UI_CONST.GAME_INFO_WIDTH) / 2;
+        const gameInfoY = UI_CONST.SIDEBAR_PADDING;
         this.gameInfoUI = new GameInfoUI(
             this.scene,
             this.gameTimeManager,
             gameInfoX,
-            UI_CONST.SIDEBAR_PADDING
+            gameInfoY
         );
         this.sidebarContainer.add(this.gameInfoUI.infoContainer);
 
@@ -100,7 +101,7 @@ export class SidebarUI {
      */
     createLetterButton(x, y, width) {
         this.letterButton = this.scene.add
-            .rectangle(x, y, width, 50, 0x3366cc)
+            .rectangle(x, y, width, 60, 0x3366cc)
             .setOrigin(0, 0)
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true })
@@ -108,19 +109,19 @@ export class SidebarUI {
 
         // ボトルのアイコンを追加
         this.letterButtonIcon = this.scene.add
-            .image(x + 25, y + 25, "bottle_letter")
+            .image(x + 25, y + 30, "bottle_letter")
             .setOrigin(0.5, 0.5)
             .setScale(0.3)
             .setVisible(false);
 
         this.letterButtonText = this.scene.add
             .text(
-                x + 45,
-                y + 25,
+                x + 50,
+                y + 30,
                 getLocalizedText(UI_TEXT.LETTER.READ_BUTTON),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "20px",
+                    fontSize: "28px",
                     color: "#FFFFFF",
                     align: "left",
                 }

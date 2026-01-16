@@ -41,9 +41,10 @@ export class TopBarUI {
     createUI() {
         // トップバーのコンテナを作成
         this.topBarContainer = this.scene.add.container(0, 0);
+        this.topBarContainer.setDepth(50);
 
-        // 背景を作成（画面全体の幅）
-        const topBarWidth = COMMON_CONST.SCREEN_WIDTH;
+        // 背景を作成（サイドバー分を引いた幅）
+        const topBarWidth = COMMON_CONST.SCREEN_WIDTH - UI_CONST.SIDEBAR_WIDTH;
         this.background = this.scene.add
             .rectangle(
                 0,

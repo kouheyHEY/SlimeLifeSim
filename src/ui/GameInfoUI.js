@@ -33,6 +33,7 @@ export class GameInfoUI {
         this.y = y;
         // コイン
         this.coins = GAME_CONST.PLAYER_INITIAL_COINS;
+        this.upgradeItemElements = {};
         this.createUI();
     }
 
@@ -69,7 +70,7 @@ export class GameInfoUI {
         this.rodSprite = this.scene.add
             .sprite(centerX, currentY, "rod")
             .setOrigin(0.5, 0)
-            .setScale(0.55);
+            .setScale(0.6);
         this.infoContainer.add(this.rodSprite);
         this.scene.cameras.main.ignore(this.rodSprite);
 
@@ -120,7 +121,7 @@ export class GameInfoUI {
         this.upgradeButtonText = this.scene.add
             .text(0, 0, "アップグレード", {
                 fontFamily: FONT_NAME.CP_PERIOD,
-                fontSize: "18px",
+                fontSize: "40px",
                 color: "#FFFFFF",
                 align: "center",
                 stroke: "#000000",
@@ -153,19 +154,20 @@ export class GameInfoUI {
      * アップグレード選択モーダルを表示
      */
     showUpgradeModal() {
-        // デバッグ：UI_TEXTの内容確認
-        console.log("UI_TEXT:", UI_TEXT);
-        console.log("UPGRADE_MODAL_STYLE:", UI_TEXT.UPGRADE_MODAL_STYLE);
-
         // 時間を停止
         if (this.gameTimeManager) {
             this.gameTimeManager.pause();
             this.gameTimeManager.pauseFishSystem();
         }
 
-        // 既存のモーダルがあれば削除
         if (this.upgradeModal) {
             this.upgradeModal.destroy();
+        }
+        this.upgradeItemElements = {};
+
+        const upgrades = this.getUpgradeData();
+        if (upgrades.length === 0) {
+            return;
         }
 
         const screenWidth = COMMON_CONST.SCREEN_WIDTH;
@@ -177,6 +179,7 @@ export class GameInfoUI {
 
         // モーダルコンテナを作成
         this.upgradeModal = this.scene.add.container(centerX, centerY);
+        this.upgradeModal.setDepth(200);
 
         // オーバーレイ背景
         const overlay = this.scene.add
@@ -225,50 +228,6 @@ export class GameInfoUI {
         title.setOrigin(0.5, 0.5);
         this.upgradeModal.add(title);
 
-        // アップグレード情報の定義（定数から取得、レベルを追加、コールバックを実装）
-        const upgrades = UI_TEXT.UPGRADE_ITEMS.map((item) => {
-            const upgradeManager = this.scene.upgradeManager;
-            const currentLevel = upgradeManager.getLevel(item.id);
-            const cost = upgradeManager.getUpgradeCost(item.id);
-            const isMaxLevel = cost === -1;
-
-            return {
-                ...item,
-                name: getLocalizedText(item.name),
-                description: getLocalizedText(item.description),
-                level: currentLevel,
-                cost: isMaxLevel ? 0 : cost,
-                isMaxLevel: isMaxLevel,
-                callback: () => {
-                    if (isMaxLevel) {
-                        console.log(`${item.name.JP}は既に最大レベルです`);
-                        return;
-                    }
-
-                    const result = upgradeManager.upgrade(item.id, this.coins);
-                    if (result.success) {
-                        this.coins = result.newCoins;
-                        this.updateCoinCount();
-                        console.log(
-                            `${getLocalizedText(
-                                item.name
-                            )}をアップグレードしました！`
-                        );
-                        // モーダルを閉じて再度開く（レベル・コスト更新のため）
-                        this.closeUpgradeModal();
-                        this.showUpgradeModal();
-                    } else {
-                        console.log(
-                            getLocalizedText(
-                                UI_TEXT.UPGRADE_MODAL.NOT_ENOUGH_COINS
-                            )
-                        );
-                    }
-                },
-            };
-        });
-
-        // アップグレード項目を描画
         const itemStyle = UI_TEXT.UPGRADE_MODAL_ITEM_STYLE;
         let startY = -modalHeight / 2 + itemStyle.START_Y_OFFSET;
         const itemHeight = itemStyle.HEIGHT;
@@ -292,7 +251,7 @@ export class GameInfoUI {
 
             // 強化要素名（左寄せ）
             const nameText = this.scene.add.text(
-                -modalWidth / 2 + 30,
+                -modalWidth / 2 + 36,
                 itemY - itemHeight / 2 + itemStyle.NAME_Y_OFFSET,
                 upgrade.name,
                 {
@@ -308,7 +267,7 @@ export class GameInfoUI {
 
             // レベル表記（右寄せ）
             const levelText = this.scene.add.text(
-                modalWidth / 2 - 30,
+                modalWidth / 2 - 36,
                 itemY - itemHeight / 2 + itemStyle.LEVEL_Y_OFFSET,
                 `Lv.${upgrade.level}`,
                 {
@@ -340,18 +299,19 @@ export class GameInfoUI {
 
             // コスト表示（最大レベルの場合は「MAX」と表示）
             const costStyle = UI_TEXT.UPGRADE_MODAL_COST_STYLE;
-            if (!upgrade.isMaxLevel) {
-                const coinIcon = this.scene.add
-                    .sprite(
-                        -modalWidth / 2 + costStyle.ICON_X_OFFSET,
-                        itemY + itemHeight / 2 + costStyle.Y_OFFSET,
-                        "coin"
-                    )
-                    .setOrigin(0.5, 0.5)
-                    .setScale(0.6);
-                this.upgradeModal.add(coinIcon);
+            const coinIcon = this.scene.add
+                .sprite(
+                    -modalWidth / 2 + costStyle.ICON_X_OFFSET,
+                    itemY + itemHeight / 2 + costStyle.Y_OFFSET,
+                    "coin"
+                )
+                .setOrigin(0.5, 0.5)
+                .setScale(0.8)
+                .setVisible(!upgrade.isMaxLevel);
+            this.upgradeModal.add(coinIcon);
 
-                const costText = this.scene.add.text(
+            const costText = this.scene.add
+                .text(
                     -modalWidth / 2 + costStyle.TEXT_X_OFFSET,
                     itemY + itemHeight / 2 + costStyle.Y_OFFSET,
                     `${upgrade.cost}`,
@@ -362,11 +322,13 @@ export class GameInfoUI {
                         stroke: costStyle.STROKE,
                         strokeThickness: costStyle.STROKE_THICKNESS,
                     }
-                );
-                costText.setOrigin(0, 0.5);
-                this.upgradeModal.add(costText);
-            } else {
-                const maxText = this.scene.add.text(
+                )
+                .setOrigin(0, 0.5)
+                .setVisible(!upgrade.isMaxLevel);
+            this.upgradeModal.add(costText);
+
+            const maxText = this.scene.add
+                .text(
                     -modalWidth / 2 + costStyle.ICON_X_OFFSET,
                     itemY + itemHeight / 2 + costStyle.Y_OFFSET,
                     getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX),
@@ -377,19 +339,17 @@ export class GameInfoUI {
                         stroke: "#000000",
                         strokeThickness: 2,
                     }
-                );
-                maxText.setOrigin(0, 0.5);
-                this.upgradeModal.add(maxText);
-            }
+                )
+                .setOrigin(0, 0.5)
+                .setVisible(upgrade.isMaxLevel);
+            this.upgradeModal.add(maxText);
 
             // 購入ボタン
             const btnStyle = UI_TEXT.UPGRADE_MODAL_BUTTON_STYLE;
             const btnX = modalWidth / 2 + btnStyle.X_OFFSET;
             const btnY = itemY + itemHeight / 2 + btnStyle.Y_OFFSET;
 
-            // 最大レベルまたはコイン不足の場合はボタンを無効化
-            const canAfford = this.coins >= upgrade.cost;
-            const isDisabled = upgrade.isMaxLevel || !canAfford;
+            const isDisabled = upgrade.isMaxLevel || !upgrade.canAfford;
             const buttonColor = isDisabled ? 0x666666 : upgrade.color;
 
             const buyButton = this.scene.add
@@ -402,8 +362,14 @@ export class GameInfoUI {
                 )
                 .setStrokeStyle(btnStyle.BORDER_WIDTH, btnStyle.BORDER_COLOR);
 
+            buyButton.baseColor = upgrade.color;
+            buyButton.hoverColor = upgrade.hoverColor;
+            buyButton.isDisabled = isDisabled;
+
             if (!isDisabled) {
                 buyButton.setInteractive({ useHandCursor: true });
+            } else {
+                buyButton.disableInteractive();
             }
             this.upgradeModal.add(buyButton);
 
@@ -421,15 +387,32 @@ export class GameInfoUI {
             buyText.setOrigin(0.5, 0.5);
             this.upgradeModal.add(buyText);
 
-            if (!isDisabled) {
-                buyButton.on("pointerdown", upgrade.callback);
-                buyButton.on("pointerover", () =>
-                    buyButton.setFillStyle(upgrade.hoverColor)
-                );
-                buyButton.on("pointerout", () =>
-                    buyButton.setFillStyle(upgrade.color)
-                );
-            }
+            buyButton.on("pointerdown", () =>
+                this.handleUpgradeClick(upgrade.id)
+            );
+            buyButton.on("pointerover", () => {
+                if (buyButton.isDisabled) {
+                    return;
+                }
+                buyButton.setFillStyle(buyButton.hoverColor);
+            });
+            buyButton.on("pointerout", () => {
+                if (buyButton.isDisabled) {
+                    return;
+                }
+                buyButton.setFillStyle(buyButton.baseColor);
+            });
+
+            this.upgradeItemElements[upgrade.id] = {
+                levelText,
+                costText,
+                coinIcon,
+                maxText,
+                buyButton,
+                buyText,
+                color: upgrade.color,
+                hoverColor: upgrade.hoverColor,
+            };
         });
 
         // キャンセルボタン
@@ -479,6 +462,112 @@ export class GameInfoUI {
         });
     }
 
+    getUpgradeData() {
+        const upgradeManager = this.scene.upgradeManager;
+        if (!upgradeManager) {
+            return [];
+        }
+
+        return UI_TEXT.UPGRADE_ITEMS.map((item) => {
+            const currentLevel = upgradeManager.getLevel(item.id);
+            const cost = upgradeManager.getUpgradeCost(item.id);
+            const isMaxLevel = cost === -1;
+
+            return {
+                ...item,
+                name: getLocalizedText(item.name),
+                description: getLocalizedText(item.description),
+                level: currentLevel,
+                cost: isMaxLevel ? 0 : cost,
+                isMaxLevel,
+                canAfford: !isMaxLevel && this.coins >= cost,
+            };
+        });
+    }
+
+    handleUpgradeClick(upgradeId) {
+        const upgradeManager = this.scene.upgradeManager;
+        if (!upgradeManager) {
+            return;
+        }
+
+        const cost = upgradeManager.getUpgradeCost(upgradeId);
+        if (cost === -1 || this.coins < cost) {
+            console.log(
+                getLocalizedText(UI_TEXT.UPGRADE_MODAL.NOT_ENOUGH_COINS)
+            );
+            return;
+        }
+
+        const result = upgradeManager.upgrade(upgradeId, this.coins);
+        if (!result.success) {
+            console.log(
+                getLocalizedText(UI_TEXT.UPGRADE_MODAL.NOT_ENOUGH_COINS)
+            );
+            return;
+        }
+
+        this.coins = result.newCoins;
+        this.updateCoinCount();
+        this.refreshUpgradeModal();
+    }
+
+    refreshUpgradeModal() {
+        if (!this.upgradeModal) {
+            return;
+        }
+
+        const upgrades = this.getUpgradeData();
+        const btnStyle = UI_TEXT.UPGRADE_MODAL_BUTTON_STYLE;
+
+        upgrades.forEach((upgrade) => {
+            const elements = this.upgradeItemElements[upgrade.id];
+            if (!elements) {
+                return;
+            }
+
+            elements.levelText.setText(`Lv.${upgrade.level}`);
+
+            if (upgrade.isMaxLevel) {
+                elements.coinIcon?.setVisible(false);
+                elements.costText?.setVisible(false);
+                if (elements.maxText) {
+                    elements.maxText.setVisible(true);
+                    elements.maxText.setText(
+                        getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX)
+                    );
+                }
+            } else {
+                elements.coinIcon?.setVisible(true);
+                elements.costText?.setVisible(true);
+                if (elements.costText) {
+                    elements.costText.setText(`${upgrade.cost}`);
+                }
+                if (elements.maxText) {
+                    elements.maxText.setVisible(false);
+                }
+            }
+
+            const isDisabled = upgrade.isMaxLevel || !upgrade.canAfford;
+            const buttonColor = isDisabled ? 0x666666 : elements.color;
+
+            elements.buyButton.setFillStyle(buttonColor);
+            if (isDisabled) {
+                elements.buyButton.disableInteractive();
+            } else {
+                elements.buyButton.setInteractive({ useHandCursor: true });
+            }
+            elements.buyButton.isDisabled = isDisabled;
+
+            elements.buyText.setText(
+                upgrade.isMaxLevel
+                    ? getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX)
+                    : getLocalizedText(UI_TEXT.UPGRADE_MODAL.UPGRADE_BUTTON)
+            );
+            elements.buyText.setColor(isDisabled ? "#888888" : btnStyle.COLOR);
+        });
+    }
+
     /**
      * アップグレードモーダルを閉じる
      */
@@ -487,6 +576,7 @@ export class GameInfoUI {
             this.upgradeModal.destroy();
             this.upgradeModal = null;
         }
+        this.upgradeItemElements = {};
 
         // 時間を再開
         if (this.gameTimeManager) {
@@ -524,6 +614,12 @@ export class GameInfoUI {
                 this.upgradeButton.setFillStyle(0x00dd00);
                 this.upgradeButtonOuter.setFillStyle(0x008800);
             }
+        }
+    }
+
+    updateCoinCount() {
+        if (this.scene.topBarUI && this.scene.topBarUI.coinCountText) {
+            this.scene.topBarUI.coinCountText.setText(`${this.coins}`);
         }
     }
 
