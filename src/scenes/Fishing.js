@@ -43,6 +43,9 @@ export class Fishing extends Phaser.Scene {
     }
 
     create() {
+        // ゲームシーンへの参照を取得
+        this.gameScene = this.scene.get("Game");
+
         // 背景全体にオーバーレイをかける
         this.add
             .rectangle(
@@ -253,6 +256,9 @@ export class Fishing extends Phaser.Scene {
         // ベースサークルに紐づける
         baseCircle.challengeCircle = challengeCircle;
 
+        // 円出現音を再生
+        this.playAppearCircleSe();
+
         // 徐々に小さくなるアニメーションを追加
         this.tweens.add({
             targets: challengeCircle,
@@ -277,6 +283,10 @@ export class Fishing extends Phaser.Scene {
             // すでに消えている場合は何もしない
             return;
         }
+
+        // 成功音を再生
+        this.playSuccessSe();
+
         // 成功ゲージの値を増加させる（アップグレード倍率適用）
         const increaseAmount =
             GAME_CONST.SUCCESS_GAUGE_INCREASE_ON_TAP * this.linePowerMultiplier;
@@ -340,6 +350,7 @@ export class Fishing extends Phaser.Scene {
      * 釣り結果の表示処理
      */
     showFishingResultSuccess() {
+        this.playGetFishSe();
         // メインの時と同じようにコンテナを作成
         this.fishingResultContainer = this.add.container(
             this.cameras.main.width / 2,
@@ -422,6 +433,7 @@ export class Fishing extends Phaser.Scene {
             .setOrigin(0.5, 0.5);
         this.fishingResultContainer.add(okButtonText);
         okButton.on("pointerdown", () => {
+            this.playDecisionSe();
             // メッセージボトルの場合は手紙表示ウィンドウを表示
             if (this.fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
                 this.showLetterWindow();
@@ -575,5 +587,21 @@ export class Fishing extends Phaser.Scene {
                 });
             });
         });
+    }
+
+    playDecisionSe() {
+        this.gameScene?.soundManager?.playSe?.("decision");
+    }
+
+    playAppearCircleSe() {
+        this.gameScene?.soundManager?.playSe?.("appear_circle");
+    }
+
+    playSuccessSe() {
+        this.gameScene?.soundManager?.playSe?.("success");
+    }
+
+    playGetFishSe() {
+        this.gameScene?.soundManager?.playSe?.("get_fish");
     }
 }

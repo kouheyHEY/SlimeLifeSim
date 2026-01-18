@@ -308,6 +308,7 @@ export class InventoryUI {
         this.itemDetailModal.add(sellText);
 
         sellButton.on("pointerdown", () => {
+            this.playCoinSe();
             // チュートリアル中かどうかを確認
             const isTutorialSell =
                 this.scene.tutorialManager &&
@@ -379,6 +380,7 @@ export class InventoryUI {
         this.itemDetailModal.add(closeText);
 
         closeButton.on("pointerdown", () => {
+            this.playCancelSe();
             this.closeItemDetail();
         });
 
@@ -402,6 +404,18 @@ export class InventoryUI {
             this.gameTimeManager.resume();
             this.gameTimeManager.resumeFishSystem();
         }
+    }
+
+    playDecisionSe() {
+        this.scene.soundManager?.playSe?.("decision");
+    }
+
+    playCancelSe() {
+        this.scene.soundManager?.playSe?.("cancel");
+    }
+
+    playCoinSe() {
+        this.scene.soundManager?.playSe?.("coin");
     }
 
     /**
@@ -501,6 +515,7 @@ export class InventoryUI {
 
             // クリック時の処理
             itemBg.on("pointerdown", () => {
+                this.playDecisionSe();
                 if (this.inventoryManager.removeItem(item.itemKey, 1)) {
                     this.update();
                     if (onSelectCallback) {

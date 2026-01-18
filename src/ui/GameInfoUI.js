@@ -133,6 +133,7 @@ export class GameInfoUI {
 
         // アップグレードボタンのクリックイベント（簡略化版）
         this.upgradeButton.on("pointerdown", () => {
+            this.playDecisionSe();
             // プレス効果
             this.upgradeButtonOuter.y += 2;
             this.upgradeButton.y += 2;
@@ -387,9 +388,10 @@ export class GameInfoUI {
             buyText.setOrigin(0.5, 0.5);
             this.upgradeModal.add(buyText);
 
-            buyButton.on("pointerdown", () =>
-                this.handleUpgradeClick(upgrade.id)
-            );
+            buyButton.on("pointerdown", () => {
+                this.playCoinSe();
+                this.handleUpgradeClick(upgrade.id);
+            });
             buyButton.on("pointerover", () => {
                 if (buyButton.isDisabled) {
                     return;
@@ -445,7 +447,10 @@ export class GameInfoUI {
         cancelText.setOrigin(0.5, 0.5);
         this.upgradeModal.add(cancelText);
 
-        cancelButton.on("pointerdown", () => this.closeUpgradeModal());
+        cancelButton.on("pointerdown", () => {
+            this.playCancelSe();
+            this.closeUpgradeModal();
+        });
         cancelButton.on("pointerover", () =>
             cancelButton.setFillStyle(cancelStyle.HOVER_COLOR)
         );
@@ -454,7 +459,10 @@ export class GameInfoUI {
         );
 
         // オーバーレイクリックで閉じる
-        overlay.on("pointerdown", () => this.closeUpgradeModal());
+        overlay.on("pointerdown", () => {
+            this.playCancelSe();
+            this.closeUpgradeModal();
+        });
 
         // メインカメラから除外（UIカメラ専用）
         this.upgradeModal.each((child) => {
@@ -583,6 +591,18 @@ export class GameInfoUI {
             this.gameTimeManager.resume();
             this.gameTimeManager.resumeFishSystem();
         }
+    }
+
+    playDecisionSe() {
+        this.scene.soundManager?.playSe?.("decision");
+    }
+
+    playCancelSe() {
+        this.scene.soundManager?.playSe?.("cancel");
+    }
+
+    playCoinSe() {
+        this.scene.soundManager?.playSe?.("coin");
     }
 
     /**

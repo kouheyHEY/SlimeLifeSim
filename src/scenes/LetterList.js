@@ -132,6 +132,7 @@ export class LetterList extends Phaser.Scene {
 
                 // クリック時に手紙の内容を表示
                 itemBg.on("pointerdown", () => {
+                    this.playDecisionSe();
                     this.showLetterContent(categoryKey, letterIndex);
                 });
 
@@ -171,6 +172,7 @@ export class LetterList extends Phaser.Scene {
         this.letterListContainer.add(closeButtonText);
 
         closeButton.on("pointerdown", () => {
+            this.playCancelSe();
             // ゲーム時間を再開
             this.gameScene.gameTimeManager.resume();
             // 魚ヒットシステムを再開
@@ -308,6 +310,7 @@ export class LetterList extends Phaser.Scene {
             this.letterContentContainer.add(prevButtonText);
 
             prevButton.on("pointerdown", () => {
+                this.playDecisionSe();
                 // 前の手紙を表示
                 const prevLetterIndex = readLetters[currentIndexInReadList - 1];
                 this.letterContentContainer.destroy();
@@ -351,6 +354,7 @@ export class LetterList extends Phaser.Scene {
             this.letterContentContainer.add(nextButtonText);
 
             nextButton.on("pointerdown", () => {
+                this.playDecisionSe();
                 // 次の手紙を表示
                 const nextLetterIndex = readLetters[currentIndexInReadList + 1];
                 this.letterContentContainer.destroy();
@@ -388,9 +392,18 @@ export class LetterList extends Phaser.Scene {
         this.letterContentContainer.add(backButtonText);
 
         backButton.on("pointerdown", () => {
+            this.playCancelSe();
             // 手紙内容を破棄してリストに戻る
             this.letterContentContainer.destroy();
             this.letterListContainer.setVisible(true);
         });
+    }
+
+    playDecisionSe() {
+        this.gameScene?.soundManager?.playSe?.("decision");
+    }
+
+    playCancelSe() {
+        this.gameScene?.soundManager?.playSe?.("cancel");
     }
 }

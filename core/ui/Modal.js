@@ -80,6 +80,7 @@ export class Modal {
         // 外側クリックで閉じる設定
         if (this.config.closeOnClickOutside) {
             this.overlay.on("pointerdown", () => {
+                this._playButtonSound("cancel");
                 this.close();
             });
         }
@@ -413,6 +414,7 @@ export class Modal {
 
         // ボタンイベント
         buttonBg.on("pointerdown", () => {
+            this._playButtonSound(buttonConfig.soundKey || "decision");
             // クリックアニメーション
             this.scene.tweens.add({
                 targets: buttonContainer,
@@ -500,5 +502,18 @@ export class Modal {
      */
     isShowing() {
         return this.isVisible;
+    }
+
+    /**
+     * UI決定/キャンセル音を再生
+     * @param {string} key サウンドキー
+     */
+    _playButtonSound(key) {
+        const soundKey = key || "decision";
+        if (this.scene.soundManager?.playSe) {
+            this.scene.soundManager.playSe(soundKey);
+        } else if (this.scene.sound) {
+            this.scene.sound.play(soundKey);
+        }
     }
 }

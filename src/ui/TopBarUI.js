@@ -136,6 +136,7 @@ export class TopBarUI {
         this.pauseIcon.setVisible(false);
 
         this.pauseButton.on("pointerdown", () => {
+            this.playDecisionSe();
             // プレス効果
             this.pauseButtonOuter.y += UI_CONST.TOP_BAR_BUTTON_PRESS_OFFSET;
             this.pauseButton.y += UI_CONST.TOP_BAR_BUTTON_PRESS_OFFSET;
@@ -368,6 +369,10 @@ export class TopBarUI {
             daySectionStart,
             UI_CONST.TOP_BAR_HEIGHT - margin
         );
+    }
+
+    playDecisionSe() {
+        this.scene.soundManager?.playSe?.("decision");
     }
 
     /**

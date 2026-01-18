@@ -148,12 +148,19 @@ export class Title extends Phaser.Scene {
 
         // Button click handlers
         newGameButton.on("pointerdown", () => {
+            this.playDecisionSe();
             this.startGame(false); // New Gameはロードしない
         });
 
         continueButton.on("pointerdown", () => {
+            this.playDecisionSe();
             this.startGame(true); // Continueはロードする
         });
+    }
+
+    playDecisionSe() {
+        const gameScene = this.scene.get("Game");
+        gameScene?.soundManager?.playSe?.("decision");
     }
 
     startGame(loadSave = false) {

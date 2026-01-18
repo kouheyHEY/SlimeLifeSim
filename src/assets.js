@@ -4,6 +4,30 @@ export default {
             key: "bgm1",
             args: ["assets/sounds/bgm1.wav"],
         },
+        decision: {
+            key: "decision",
+            args: ["assets/sounds/decision.mp3"],
+        },
+        cancel: {
+            key: "cancel",
+            args: ["assets/sounds/cancel.mp3"],
+        },
+        coin: {
+            key: "coin",
+            args: ["assets/sounds/coin.mp3"],
+        },
+        appear_circle: {
+            key: "appear_circle",
+            args: ["assets/sounds/appear_circle.mp3"],
+        },
+        success: {
+            key: "success",
+            args: ["assets/sounds/success.mp3"],
+        },
+        get_fish: {
+            key: "get_fish",
+            args: ["assets/sounds/get_fish.mp3"],
+        },
     },
     image: {
         fish_funa: {

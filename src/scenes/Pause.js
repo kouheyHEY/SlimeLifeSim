@@ -107,6 +107,7 @@ export class Pause extends Phaser.Scene {
         pauseContainer.add(closeButton);
 
         closeButton.on("pointerdown", () => {
+            this.playCancelSe();
             this.resumeGame();
         });
 
@@ -207,6 +208,7 @@ export class Pause extends Phaser.Scene {
         pauseContainer.add(resumeText);
 
         resumeButton.on("pointerdown", () => {
+            this.playDecisionSe();
             this.resumeGame();
         });
 
@@ -253,6 +255,7 @@ export class Pause extends Phaser.Scene {
         pauseContainer.add(saveText);
 
         saveButton.on("pointerdown", () => {
+            this.playDecisionSe();
             // ゲームをセーブ
             if (this.gameScene && this.gameScene.saveGame) {
                 const success = this.gameScene.saveGame();
@@ -329,5 +332,13 @@ export class Pause extends Phaser.Scene {
         if (this.gameScene.slimeAnimationTimer) {
             this.gameScene.slimeAnimationTimer.paused = false;
         }
+    }
+
+    playDecisionSe() {
+        this.gameScene?.soundManager?.playSe?.("decision");
+    }
+
+    playCancelSe() {
+        this.gameScene?.soundManager?.playSe?.("cancel");
     }
 }

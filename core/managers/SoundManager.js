@@ -81,6 +81,10 @@ export class SoundManager {
      */
     playSe(key, volume = null) {
         const seVolume = volume !== null ? volume : this.seVolume;
+        if (!this.scene.cache.audio.exists(key)) {
+            return;
+        }
+
         this.scene.sound.play(key, {
             volume: seVolume,
         });
