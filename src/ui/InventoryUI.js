@@ -218,6 +218,19 @@ export class InventoryUI {
             return; // アイテム詳細モーダルは表示しない
         }
 
+        // 餌チュートリアル：魚をタップしたら餌ボタンを案内
+        if (
+            this.scene.tutorialManager &&
+            this.scene.tutorialManager.getCurrentStep() ===
+                TUTORIAL_STEP.BAIT_CLICK_FISH
+        ) {
+            this.pendingItemDetail = item;
+            this.scene.time.delayedCall(100, () => {
+                this.scene.tutorialManager.showBaitStep3UseBait(item);
+            });
+            return;
+        }
+
         // モーダル用のコンテナを作成（画面中央）
         const centerX = this.scene.cameras.main.width / 2;
         const centerY = this.scene.cameras.main.height / 2;
@@ -261,10 +274,35 @@ export class InventoryUI {
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(nameText);
 
-        // 数量
+        // レア度（左側）
+        const rarity = GAME_CONST.FISH_RARITY[item.itemKey];
+        if (rarity) {
+            const rarityStars = "★".repeat(rarity);
+            const rarityLabel = this.scene.add
+                .text(-100, -70, getLocalizedText(UI_TEXT.ITEM_DETAIL.RARITY), {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
+                    color: "#FFFFFF",
+                    align: "right",
+                })
+                .setOrigin(1, 0.5);
+            this.itemDetailModal.add(rarityLabel);
+
+            const rarityText = this.scene.add
+                .text(-90, -70, `${rarityStars}`, {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
+                    color: "#FFD700",
+                    align: "center",
+                })
+                .setOrigin(0, 0.5);
+            this.itemDetailModal.add(rarityText);
+        }
+
+        // 数量（右側）
         const quantityText = this.scene.add
             .text(
-                0,
+                100,
                 -70,
                 `${getLocalizedText(UI_TEXT.ITEM_DETAIL.QUANTITY)}${
                     item.stock
@@ -273,10 +311,10 @@ export class InventoryUI {
                     fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                     color: "#FFFF00",
-                    align: "center",
+                    align: "left",
                 },
             )
-            .setOrigin(0.5, 0.5);
+            .setOrigin(0, 0.5);
         this.itemDetailModal.add(quantityText);
 
         // 説明

@@ -577,6 +577,7 @@ export const UI_TEXT = {
     /** アイテム詳細モーダルのテキスト */
     ITEM_DETAIL: {
         QUANTITY: { JP: "数量: ", EN: "Quantity: " },
+        RARITY: { JP: "レア度: ", EN: "Rarity: " },
         NO_DESCRIPTION: { JP: "説明なし", EN: "No description" },
         VALUE: { JP: "価値: ", EN: "Value: " },
         COIN: { JP: " コイン", EN: " Coins" },

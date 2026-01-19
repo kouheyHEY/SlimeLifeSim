@@ -21,6 +21,11 @@ export const TUTORIAL_STEP = {
     FIRST_COIN_EARNED: 6,
     UPGRADE_ROD_EXPLANATION: 7,
     COIN_TUTORIAL_COMPLETED: 8,
+    // 餌チュートリアル
+    BAIT_FISH_HIT: 9,
+    BAIT_CLICK_FISH: 10,
+    BAIT_USE_BAIT: 11,
+    BAIT_TUTORIAL_COMPLETED: 12,
 };
 
 /**
@@ -77,6 +82,23 @@ const STEP_CONFIG = {
         x: null, // 画面中央
         y: null, // 画面中央
     },
+    // 餌チュートリアル: 魚ヒット
+    BAIT_STEP1: {
+        x: null,
+        y: "bottom",
+        bottomMargin: 200,
+    },
+    // 餌チュートリアル: 魚をタップ
+    BAIT_STEP2: {
+        x: null,
+        y: null,
+    },
+    // 餌チュートリアル: 餌ボタン
+    BAIT_STEP3: {
+        x: null,
+        y: "top",
+        topMargin: 80,
+    },
 };
 
 /**
@@ -107,6 +129,19 @@ const TUTORIAL_TEXT = {
     COIN_STEP2: {
         JP: "釣り竿を強化すると...\n\n\n・レアな魚が釣れやすくなる\n・魚のヒット持続時間が延びる\n\n釣竿の下のボタンで強化できます！",
         EN: "Upgrading your rod gives:\n\n・More rare fish\n・Longer fish hit duration\n\nUpgrade via the button below the rod!",
+    },
+    // 餌チュートリアル
+    BAIT_STEP1: {
+        JP: "再び魚がヒットしました！\nヒットをタップ！",
+        EN: "Fish hit again!\nTap when it hits!",
+    },
+    BAIT_STEP2: {
+        JP: "釣った魚をタップ！",
+        EN: "Tap the fish you caught!",
+    },
+    BAIT_STEP3: {
+        JP: "「餌にする」をタップ！\n\nこれでこの魚と同じレア度以上の\n魚が釣れやすくなります！",
+        EN: "Tap 'Bait'!\n\nNow it's easier to catch fish\nas rare as this one or rarer!",
     },
     // OKボタン
     OK_BUTTON: "OK",
@@ -150,6 +185,8 @@ export class TutorialManager {
         this.coinTutorialCompleted = false;
         this.firstCoinEarned = false;
         this.pendingTutorialItem = null; // チュートリアル中に売るアイテムを保存
+        this.baitTutorialCompleted = false;
+        this.baitTutorialActive = false;
     }
 
     // ==================== 公開API ====================
@@ -168,6 +205,20 @@ export class TutorialManager {
             localStorage.getItem(STORAGE_KEY.COIN_TUTORIAL_COMPLETED) === "true"
         ) {
             this.coinTutorialCompleted = true;
+        }
+        if (
+            localStorage.getItem(STORAGE_KEY.BAIT_TUTORIAL_COMPLETED) === "true"
+        ) {
+            this.baitTutorialCompleted = true;
+        }
+
+        // メイン/コインチュートリアル済みで餌チュートリアルが未完なら開始準備
+        if (
+            this.tutorialCompleted &&
+            this.coinTutorialCompleted &&
+            !this.baitTutorialCompleted
+        ) {
+            this.scene.time.delayedCall(300, () => this.startBaitTutorial());
         }
     }
 
@@ -328,6 +379,80 @@ export class TutorialManager {
         this.clearHighlight();
         this.scene.gameTimeManager?.resume();
         localStorage.setItem(STORAGE_KEY.COIN_TUTORIAL_COMPLETED, "true");
+
+        // 餌チュートリアルが未完了なら続けて開始
+        if (!this.baitTutorialCompleted) {
+            this.scene.time.delayedCall(300, () => this.startBaitTutorial());
+        }
+    }
+
+    // ==================== 餌チュートリアル ====================
+
+    startBaitTutorial() {
+        if (this.baitTutorialCompleted) {
+            return;
+        }
+        this.baitTutorialActive = true;
+        this.showBaitStep1FishHit();
+    }
+
+    isBaitTutorialCompleted() {
+        return this.baitTutorialCompleted;
+    }
+
+    showBaitStep1FishHit() {
+        this.tutorialStep = TUTORIAL_STEP.BAIT_FISH_HIT;
+        this.scene.gameTimeManager?.forceFishHit();
+
+        this.scene.time.delayedCall(100, () =>
+            this.highlightFishHitIndicator(),
+        );
+
+        const msg = this._getText(TUTORIAL_TEXT.BAIT_STEP1);
+        this._showSmallModal(msg, STEP_CONFIG.BAIT_STEP1);
+        this.scene.gameTimeManager?.pause();
+    }
+
+    showBaitStep2ClickFish() {
+        if (this.tutorialStep !== TUTORIAL_STEP.BAIT_FISH_HIT) return;
+        this.tutorialStep = TUTORIAL_STEP.BAIT_CLICK_FISH;
+
+        this.highlightInventoryItem(0);
+
+        const msg = this._getText(TUTORIAL_TEXT.BAIT_STEP2);
+        this._showSmallModal(msg, STEP_CONFIG.BAIT_STEP2);
+        this.scene.gameTimeManager?.pause();
+    }
+
+    showBaitStep3UseBait(item) {
+        if (this.tutorialStep !== TUTORIAL_STEP.BAIT_CLICK_FISH) return;
+        this.tutorialStep = TUTORIAL_STEP.BAIT_USE_BAIT;
+
+        this.clearHighlight();
+
+        if (item) {
+            this.pendingTutorialItem = item;
+        }
+
+        const inventoryUI = this.scene.sidebarUI?.inventoryUI;
+        if (inventoryUI && item) {
+            inventoryUI.pendingItemDetail = null;
+            inventoryUI.showItemDetail(item);
+            this.scene.time.delayedCall(200, () => this.highlightBaitButton());
+        }
+
+        const msg = this._getText(TUTORIAL_TEXT.BAIT_STEP3);
+        this._showLargeModal(msg, () => {}, STEP_CONFIG.BAIT_STEP3);
+    }
+
+    completeBaitTutorial() {
+        this.tutorialStep = TUTORIAL_STEP.BAIT_TUTORIAL_COMPLETED;
+        this.baitTutorialCompleted = true;
+        this.baitTutorialActive = false;
+        this.currentModal = null;
+        this.clearHighlight();
+        this.scene.gameTimeManager?.resume();
+        localStorage.setItem(STORAGE_KEY.BAIT_TUTORIAL_COMPLETED, "true");
     }
 
     // ==================== モーダル表示 ====================
@@ -506,9 +631,7 @@ export class TutorialManager {
         const b = this._getFishHitBounds();
         this._draw4Region(b.x - 10, b.y - 10, b.width + 20, b.height + 20);
 
-        this._startAnimation(TUTORIAL_STEP.FISH_HIT, () =>
-            this._updateFishHit(),
-        );
+        this._startAnimation(this.tutorialStep, () => this._updateFishHit());
         this._updateFishHit();
     }
 
@@ -559,7 +682,7 @@ export class TutorialManager {
         const f = frame;
         this._draw4Region(pos.x - 10, pos.y - 10, f.width + 20, f.height + 20);
 
-        this._startAnimation(TUTORIAL_STEP.CLICK_FISH, () => this._updateInv());
+        this._startAnimation(this.tutorialStep, () => this._updateInv());
         this._updateInv();
     }
 
@@ -665,6 +788,86 @@ export class TutorialManager {
 
         this._startAnimation(TUTORIAL_STEP.SELL_FISH, () => this._updateSell());
         this._updateSell();
+    }
+
+    highlightBaitButton() {
+        this.clearHighlight();
+
+        const inventoryUI = this.scene.sidebarUI?.inventoryUI;
+        if (!inventoryUI?.itemDetailModal) return;
+
+        const cx = this.scene.cameras.main.width / 2;
+        const cy = this.scene.cameras.main.height / 2;
+
+        // 餌ボタンは2段目左
+        const buttonW = UI_CONST.ITEM_DETAIL_BUTTON_WIDTH;
+        const buttonH = UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT;
+        const buttonCenterX = cx - 120;
+        const buttonCenterY = cy + UI_CONST.ITEM_DETAIL_BUTTON_Y_ROW2;
+        const buttonX = buttonCenterX - buttonW / 2;
+        const buttonY = buttonCenterY - buttonH / 2;
+
+        this.highlightTarget = {
+            type: "baitButton",
+            x: buttonX,
+            y: buttonY,
+            width: buttonW,
+            height: buttonH,
+        };
+
+        this.overlayGraphics = this.scene.add
+            .graphics()
+            .setDepth(1000)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.overlayGraphics);
+
+        this.highlightGraphics = this.scene.add
+            .graphics()
+            .setDepth(1001)
+            .setScrollFactor(0);
+        this.scene.cameras.main.ignore(this.highlightGraphics);
+
+        this._createBlockingArea(false);
+        this.scene.cameras.main.ignore(this.blockingArea);
+
+        const clickArea = this.scene.add
+            .rectangle(buttonX, buttonY, buttonW, buttonH, 0x000000, 0.01)
+            .setOrigin(0, 0)
+            .setDepth(1002)
+            .setScrollFactor(0)
+            .setInteractive({ useHandCursor: true });
+
+        this.scene.cameras.main.ignore(clickArea);
+
+        clickArea.on("pointerdown", () => {
+            this._closeModal();
+            this.clearHighlight();
+
+            const item = inventoryUI.lastItemDetail;
+            if (item) {
+                const fishRarity = GAME_CONST.FISH_RARITY[item.itemKey] || 1;
+                this.scene.setFishBait(item.itemKey, fishRarity);
+                inventoryUI.update();
+            }
+
+            inventoryUI.closeItemDetail();
+            this.pendingTutorialItem = null;
+            this.completeBaitTutorial();
+        });
+
+        this.highlightTarget.clickableArea = clickArea;
+
+        this._draw4Region(
+            buttonX - 10,
+            buttonY - 10,
+            buttonW + 20,
+            buttonH + 20,
+        );
+
+        this._startAnimation(TUTORIAL_STEP.BAIT_USE_BAIT, () =>
+            this._updateBaitButton(),
+        );
+        this._updateBaitButton();
     }
 
     highlightUpgradeButton() {
@@ -773,6 +976,12 @@ export class TutorialManager {
         this._drawBorder(x - 10, y - 10, width + 20, height + 20);
     }
 
+    _updateBaitButton() {
+        if (!this.highlightGraphics || !this.highlightTarget) return;
+        const { x, y, width, height } = this.highlightTarget;
+        this._drawBorder(x - 10, y - 10, width + 20, height + 20);
+    }
+
     _updateUpgradeButton() {
         if (!this.highlightGraphics || !this.highlightTarget) return;
         const { x, y, width, height } = this.highlightTarget;
@@ -793,6 +1002,9 @@ export class TutorialManager {
                 3: "SELL_FISH",
                 6: "FIRST_COIN_EARNED",
                 7: "UPGRADE_ROD_EXPLANATION",
+                9: "BAIT_FISH_HIT",
+                10: "BAIT_CLICK_FISH",
+                11: "BAIT_USE_BAIT",
             }[this.tutorialStep] || "UNKNOWN";
         const overlayAlpha = 0.3;
 

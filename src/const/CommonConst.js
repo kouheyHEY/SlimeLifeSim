@@ -60,6 +60,8 @@ export const STORAGE_KEY = {
     TUTORIAL_COMPLETED: "tutorialCompleted",
     /** コインチュートリアル完了状態 */
     COIN_TUTORIAL_COMPLETED: "coinTutorialCompleted",
+    /** 餌チュートリアル完了状態 */
+    BAIT_TUTORIAL_COMPLETED: "baitTutorialCompleted",
 };
 
 /**

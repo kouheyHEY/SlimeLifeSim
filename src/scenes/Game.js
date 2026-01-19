@@ -561,9 +561,12 @@ export class Game extends Phaser.Scene {
         // チュートリアル完了後、未読の手紙がある場合は交互パターンを切り替え
         const tutorialCompleted =
             this.tutorialManager && this.tutorialManager.isTutorialCompleted();
+        const baitTutorialCompleted =
+            this.tutorialManager &&
+            this.tutorialManager.isBaitTutorialCompleted();
         const hasUnreadLetters = this.letterManager.hasAnyUnreadLetters(this);
 
-        if (tutorialCompleted && hasUnreadLetters) {
+        if (tutorialCompleted && baitTutorialCompleted && hasUnreadLetters) {
             this.letterManager.toggleLetterPattern();
         }
 
@@ -595,13 +598,17 @@ export class Game extends Phaser.Scene {
             this.sidebarUI.updateInventory();
 
             // チュートリアルステップ2をトリガー
-            if (
-                this.tutorialManager &&
-                this.tutorialManager.getCurrentStep() === TUTORIAL_STEP.FISH_HIT
-            ) {
-                this.time.delayedCall(500, () => {
-                    this.tutorialManager.showStep2ClickFish();
-                });
+            if (this.tutorialManager) {
+                const step = this.tutorialManager.getCurrentStep();
+                if (step === TUTORIAL_STEP.FISH_HIT) {
+                    this.time.delayedCall(500, () => {
+                        this.tutorialManager.showStep2ClickFish();
+                    });
+                } else if (step === TUTORIAL_STEP.BAIT_FISH_HIT) {
+                    this.time.delayedCall(500, () => {
+                        this.tutorialManager.showBaitStep2ClickFish();
+                    });
+                }
             }
         }
     }
@@ -945,9 +952,13 @@ export class Game extends Phaser.Scene {
         // チュートリアル完了状態を取得
         const tutorialCompleted =
             this.tutorialManager && this.tutorialManager.isTutorialCompleted();
+        const baitTutorialCompleted =
+            this.tutorialManager &&
+            this.tutorialManager.isBaitTutorialCompleted();
 
         const bottleKey = GAME_CONST.FISH_NAME.BOTTLE_LETTER;
-        const bottleAllowed = tutorialCompleted && hasUnreadLetters;
+        const bottleAllowed =
+            tutorialCompleted && baitTutorialCompleted && hasUnreadLetters;
 
         // チュートリアル未完了または未読手紙なしのときはボトルを候補から除外
         if (!bottleAllowed) {
