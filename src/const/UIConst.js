@@ -139,11 +139,11 @@ export const UI_CONST = {
     /** タイトルテキストのY座標（画面高さに対する比率） */
     TITLE_TEXT_Y_RATIO: 1 / 3,
     /** タイトル画面のボタンの幅 */
-    TITLE_BUTTON_WIDTH: 300,
+    TITLE_BUTTON_WIDTH: 400,
     /** タイトル画面のボタンの高さ */
-    TITLE_BUTTON_HEIGHT: 60,
+    TITLE_BUTTON_HEIGHT: 100,
     /** タイトル画面のボタンの間隔 */
-    TITLE_BUTTON_SPACING: 80,
+    TITLE_BUTTON_SPACING: 120,
     /** タイトル画面のボタンのY座標オフセット */
     TITLE_BUTTON_Y_OFFSET: 50,
     /** タイトル画面のボタンの背景色 */
@@ -155,7 +155,7 @@ export const UI_CONST = {
     /** タイトル画面のボタンのホバー時の背景色 */
     TITLE_BUTTON_HOVER_COLOR: 0x333333,
     /** タイトル画面のボタンのテキストのフォントサイズ */
-    TITLE_BUTTON_TEXT_FONT_SIZE: "32px",
+    TITLE_BUTTON_TEXT_FONT_SIZE: "48px",
     /** タイトル画面のボタンのテキストの色 */
     TITLE_BUTTON_TEXT_COLOR: "#FFFFFF",
     /** タイトル画面のフェードアウトの時間（ミリ秒） */
