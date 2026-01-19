@@ -42,7 +42,7 @@ export class Game extends Phaser.Scene {
      */
     create() {
         this.cameras.main.setBackgroundColor(
-            MAP_CONST.INITIAL_BACKGROUND_COLOR
+            MAP_CONST.INITIAL_BACKGROUND_COLOR,
         );
 
         // SoundManager を初期化
@@ -125,7 +125,7 @@ export class Game extends Phaser.Scene {
         this.anims.create({
             key: ANIMATION.slime_anim_bounce.key,
             frames: this.anims.generateFrameNumbers(
-                ANIMATION.slime_anim_bounce.texture
+                ANIMATION.slime_anim_bounce.texture,
             ),
             frameRate: ANIMATION.slime_anim_bounce.frameRate,
             repeat: ANIMATION.slime_anim_bounce.repeat,
@@ -134,7 +134,7 @@ export class Game extends Phaser.Scene {
         this.anims.create({
             key: ANIMATION.slime_anim_wink.key,
             frames: this.anims.generateFrameNumbers(
-                ANIMATION.slime_anim_wink.texture
+                ANIMATION.slime_anim_wink.texture,
             ),
             frameRate: ANIMATION.slime_anim_wink.frameRate,
             repeat: ANIMATION.slime_anim_wink.repeat,
@@ -149,7 +149,7 @@ export class Game extends Phaser.Scene {
             .sprite(
                 MAP_CONST.PLAYER_START_POSITION.x * MAP_CONST.CELL_SIZE,
                 MAP_CONST.PLAYER_START_POSITION.y * MAP_CONST.CELL_SIZE,
-                ASSETS.spritesheet.slime_anim_bounce.key
+                ASSETS.spritesheet.slime_anim_bounce.key,
             )
             .setDepth(50)
             .setCollideWorldBounds(true);
@@ -194,7 +194,7 @@ export class Game extends Phaser.Scene {
         const offsetY = 80; // 手元より下に配置
         this.rodBig.setPosition(
             this.player.x - offsetX,
-            this.player.y + offsetY
+            this.player.y + offsetY,
         );
     }
 
@@ -205,7 +205,7 @@ export class Game extends Phaser.Scene {
         // アニメーション再生間隔をランダムに設定
         const nextDelay = Phaser.Math.Between(
             UI_CONST.PLAYER_ANIMATION_DELAY_MIN,
-            UI_CONST.PLAYER_ANIMATION_DELAY_MAX
+            UI_CONST.PLAYER_ANIMATION_DELAY_MAX,
         );
 
         // タイマーを保持してポーズ時に停止できるようにする
@@ -261,7 +261,7 @@ export class Game extends Phaser.Scene {
         // マップの初期化
         this.mapManager.initMap(
             MAP_CONST.MAP_SEASIDE_KEY,
-            ASSETS.spritesheet.sheet_seaside.key
+            ASSETS.spritesheet.sheet_seaside.key,
         );
     }
 
@@ -399,7 +399,7 @@ export class Game extends Phaser.Scene {
                 this.handleFishingSuccess(
                     data.fishName,
                     data.letterIndex,
-                    data.letterCategory
+                    data.letterCategory,
                 );
             }
             // 釣りゲームから戻ってきた時、魚ヒットシステムを再開
@@ -436,7 +436,7 @@ export class Game extends Phaser.Scene {
     initInventory() {
         this.inventoryManager = new InventoryManager(
             this,
-            GAME_CONST.INVENTORY_SIZE
+            GAME_CONST.INVENTORY_SIZE,
         );
         // インベントリUIはトップバーUIで初期化されるため、ここでは作成しない
     }
@@ -450,7 +450,7 @@ export class Game extends Phaser.Scene {
             0,
             0,
             this.sys.game.config.width,
-            this.sys.game.config.height
+            this.sys.game.config.height,
         );
         this.uiCamera.setScroll(0, 0);
     }
@@ -469,21 +469,21 @@ export class Game extends Phaser.Scene {
         this.gameTimeManager = new GameTimeManager(this, this.upgradeManager);
         this.timeOfDayManager = new TimeOfDayManager(
             this,
-            this.gameTimeManager
+            this.gameTimeManager,
         );
 
         // サイドバーUIを作成（ゲーム情報とインベントリを統合）
         this.sidebarUI = new SidebarUI(
             this,
             this.gameTimeManager,
-            this.inventoryManager
+            this.inventoryManager,
         );
 
         // トップバーUIを作成（画面上部）- gameInfoUIを渡してステータスとコインを表示
         this.topBarUI = new TopBarUI(
             this,
             this.gameTimeManager,
-            this.sidebarUI.gameInfoUI
+            this.sidebarUI.gameInfoUI,
         );
 
         // 初期表示のためにUIを更新
@@ -500,6 +500,10 @@ export class Game extends Phaser.Scene {
     initUpgradesAndSettings() {
         this.upgradeManager = new UpgradeManager(this);
         this.settingsManager = new SettingsManager(this);
+
+        // 饵の最低レア度を初期化
+        this.fishBaitItemKey = null;
+        this.fishBaitMinimumRarity = GAME_CONST.BAIT_FISH_MINIMUM_RARITY;
 
         // 保存された音量設定をSoundManagerに適用
         this.soundManager.setBgmVolume(this.settingsManager.getBgmVolume());
@@ -532,6 +536,28 @@ export class Game extends Phaser.Scene {
     handleFishingSuccess(fishName, letterIndex, letterCategory) {
         console.log(`釣り成功: ${fishName}`);
 
+        // 餌が設定されている場合、魚を釣ったタイミングで1つ消費（ボトルは除外）
+        if (
+            this.fishBaitItemKey &&
+            fishName !== GAME_CONST.FISH_NAME.BOTTLE_LETTER
+        ) {
+            const consumed = this.inventoryManager.removeItem(
+                this.fishBaitItemKey,
+                1,
+            );
+            if (!consumed) {
+                this.clearFishBait();
+            } else {
+                // ストックがなくなった場合も餌設定を解除
+                const hasBaitStock = this.inventoryManager.items.some(
+                    (item) => item.itemKey === this.fishBaitItemKey,
+                );
+                if (!hasBaitStock) {
+                    this.clearFishBait();
+                }
+            }
+        }
+
         // チュートリアル完了後、未読の手紙がある場合は交互パターンを切り替え
         const tutorialCompleted =
             this.tutorialManager && this.tutorialManager.isTutorialCompleted();
@@ -547,7 +573,7 @@ export class Game extends Phaser.Scene {
             if (letterIndex !== undefined && letterCategory) {
                 this.letterManager.markLetterAsRead(
                     letterCategory,
-                    letterIndex
+                    letterIndex,
                 );
                 // UIを更新（手紙ボタンの表示）
                 this.sidebarUI.updateLetterButton();
@@ -563,7 +589,7 @@ export class Game extends Phaser.Scene {
             this.inventoryManager.addItem(
                 fishName,
                 GAME_CONST.FISH_DISPLAY_NAME[fishName],
-                1
+                1,
             );
             // インベントリUIの更新
             this.sidebarUI.updateInventory();
@@ -630,7 +656,7 @@ export class Game extends Phaser.Scene {
         const buttonHeight =
             Math.max(
                 this.fishHitIndicator.displayHeight,
-                this.fishHitText.height
+                this.fishHitText.height,
             ) + 20;
 
         // ボタン背景を作成（背面に配置するため最初に作成）
@@ -640,7 +666,7 @@ export class Game extends Phaser.Scene {
                 this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET,
                 buttonWidth,
                 buttonHeight,
-                0xff6600
+                0xff6600,
             )
             .setStrokeStyle(4, 0xffffff)
             .setOrigin(0.5, 0.5);
@@ -657,11 +683,11 @@ export class Game extends Phaser.Scene {
 
         this.fishHitIndicator.setPosition(
             startX + iconWidth / 2,
-            this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
+            this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET,
         );
         this.fishHitText.setPosition(
             startX + iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X,
-            this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
+            this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET,
         );
 
         // 点滅アニメーションを追加
@@ -709,19 +735,19 @@ export class Game extends Phaser.Scene {
             if (this.fishHitButton) {
                 this.fishHitButton.setPosition(
                     this.player.x,
-                    this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
+                    this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET,
                 );
             }
 
             this.fishHitIndicator.setPosition(
                 startX + iconWidth / 2,
-                this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
+                this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET,
             );
 
             if (this.fishHitText && this.fishHitText.visible) {
                 this.fishHitText.setPosition(
                     startX + iconWidth + UI_CONST.FISH_HIT_TEXT_OFFSET_X,
-                    this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET
+                    this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET,
                 );
             }
         }
@@ -891,27 +917,14 @@ export class Game extends Phaser.Scene {
     selectFishByWeight() {
         const weights = { ...GAME_CONST.FISH_WEIGHT };
 
-        // アップグレード倍率を取得（レア魚の確率向上）
-        const rarityMultiplier =
-            this.upgradeManager.getRareFishRateMultiplier();
+        // アップグレードレベルを取得（レア魚の確率向上）
+        const rarityLevel = this.upgradeManager.upgrades.rarity || 0;
 
-        // 魚のレア度定義（値が高いほどレア）
-        const fishRarity = {
-            fish_funa: 1.0, // 普通（そのまま）
-            fish_ebi: 1.2, // 少しレア
-            fish_nijimasu: 1.5, // 中レア
-            fish_tuna: 2.0, // レア
-            fish_tai: 3.0, // 激レア
-            bottle_letter: 1.0, // 特殊（影響なし）
-        };
-
-        // レア度に応じて重みを調整（アップグレード適用）
-        // 公式: 新重み = 元重み * ((rarityMultiplier - 1) * (レア度 - 1) + 1)
-        // 例: rarityMultiplier=1.5, フナ(1.0)→1.0倍, タイ(3.0)→2.0倍
+        // 全ての魚の重みにレベル×定数を加算
+        const weightBonus =
+            rarityLevel * GAME_CONST.RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL;
         Object.keys(weights).forEach((fishName) => {
-            const rarity = fishRarity[fishName] || 1.0;
-            const multiplier = (rarityMultiplier - 1) * (rarity - 1) + 1;
-            weights[fishName] = Math.floor(weights[fishName] * multiplier);
+            weights[fishName] += weightBonus;
         });
 
         // 未読の手紙がない場合はメッセージボトルを除外
@@ -944,7 +957,7 @@ export class Game extends Phaser.Scene {
         // 総重みを計算
         const totalWeight = targets.reduce(
             (sum, target) => sum + weights[target],
-            0
+            0,
         );
 
         // ランダムな値を生成（0～totalWeight）
@@ -999,7 +1012,7 @@ export class Game extends Phaser.Scene {
                 this.sys.game.config.width,
                 this.sys.game.config.height,
                 0x000000,
-                0.7
+                0.7,
             )
             .setOrigin(0.5, 0.5)
             .setScrollFactor(0)
@@ -1009,7 +1022,7 @@ export class Game extends Phaser.Scene {
         // モーダル用のシーンを作成（簡易実装）
         const pauseContainer = this.add.container(
             this.sys.game.config.width / 2,
-            this.sys.game.config.height / 2
+            this.sys.game.config.height / 2,
         );
         pauseContainer.setDepth(UI_CONST.MODAL_DEPTH);
         this.cameras.main.ignore(pauseContainer);
@@ -1022,7 +1035,7 @@ export class Game extends Phaser.Scene {
                 UI_CONST.PAUSE_MODAL_WIDTH,
                 UI_CONST.PAUSE_MODAL_HEIGHT,
                 0x222222,
-                0.95
+                0.95,
             )
             .setStrokeStyle(4, 0xffffff);
         pauseContainer.add(modalBg);
@@ -1037,7 +1050,7 @@ export class Game extends Phaser.Scene {
                     fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "28px",
                     color: "#ffff00",
-                }
+                },
             )
             .setOrigin(0.5);
         pauseContainer.add(title);
@@ -1054,7 +1067,7 @@ export class Game extends Phaser.Scene {
             this.settingsManager.isStatusChangeEnabled(),
             (enabled) => {
                 this.settingsManager.setStatusChange(enabled);
-            }
+            },
         );
         currentY += lineHeight;
 
@@ -1068,7 +1081,7 @@ export class Game extends Phaser.Scene {
                 this.settingsManager.isAutoFishingEnabled(),
                 (enabled) => {
                     this.settingsManager.setAutoFishing(enabled);
-                }
+                },
             );
             currentY += lineHeight;
         }
@@ -1080,7 +1093,7 @@ export class Game extends Phaser.Scene {
                 UI_CONST.PAUSE_MODAL_HEIGHT / 2 - 60,
                 150,
                 50,
-                0x00cc00
+                0x00cc00,
             )
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
@@ -1095,7 +1108,7 @@ export class Game extends Phaser.Scene {
                     fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "20px",
                     color: "#ffffff",
-                }
+                },
             )
             .setOrigin(0.5);
         pauseContainer.add(resumeText);
@@ -1125,6 +1138,26 @@ export class Game extends Phaser.Scene {
 
         this.pauseContainer = pauseContainer;
         this.pauseOverlay = overlay;
+    }
+
+    /**
+     * 餌を設定
+     * @param {string} itemKey - 魚のアイテムキー
+     * @param {number} rarity - 魚のレア度
+     */
+    setFishBait(itemKey, rarity) {
+        this.fishBaitItemKey = itemKey;
+        this.fishBaitMinimumRarity = rarity;
+        console.log(`餌を設定: ${itemKey}, レア度${rarity}`);
+    }
+
+    /**
+     * 餌を解除
+     */
+    clearFishBait() {
+        this.fishBaitItemKey = null;
+        this.fishBaitMinimumRarity = GAME_CONST.BAIT_FISH_MINIMUM_RARITY;
+        console.log("餌を解除しました");
     }
 
     /**
@@ -1161,7 +1194,7 @@ export class Game extends Phaser.Scene {
         // モーダル用のコンテナ
         const upgradeContainer = this.add.container(
             this.sys.game.config.width / 2,
-            this.sys.game.config.height / 2
+            this.sys.game.config.height / 2,
         );
         upgradeContainer.setDepth(UI_CONST.MODAL_DEPTH);
         this.cameras.main.ignore(upgradeContainer);
@@ -1174,7 +1207,7 @@ export class Game extends Phaser.Scene {
                 this.sys.game.config.width,
                 this.sys.game.config.height,
                 0x000000,
-                0.7
+                0.7,
             )
             .setOrigin(0.5, 0.5)
             .setScrollFactor(0);
@@ -1188,7 +1221,7 @@ export class Game extends Phaser.Scene {
                 UI_CONST.UPGRADE_MODAL_WIDTH,
                 UI_CONST.UPGRADE_MODAL_HEIGHT,
                 0x222222,
-                0.95
+                0.95,
             )
             .setStrokeStyle(4, 0xffffff);
         upgradeContainer.add(modalBg);
@@ -1205,7 +1238,7 @@ export class Game extends Phaser.Scene {
                     color: "#ffff00",
                     stroke: "#000000",
                     strokeThickness: 2,
-                }
+                },
             )
             .setOrigin(0.5);
         upgradeContainer.add(title);
@@ -1224,7 +1257,7 @@ export class Game extends Phaser.Scene {
                     color: "#ffffff",
                     stroke: "#000000",
                     strokeThickness: 1,
-                }
+                },
             )
             .setOrigin(0.5);
         upgradeContainer.add(coinsText);
@@ -1257,10 +1290,10 @@ export class Game extends Phaser.Scene {
                         `${getLocalizedText({
                             JP: "所持コイン",
                             EN: "Coins",
-                        })}: ${this.sidebarUI.gameInfoUI.coins}`
+                        })}: ${this.sidebarUI.gameInfoUI.coins}`,
                     );
                     upgradeElements.forEach((el) => el.update());
-                }
+                },
             );
             upgradeElements.push(element);
             currentY += lineHeight;
@@ -1273,7 +1306,7 @@ export class Game extends Phaser.Scene {
                 UI_CONST.UPGRADE_MODAL_HEIGHT / 2 - 60,
                 150,
                 50,
-                0xcc0000
+                0xcc0000,
             )
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
@@ -1290,7 +1323,7 @@ export class Game extends Phaser.Scene {
                     color: "#ffffff",
                     stroke: "#000000",
                     strokeThickness: 2,
-                }
+                },
             )
             .setOrigin(0.5);
         upgradeContainer.add(closeText);
@@ -1329,7 +1362,7 @@ export class Game extends Phaser.Scene {
                     color: "#ffffff",
                     stroke: "#000000",
                     strokeThickness: 1,
-                }
+                },
             )
             .setOrigin(0, 0.5);
         itemContainer.add(nameLabel);
@@ -1340,7 +1373,7 @@ export class Game extends Phaser.Scene {
                 25,
                 canUpgrade
                     ? `${getLocalizedText(
-                          UI_TEXT.UPGRADE_MODAL.LEVEL
+                          UI_TEXT.UPGRADE_MODAL.LEVEL,
                       )} ${level}/${maxLevel}`
                     : getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX_LEVEL),
                 {
@@ -1349,7 +1382,7 @@ export class Game extends Phaser.Scene {
                     color: "#aaaaaa",
                     stroke: "#000000",
                     strokeThickness: 1,
-                }
+                },
             )
             .setOrigin(0, 0.5);
         itemContainer.add(levelLabel);
@@ -1362,7 +1395,7 @@ export class Game extends Phaser.Scene {
                     0,
                     100,
                     40,
-                    0x00cc00
+                    0x00cc00,
                 )
                 .setStrokeStyle(2, 0xffffff)
                 .setInteractive({ useHandCursor: true });
@@ -1382,7 +1415,7 @@ export class Game extends Phaser.Scene {
             button.on("pointerdown", () => {
                 const result = this.upgradeManager.upgrade(
                     upgradeKey,
-                    this.sidebarUI.gameInfoUI.coins
+                    this.sidebarUI.gameInfoUI.coins,
                 );
                 if (result.success) {
                     this.sidebarUI.gameInfoUI.setCoins(result.newCoins);
@@ -1409,9 +1442,9 @@ export class Game extends Phaser.Scene {
                 levelLabel.setText(
                     newCanUpgrade
                         ? `${getLocalizedText(
-                              UI_TEXT.UPGRADE_MODAL.LEVEL
+                              UI_TEXT.UPGRADE_MODAL.LEVEL,
                           )} ${newLevel}/${newMaxLevel}`
-                        : getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX_LEVEL)
+                        : getLocalizedText(UI_TEXT.UPGRADE_MODAL.MAX_LEVEL),
                 );
 
                 // 既存のボタンとテキストを削除して再作成
@@ -1427,7 +1460,7 @@ export class Game extends Phaser.Scene {
                             0,
                             100,
                             40,
-                            0x00cc00
+                            0x00cc00,
                         )
                         .setStrokeStyle(2, 0xffffff)
                         .setInteractive({ useHandCursor: true });
@@ -1445,7 +1478,7 @@ export class Game extends Phaser.Scene {
                                 color: "#ffffff",
                                 stroke: "#000000",
                                 strokeThickness: 2,
-                            }
+                            },
                         )
                         .setOrigin(0.5);
                     itemContainer.add(buttonText);
@@ -1453,7 +1486,7 @@ export class Game extends Phaser.Scene {
                     button.on("pointerdown", () => {
                         const result = this.upgradeManager.upgrade(
                             upgradeKey,
-                            this.sidebarUI.gameInfoUI.coins
+                            this.sidebarUI.gameInfoUI.coins,
                         );
                         if (result.success) {
                             this.sidebarUI.gameInfoUI.setCoins(result.newCoins);
@@ -1548,17 +1581,17 @@ export class Game extends Phaser.Scene {
         }
         if (gameData.settings) {
             this.settingsManager.setBgmVolume(
-                gameData.settings.bgmVolume || 0.5
+                gameData.settings.bgmVolume || 0.5,
             );
             this.settingsManager.setSeVolume(gameData.settings.seVolume || 0.5);
             this.settingsManager.setPlayerAnimation(
-                gameData.settings.playerAnimation !== false
+                gameData.settings.playerAnimation !== false,
             );
             this.settingsManager.setBackgroundColorChange(
-                gameData.settings.backgroundColorChange !== false
+                gameData.settings.backgroundColorChange !== false,
             );
             this.settingsManager.setAutoFishing(
-                gameData.settings.autoFishing || false
+                gameData.settings.autoFishing || false,
             );
         }
 

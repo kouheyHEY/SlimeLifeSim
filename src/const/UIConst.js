@@ -123,6 +123,40 @@ export const UI_CONST = {
     ITEM_DETAIL_BUTTON_WIDTH: 130,
     /** アイテム詳細のボタン高さ */
     ITEM_DETAIL_BUTTON_HEIGHT: 60,
+    /** アイテム詳細ボタンのY座標 */
+    ITEM_DETAIL_BUTTON_Y: 200,
+    /** アイテム詳細の魚ボタン配置 */
+    ITEM_DETAIL_BUTTON_POSITIONS_WITH_BAIT: {
+        BAIT_X: -150,
+        SELL_X: 0,
+        CLOSE_X: 150,
+    },
+    ITEM_DETAIL_BUTTON_POSITIONS_WITHOUT_BAIT: {
+        SELL_X: -70,
+        CLOSE_X: 70,
+    },
+
+    /** インベントリ餌表示の枠幅 */
+    INVENTORY_BAIT_BORDER_WIDTH: 3,
+    /** インベントリ餌表示の枠色 */
+    INVENTORY_BAIT_BORDER_COLOR: 0x8844aa,
+    /** インベントリ餌表示のテキスト */
+    INVENTORY_BAIT_TEXT: { JP: "餌", EN: "Bait" },
+    /** インベントリ餌テキストのフォントサイズ */
+    INVENTORY_BAIT_FONT_SIZE: 16,
+    /** インベントリ餌テキストの色 */
+    INVENTORY_BAIT_TEXT_COLOR: "#8844aa",
+
+    /** インベントリ餌表示の枠幅 */
+    INVENTORY_BAIT_BORDER_WIDTH: 3,
+    /** インベントリ餌表示の枠色 */
+    INVENTORY_BAIT_BORDER_COLOR: 0x8844aa,
+    /** インベントリ餌表示のテキスト */
+    INVENTORY_BAIT_TEXT: { JP: "餌", EN: "Bait" },
+    /** インベントリ餌テキストのフォントサイズ */
+    INVENTORY_BAIT_FONT_SIZE: 30,
+    /** インベントリ餌テキストの色 */
+    INVENTORY_BAIT_TEXT_COLOR: "#8844aa",
 
     /** タイトル画面の背景の色 */
     TITLE_BACKGROUND_COLOR: 0x000000,
@@ -536,6 +570,8 @@ export const UI_TEXT = {
         VALUE: { JP: "価値: ", EN: "Value: " },
         COIN: { JP: " コイン", EN: " Coins" },
         SELL_BUTTON: { JP: "売る", EN: "Sell" },
+        USE_AS_BAIT_BUTTON: { JP: "餌にする", EN: "Bait" },
+        REMOVE_BAIT_BUTTON: { JP: "餌を外す", EN: "No Bait" },
         CLOSE_BUTTON: { JP: "×", EN: "×" },
     },
     /** 手紙関連のテキスト */

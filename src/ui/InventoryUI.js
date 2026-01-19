@@ -22,7 +22,7 @@ export class InventoryUI {
         gameTimeManager,
         gameInfoUI,
         x = UI_CONST.INVENTORY_X,
-        y = UI_CONST.INVENTORY_Y
+        y = UI_CONST.INVENTORY_Y,
     ) {
         this.scene = scene;
         this.inventoryManager = inventoryManager;
@@ -33,6 +33,7 @@ export class InventoryUI {
         this.y = y;
         this.itemSprites = []; // アイテムスプライトの配列
         this.quantityTexts = []; // 数量テキストの配列
+        this.baitOverlays = []; // 餌表示用の装飾
         this.itemDetailModal = null; // アイテム詳細モーダル
         this.createUI();
     }
@@ -61,12 +62,12 @@ export class InventoryUI {
                         y,
                         UI_CONST.INVENTORY_ITEM_FRAME_SIZE,
                         UI_CONST.INVENTORY_ITEM_FRAME_SIZE,
-                        UI_CONST.INVENTORY_COLOR
+                        UI_CONST.INVENTORY_COLOR,
                     )
                     .setOrigin(0, 0)
                     .setStrokeStyle(
                         UI_CONST.INVENTORY_BORDER_WIDTH,
-                        UI_CONST.INVENTORY_BORDER_COLOR
+                        UI_CONST.INVENTORY_BORDER_COLOR,
                     );
                 this.inventoryContainer.add(frame);
                 this.inventoryFrameGroup.add(frame);
@@ -93,6 +94,8 @@ export class InventoryUI {
         });
         this.itemSprites = [];
         this.quantityTexts = [];
+        this.baitOverlays.forEach((obj) => obj?.destroy());
+        this.baitOverlays = [];
 
         // インベントリの内容に応じてUIを更新する処理をここに追加
         for (let i = 0; i < this.inventoryManager.size; i++) {
@@ -105,16 +108,57 @@ export class InventoryUI {
                     .sprite(
                         frame.x + UI_CONST.INVENTORY_ITEM_FRAME_SIZE / 2,
                         frame.y + UI_CONST.INVENTORY_ITEM_FRAME_SIZE / 2,
-                        item.itemKey
+                        item.itemKey,
                     )
                     .setOrigin(0.5, 0.5)
                     .setInteractive({ useHandCursor: true });
                 sprite.setScale(
-                    UI_CONST.INVENTORY_ITEM_DISPLAY_SIZE / sprite.width
+                    UI_CONST.INVENTORY_ITEM_DISPLAY_SIZE / sprite.width,
                 );
                 this.scene.cameras.main.ignore(sprite);
                 this.inventoryContainer.add(sprite);
                 this.itemSprites.push(sprite);
+
+                // 餌設定済みの魚だけに餌表示を追加
+                const isBaitTarget =
+                    this.scene.fishBaitItemKey === item.itemKey;
+                if (isBaitTarget) {
+                    // 紫枠を描画
+                    const borderFrame = this.scene.add
+                        .rectangle(
+                            frame.x + UI_CONST.INVENTORY_ITEM_FRAME_SIZE / 2,
+                            frame.y + UI_CONST.INVENTORY_ITEM_FRAME_SIZE / 2,
+                            UI_CONST.INVENTORY_ITEM_FRAME_SIZE - 4,
+                            UI_CONST.INVENTORY_ITEM_FRAME_SIZE - 4,
+                        )
+                        .setOrigin(0.5, 0.5)
+                        .setStrokeStyle(
+                            UI_CONST.INVENTORY_BAIT_BORDER_WIDTH,
+                            UI_CONST.INVENTORY_BAIT_BORDER_COLOR,
+                        );
+                    this.scene.cameras.main.ignore(borderFrame);
+                    this.inventoryContainer.add(borderFrame);
+                    this.baitOverlays.push(borderFrame);
+
+                    // 「餌」テキストを表示
+                    const baitText = this.scene.add
+                        .text(
+                            frame.x + 10,
+                            frame.y + 10,
+                            getLocalizedText(UI_CONST.INVENTORY_BAIT_TEXT),
+                            {
+                                fontFamily: FONT_NAME.CP_PERIOD,
+                                fontSize: `${UI_CONST.INVENTORY_BAIT_FONT_SIZE}px`,
+                                color: UI_CONST.INVENTORY_BAIT_TEXT_COLOR,
+                                stroke: "#000000",
+                                strokeThickness: 1,
+                            },
+                        )
+                        .setOrigin(0, 0);
+                    this.scene.cameras.main.ignore(baitText);
+                    this.inventoryContainer.add(baitText);
+                    this.baitOverlays.push(baitText);
+                }
 
                 // クリック時にアイテム詳細を表示
                 sprite.on("pointerdown", () => {
@@ -130,7 +174,7 @@ export class InventoryUI {
                             fontSize: `${UI_CONST.INVENTORY_QUANTITY_FONT_SIZE}px`,
                             color: UI_CONST.INVENTORY_FONT_COLOR,
                             fontFamily: FONT_NAME.CP_PERIOD,
-                        }
+                        },
                     )
                     .setOrigin(1, 1);
                 this.scene.cameras.main.ignore(quantityText);
@@ -187,11 +231,11 @@ export class InventoryUI {
                 0,
                 UI_CONST.ITEM_DETAIL_WIDTH,
                 UI_CONST.ITEM_DETAIL_HEIGHT,
-                UI_CONST.ITEM_DETAIL_BG_COLOR
+                UI_CONST.ITEM_DETAIL_BG_COLOR,
             )
             .setStrokeStyle(
                 UI_CONST.ITEM_DETAIL_BORDER_WIDTH,
-                UI_CONST.ITEM_DETAIL_BORDER_COLOR
+                UI_CONST.ITEM_DETAIL_BORDER_COLOR,
             );
         this.itemDetailModal.add(bg);
 
@@ -230,7 +274,7 @@ export class InventoryUI {
                     fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                     color: "#FFFF00",
                     align: "center",
-                }
+                },
             )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(quantityText);
@@ -262,29 +306,103 @@ export class InventoryUI {
                 0,
                 100,
                 `${getLocalizedText(
-                    UI_TEXT.ITEM_DETAIL.VALUE
+                    UI_TEXT.ITEM_DETAIL.VALUE,
                 )}${value}${getLocalizedText(UI_TEXT.ITEM_DETAIL.COIN)}`,
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                     color: "#FFD700",
                     align: "center",
-                }
+                },
             )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(valueText);
 
         // ボタンのY座標
-        const buttonY = 200;
+        const buttonY = UI_CONST.ITEM_DETAIL_BUTTON_Y;
+
+        // 「餌にする／餌を外す」ボタン（魚のみ表示）
+        let baitButton = null;
+        let baitText = null;
+        if (this.isFish(item.itemKey)) {
+            const isCurrentBait = this.scene.fishBaitItemKey === item.itemKey;
+            const baitLabel = isCurrentBait
+                ? UI_TEXT.ITEM_DETAIL.REMOVE_BAIT_BUTTON
+                : UI_TEXT.ITEM_DETAIL.USE_AS_BAIT_BUTTON;
+
+            baitButton = this.scene.add
+                .rectangle(
+                    -80,
+                    buttonY,
+                    UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
+                    UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
+                    0x8844aa,
+                )
+                .setStrokeStyle(2, 0xffffff)
+                .setInteractive({ useHandCursor: true });
+            this.itemDetailModal.add(baitButton);
+
+            baitText = this.scene.add
+                .text(-80, buttonY, getLocalizedText(baitLabel), {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: "28px",
+                    color: "#FFFFFF",
+                    align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
+                })
+                .setOrigin(0.5, 0.5);
+            this.itemDetailModal.add(baitText);
+
+            baitButton.on("pointerdown", () => {
+                this.playCoinSe();
+                if (isCurrentBait) {
+                    // 餌を外す
+                    this.scene.clearFishBait();
+                    this.update();
+                    this.closeItemDetail();
+                    return;
+                }
+                // 餌を設定（消費は釣れたタイミング）
+                const fishRarity = GAME_CONST.FISH_RARITY[item.itemKey] || 1;
+                this.scene.setFishBait(item.itemKey, fishRarity);
+                this.update();
+                this.closeItemDetail();
+            });
+        }
+
+        // ボタンの配置：餌ボタンがあれば、定数を参照して設定
+        let baitButtonX = 0;
+        let sellButtonX = 0;
+        let closeButtonX = 0;
+
+        if (baitButton) {
+            // 魚の場合：3つのボタン
+            const positions = UI_CONST.ITEM_DETAIL_BUTTON_POSITIONS_WITH_BAIT;
+            baitButtonX = positions.BAIT_X;
+            sellButtonX = positions.SELL_X;
+            closeButtonX = positions.CLOSE_X;
+            // 餌ボタンの位置を更新
+            baitButton.x = baitButtonX;
+            if (baitText) {
+                baitText.x = baitButtonX;
+            }
+        } else {
+            // 魚以外：2つのボタン
+            const positions =
+                UI_CONST.ITEM_DETAIL_BUTTON_POSITIONS_WITHOUT_BAIT;
+            sellButtonX = positions.SELL_X;
+            closeButtonX = positions.CLOSE_X;
+        }
 
         // 売るボタン
         const sellButton = this.scene.add
             .rectangle(
-                -80,
+                sellButtonX,
                 buttonY,
                 UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                 UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
-                0xaa8844
+                0xaa8844,
             )
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
@@ -292,7 +410,7 @@ export class InventoryUI {
 
         const sellText = this.scene.add
             .text(
-                -80,
+                sellButtonX,
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_BUTTON),
                 {
@@ -302,7 +420,7 @@ export class InventoryUI {
                     align: "center",
                     stroke: "#000000",
                     strokeThickness: 2,
-                }
+                },
             )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(sellText);
@@ -329,7 +447,7 @@ export class InventoryUI {
                     const hadZeroCoins = this.gameInfoUI.coins === 0;
                     this.gameInfoUI.addCoins(value);
                     console.log(
-                        `コイン追加: +${value}, 合計: ${this.gameInfoUI.coins}`
+                        `コイン追加: +${value}, 合計: ${this.gameInfoUI.coins}`,
                     );
 
                     // トップバーを更新してコイン表示を反映
@@ -352,11 +470,11 @@ export class InventoryUI {
         // 閉じるボタン（×）
         const closeButton = this.scene.add
             .rectangle(
-                80,
+                closeButtonX,
                 buttonY,
                 UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                 UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
-                0xaa4444
+                0xaa4444,
             )
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
@@ -364,7 +482,7 @@ export class InventoryUI {
 
         const closeText = this.scene.add
             .text(
-                80,
+                closeButtonX,
                 buttonY,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.CLOSE_BUTTON),
                 {
@@ -374,7 +492,7 @@ export class InventoryUI {
                     align: "center",
                     stroke: "#000000",
                     strokeThickness: 2,
-                }
+                },
             )
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(closeText);
@@ -419,6 +537,16 @@ export class InventoryUI {
     }
 
     /**
+     * うんじゃおりが魚かどうかを立判
+     * @param {string} itemKey - アイテムキー
+     * @returns {boolean} 魚の場合ねtrue
+     */
+    isFish(itemKey) {
+        const fishNames = Object.values(GAME_CONST.FISH_NAME);
+        return fishNames.includes(itemKey);
+    }
+
+    /**
      * 魚選択モーダルを表示（ステータス低下時に使用）
      * @param {Function} onSelectCallback - 魚が選ばれたときのコールバック
      */
@@ -447,11 +575,11 @@ export class InventoryUI {
                 0,
                 UI_CONST.ITEM_DETAIL_WIDTH,
                 UI_CONST.ITEM_DETAIL_HEIGHT,
-                UI_CONST.ITEM_DETAIL_BG_COLOR
+                UI_CONST.ITEM_DETAIL_BG_COLOR,
             )
             .setStrokeStyle(
                 UI_CONST.ITEM_DETAIL_BORDER_WIDTH,
-                UI_CONST.ITEM_DETAIL_BORDER_COLOR
+                UI_CONST.ITEM_DETAIL_BORDER_COLOR,
             );
         this.fishSelectionModal.add(bg);
 
@@ -468,7 +596,7 @@ export class InventoryUI {
 
         // 魚のリストを取得
         const fishItems = this.inventoryManager.items.filter(
-            (item) => item.itemKey && item.itemKey.startsWith("fish_")
+            (item) => item.itemKey && item.itemKey.startsWith("fish_"),
         );
 
         // 魚アイテムを表示

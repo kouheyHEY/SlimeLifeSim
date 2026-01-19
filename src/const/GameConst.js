@@ -77,6 +77,20 @@ export const GAME_CONST = {
         bottle_letter: 0, // 売れない
     },
 
+    /** 魚のレア度（値が高いほどレア） */
+    FISH_RARITY: {
+        /** フナ */
+        fish_funa: 1,
+        /** エビ */
+        fish_ebi: 2,
+        /** ニジマス */
+        fish_nijimasu: 3,
+        /** マグロ */
+        fish_tuna: 4,
+        /** タイ */
+        fish_tai: 5,
+    },
+
     /** 釣れる対象の確率重み */
     FISH_WEIGHT: {
         /** フナ */
@@ -150,6 +164,12 @@ export const GAME_CONST = {
     FISH_HIT_COOLDOWN_AFTER_CATCH: 10,
     /** 天井システム：この時間ヒットがなければ確定ヒット（ゲーム内分） */
     FISH_HIT_CEILING_TIME: 360,
+
+    /** レア魚アップグレード：レベルごとに重みに加算する値 */
+    RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL: 5,
+
+    /** 魚を餌として使う時の最低レア度 */
+    BAIT_FISH_MINIMUM_RARITY: 1,
 };
 
 /**
