@@ -94,17 +94,17 @@ export const GAME_CONST = {
     /** 釣れる対象の確率重み */
     FISH_WEIGHT: {
         /** フナ */
-        fish_funa: 40,
+        fish_funa: 9000,
         /** ニジマス */
-        fish_nijimasu: 25,
+        fish_nijimasu: 900,
         /** エビ */
-        fish_ebi: 15,
+        fish_ebi: 90,
         /** マグロ */
-        fish_tuna: 10,
+        fish_tuna: 9,
         /** タイ */
-        fish_tai: 5,
+        fish_tai: 1,
         /** メッセージボトル */
-        bottle_letter: 5,
+        bottle_letter: 10,
     },
 
     /** 成功ゲージの最大値 */
@@ -166,7 +166,10 @@ export const GAME_CONST = {
     FISH_HIT_CEILING_TIME: 360,
 
     /** レア魚アップグレード：レベルごとに重みに加算する値 */
-    RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL: 5,
+    RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL: 1,
+
+    /** メッセージボトルの基本出現率（％） */
+    BOTTLE_LETTER_BASE_PROBABILITY_PERCENT: 10,
 
     /** 魚を餌として使う時の最低レア度 */
     BAIT_FISH_MINIMUM_RARITY: 1,

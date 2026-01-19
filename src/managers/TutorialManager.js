@@ -190,7 +190,7 @@ export class TutorialManager {
         this.scene.gameTimeManager?.forceFishHit();
 
         this.scene.time.delayedCall(100, () =>
-            this.highlightFishHitIndicator()
+            this.highlightFishHitIndicator(),
         );
 
         const msg = this._getText(TUTORIAL_TEXT.STEP1);
@@ -281,7 +281,7 @@ export class TutorialManager {
                 TUTORIAL_DELAY.COIN_TUTORIAL_START,
                 () => {
                     this.showCoinTutorialStep1();
-                }
+                },
             );
         }
     }
@@ -297,7 +297,7 @@ export class TutorialManager {
         this._showLargeModal(
             msg,
             () => this.showCoinTutorialStep2(),
-            STEP_CONFIG.COIN_STEP1
+            STEP_CONFIG.COIN_STEP1,
         );
     }
 
@@ -314,7 +314,7 @@ export class TutorialManager {
         this._showLargeModal(
             msg,
             () => this.completeCoinTutorial(),
-            STEP_CONFIG.COIN_STEP2
+            STEP_CONFIG.COIN_STEP2,
         );
     }
 
@@ -507,7 +507,7 @@ export class TutorialManager {
         this._draw4Region(b.x - 10, b.y - 10, b.width + 20, b.height + 20);
 
         this._startAnimation(TUTORIAL_STEP.FISH_HIT, () =>
-            this._updateFishHit()
+            this._updateFishHit(),
         );
         this._updateFishHit();
     }
@@ -575,9 +575,9 @@ export class TutorialManager {
         // ボタンの左上座標と大きさ
         const buttonW = UI_CONST.ITEM_DETAIL_BUTTON_WIDTH;
         const buttonH = UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT;
-        const buttonCenterX = cx - 80;
+        const buttonCenterX = cx - 120;
         const buttonX = buttonCenterX - buttonW / 2;
-        const buttonY = cy + 200 - buttonH / 2;
+        const buttonY = cy + 170 - buttonH / 2;
 
         this.highlightTarget = {
             type: "sellButton",
@@ -660,7 +660,7 @@ export class TutorialManager {
             buttonX - 10,
             buttonY - 10,
             buttonW + 20,
-            buttonH + 20
+            buttonH + 20,
         );
 
         this._startAnimation(TUTORIAL_STEP.SELL_FISH, () => this._updateSell());
@@ -676,31 +676,31 @@ export class TutorialManager {
         // 必要なコンポーネントの存在確認
         if (!sidebarUI) {
             console.warn(
-                "Cannot highlight upgrade button: sidebarUI not found"
+                "Cannot highlight upgrade button: sidebarUI not found",
             );
             return;
         }
         if (!gameInfoUI) {
             console.warn(
-                "Cannot highlight upgrade button: gameInfoUI not found"
+                "Cannot highlight upgrade button: gameInfoUI not found",
             );
             return;
         }
         if (!gameInfoUI.upgradeButton) {
             console.warn(
-                "Cannot highlight upgrade button: upgradeButton not found"
+                "Cannot highlight upgrade button: upgradeButton not found",
             );
             return;
         }
         if (!sidebarUI.sidebarContainer) {
             console.warn(
-                "Cannot highlight upgrade button: sidebarContainer not found"
+                "Cannot highlight upgrade button: sidebarContainer not found",
             );
             return;
         }
         if (!gameInfoUI.infoContainer) {
             console.warn(
-                "Cannot highlight upgrade button: infoContainer not found"
+                "Cannot highlight upgrade button: infoContainer not found",
             );
             return;
         }
@@ -743,11 +743,11 @@ export class TutorialManager {
             buttonX - 10,
             buttonY - 10,
             buttonW + 20,
-            buttonH + 20
+            buttonH + 20,
         );
 
         this._startAnimation(TUTORIAL_STEP.UPGRADE_ROD_EXPLANATION, () =>
-            this._updateUpgradeButton()
+            this._updateUpgradeButton(),
         );
         this._updateUpgradeButton();
     }
@@ -822,14 +822,14 @@ export class TutorialManager {
                 this.scene.sys.game.config.width,
                 this.scene.sys.game.config.height,
                 0x000000,
-                0.01
+                0.01,
             )
             .setOrigin(0, 0)
             .setDepth(999)
             .setInteractive({ useHandCursor: false });
         if (scroll) this.blockingArea.setScrollFactor(0);
         this.blockingArea.on("pointerdown", (p, lx, ly, e) =>
-            e.stopPropagation()
+            e.stopPropagation(),
         );
     }
 

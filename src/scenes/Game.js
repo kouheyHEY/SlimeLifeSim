@@ -927,29 +927,50 @@ export class Game extends Phaser.Scene {
             weights[fishName] += weightBonus;
         });
 
-        // 未読の手紙がない場合はメッセージボトルを除外
-        const hasUnreadLetters = this.letterManager.hasAnyUnreadLetters(this);
-        if (!hasUnreadLetters) {
-            delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
+        // 餌が設定されている場合、指定レア度未満の魚を除外
+        if (this.fishBaitItemKey) {
+            Object.keys(weights).forEach((fishName) => {
+                const rarity = GAME_CONST.FISH_RARITY[fishName];
+                if (
+                    rarity !== undefined &&
+                    rarity < this.fishBaitMinimumRarity
+                ) {
+                    delete weights[fishName];
+                }
+            });
         }
 
-        // チュートリアル中はメッセージボトルを除外
+        // 未読の手紙がない場合はメッセージボトルを除外
+        const hasUnreadLetters = this.letterManager.hasAnyUnreadLetters(this);
+        // チュートリアル完了状態を取得
         const tutorialCompleted =
             this.tutorialManager && this.tutorialManager.isTutorialCompleted();
-        if (!tutorialCompleted) {
-            delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
+
+        const bottleKey = GAME_CONST.FISH_NAME.BOTTLE_LETTER;
+        const bottleAllowed = tutorialCompleted && hasUnreadLetters;
+
+        // チュートリアル未完了または未読手紙なしのときはボトルを候補から除外
+        if (!bottleAllowed) {
+            delete weights[bottleKey];
+        }
+
+        // ボトルが出現可能なときは固定確率で先行抽選
+        if (bottleAllowed) {
+            const roll = Phaser.Math.Between(1, 100);
+            if (roll <= GAME_CONST.BOTTLE_LETTER_BASE_PROBABILITY_PERCENT) {
+                return bottleKey;
+            }
         }
 
         // チュートリアル終了後、未読の手紙がある場合は交互パターンを適用
-        if (tutorialCompleted && hasUnreadLetters) {
+        if (bottleAllowed) {
             const shouldGetLetter = this.letterManager.getShouldGetLetterNext();
             if (shouldGetLetter) {
-                // 手紙の番：手紙のみを返す
-                return GAME_CONST.FISH_NAME.BOTTLE_LETTER;
-            } else {
-                // 魚の番：手紙を除外して魚のみから選択
-                delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
+                // 手紙の番：手紙を必ず返す
+                return bottleKey;
             }
+            // 魚の番：以降の抽選からボトルを除外
+            delete weights[bottleKey];
         }
 
         const targets = Object.keys(weights);

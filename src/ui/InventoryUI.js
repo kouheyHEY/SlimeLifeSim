@@ -241,7 +241,7 @@ export class InventoryUI {
 
         // アイテムテクスチャ
         const itemSprite = this.scene.add
-            .sprite(0, -200, item.itemKey)
+            .sprite(0, -240, item.itemKey)
             .setOrigin(0.5, 0.5);
         const scale = UI_CONST.ITEM_DETAIL_TEXTURE_SIZE / itemSprite.width;
         itemSprite.setScale(scale);
@@ -252,7 +252,7 @@ export class InventoryUI {
             GAME_CONST.FISH_DISPLAY_NAME[item.itemKey] || item.itemKey;
         const displayName = getLocalizedText(itemName);
         const nameText = this.scene.add
-            .text(0, -120, displayName, {
+            .text(0, -140, displayName, {
                 fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${UI_CONST.ITEM_DETAIL_FONT_SIZE}px`,
                 color: "#FFFFFF",
@@ -265,7 +265,7 @@ export class InventoryUI {
         const quantityText = this.scene.add
             .text(
                 0,
-                -50,
+                -70,
                 `${getLocalizedText(UI_TEXT.ITEM_DETAIL.QUANTITY)}${
                     item.stock
                 }`,
@@ -285,7 +285,7 @@ export class InventoryUI {
             UI_TEXT.ITEM_DETAIL.NO_DESCRIPTION;
         const displayDesc = getLocalizedText(description);
         const descText = this.scene.add
-            .text(0, 20, displayDesc, {
+            .text(0, 0, displayDesc, {
                 fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: `${UI_CONST.ITEM_DETAIL_DESC_FONT_SIZE}px`,
                 color: "#CCCCCC",
@@ -304,7 +304,7 @@ export class InventoryUI {
         const valueText = this.scene.add
             .text(
                 0,
-                100,
+                80,
                 `${getLocalizedText(
                     UI_TEXT.ITEM_DETAIL.VALUE,
                 )}${value}${getLocalizedText(UI_TEXT.ITEM_DETAIL.COIN)}`,
@@ -318,8 +318,9 @@ export class InventoryUI {
             .setOrigin(0.5, 0.5);
         this.itemDetailModal.add(valueText);
 
-        // ボタンのY座標
-        const buttonY = UI_CONST.ITEM_DETAIL_BUTTON_Y;
+        // ボタンのY座標（2段構成）
+        const buttonRow1Y = UI_CONST.ITEM_DETAIL_BUTTON_Y_ROW1;
+        const buttonRow2Y = UI_CONST.ITEM_DETAIL_BUTTON_Y_ROW2;
 
         // 「餌にする／餌を外す」ボタン（魚のみ表示）
         let baitButton = null;
@@ -332,8 +333,8 @@ export class InventoryUI {
 
             baitButton = this.scene.add
                 .rectangle(
-                    -80,
-                    buttonY,
+                    0,
+                    buttonRow2Y,
                     UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                     UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
                     0x8844aa,
@@ -343,7 +344,7 @@ export class InventoryUI {
             this.itemDetailModal.add(baitButton);
 
             baitText = this.scene.add
-                .text(-80, buttonY, getLocalizedText(baitLabel), {
+                .text(0, buttonRow2Y, getLocalizedText(baitLabel), {
                     fontFamily: FONT_NAME.CP_PERIOD,
                     fontSize: "28px",
                     color: "#FFFFFF",
@@ -373,49 +374,57 @@ export class InventoryUI {
 
         // ボタンの配置：餌ボタンがあれば、定数を参照して設定
         let baitButtonX = 0;
-        let sellButtonX = 0;
+        let sellOneButtonX = 0;
+        let sellAllButtonX = 0;
         let closeButtonX = 0;
 
         if (baitButton) {
-            // 魚の場合：3つのボタン
-            const positions = UI_CONST.ITEM_DETAIL_BUTTON_POSITIONS_WITH_BAIT;
-            baitButtonX = positions.BAIT_X;
-            sellButtonX = positions.SELL_X;
-            closeButtonX = positions.CLOSE_X;
+            const positionsRow1 =
+                UI_CONST.ITEM_DETAIL_BUTTON_POSITIONS_WITH_BAIT_ROW1;
+            const positionsRow2 =
+                UI_CONST.ITEM_DETAIL_BUTTON_POSITIONS_WITH_BAIT_ROW2;
+            sellOneButtonX = positionsRow1.SELL_ONE_X;
+            sellAllButtonX = positionsRow1.SELL_ALL_X;
+            baitButtonX = positionsRow2.BAIT_X;
+            closeButtonX = positionsRow2.CLOSE_X;
             // 餌ボタンの位置を更新
             baitButton.x = baitButtonX;
+            baitButton.y = buttonRow2Y;
             if (baitText) {
                 baitText.x = baitButtonX;
+                baitText.y = buttonRow2Y;
             }
         } else {
-            // 魚以外：2つのボタン
-            const positions =
-                UI_CONST.ITEM_DETAIL_BUTTON_POSITIONS_WITHOUT_BAIT;
-            sellButtonX = positions.SELL_X;
-            closeButtonX = positions.CLOSE_X;
+            const positionsRow1 =
+                UI_CONST.ITEM_DETAIL_BUTTON_POSITIONS_WITHOUT_BAIT_ROW1;
+            const positionsRow2 =
+                UI_CONST.ITEM_DETAIL_BUTTON_POSITIONS_WITHOUT_BAIT_ROW2;
+            sellOneButtonX = positionsRow1.SELL_ONE_X;
+            sellAllButtonX = positionsRow1.SELL_ALL_X;
+            closeButtonX = positionsRow2.CLOSE_X;
         }
 
-        // 売るボタン
-        const sellButton = this.scene.add
+        // 1つ売るボタン
+        const sellOneButton = this.scene.add
             .rectangle(
-                sellButtonX,
-                buttonY,
+                sellOneButtonX,
+                buttonRow1Y,
                 UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                 UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
                 0xaa8844,
             )
             .setStrokeStyle(2, 0xffffff)
             .setInteractive({ useHandCursor: true });
-        this.itemDetailModal.add(sellButton);
+        this.itemDetailModal.add(sellOneButton);
 
-        const sellText = this.scene.add
+        const sellOneText = this.scene.add
             .text(
-                sellButtonX,
-                buttonY,
-                getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_BUTTON),
+                sellOneButtonX,
+                buttonRow1Y,
+                getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_ONE_BUTTON),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: "36px",
+                    fontSize: "32px",
                     color: "#FFFFFF",
                     align: "center",
                     stroke: "#000000",
@@ -423,9 +432,18 @@ export class InventoryUI {
                 },
             )
             .setOrigin(0.5, 0.5);
-        this.itemDetailModal.add(sellText);
+        this.itemDetailModal.add(sellOneText);
 
-        sellButton.on("pointerdown", () => {
+        const clearBaitIfEmpty = () => {
+            const hasBaitStock = this.inventoryManager.items.some(
+                (invItem) => invItem.itemKey === item.itemKey,
+            );
+            if (!hasBaitStock && this.scene.fishBaitItemKey === item.itemKey) {
+                this.scene.clearFishBait();
+            }
+        };
+
+        sellOneButton.on("pointerdown", () => {
             this.playCoinSe();
             // チュートリアル中かどうかを確認
             const isTutorialSell =
@@ -440,7 +458,7 @@ export class InventoryUI {
 
             // 通常時：魚を売る処理
             if (this.inventoryManager.removeItem(item.itemKey, 1)) {
-                console.log("売る:", item.itemKey, value);
+                console.log("1つ売る:", item.itemKey, value);
 
                 // コインを追加し、初回かどうかをチェック
                 if (this.gameInfoUI) {
@@ -463,6 +481,82 @@ export class InventoryUI {
 
                 // インベントリを更新
                 this.update();
+                clearBaitIfEmpty();
+            }
+            this.closeItemDetail();
+        });
+
+        // すべて売るボタン
+        const sellAllButton = this.scene.add
+            .rectangle(
+                sellAllButtonX,
+                buttonRow1Y,
+                UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
+                UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
+                0xaa8844,
+            )
+            .setStrokeStyle(2, 0xffffff)
+            .setInteractive({ useHandCursor: true });
+        this.itemDetailModal.add(sellAllButton);
+
+        const sellAllText = this.scene.add
+            .text(
+                sellAllButtonX,
+                buttonRow1Y,
+                getLocalizedText(UI_TEXT.ITEM_DETAIL.SELL_ALL_BUTTON),
+                {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: "32px",
+                    color: "#FFFFFF",
+                    align: "center",
+                    stroke: "#000000",
+                    strokeThickness: 2,
+                },
+            )
+            .setOrigin(0.5, 0.5);
+        this.itemDetailModal.add(sellAllText);
+
+        sellAllButton.on("pointerdown", () => {
+            this.playCoinSe();
+            const isTutorialSell =
+                this.scene.tutorialManager &&
+                this.scene.tutorialManager.getCurrentStep() ===
+                    TUTORIAL_STEP.SELL_FISH;
+
+            if (isTutorialSell) {
+                return;
+            }
+
+            const quantityToSell = item.stock;
+            if (quantityToSell <= 0) {
+                this.closeItemDetail();
+                return;
+            }
+
+            if (
+                this.inventoryManager.removeItem(item.itemKey, quantityToSell)
+            ) {
+                const totalValue = value * quantityToSell;
+                console.log("すべて売る:", item.itemKey, totalValue);
+
+                if (this.gameInfoUI) {
+                    const hadZeroCoins = this.gameInfoUI.coins === 0;
+                    this.gameInfoUI.addCoins(totalValue);
+                    console.log(
+                        `コイン追加: +${totalValue}, 合計: ${this.gameInfoUI.coins}`,
+                    );
+
+                    if (this.scene.topBarUI) {
+                        this.scene.topBarUI.update();
+                    }
+
+                    if (hadZeroCoins && this.scene.tutorialManager) {
+                        this.scene.tutorialManager.onFirstFishSold();
+                    }
+                }
+
+                this.update();
+                clearBaitIfEmpty();
             }
             this.closeItemDetail();
         });
@@ -471,7 +565,7 @@ export class InventoryUI {
         const closeButton = this.scene.add
             .rectangle(
                 closeButtonX,
-                buttonY,
+                buttonRow2Y,
                 UI_CONST.ITEM_DETAIL_BUTTON_WIDTH,
                 UI_CONST.ITEM_DETAIL_BUTTON_HEIGHT,
                 0xaa4444,
@@ -483,7 +577,7 @@ export class InventoryUI {
         const closeText = this.scene.add
             .text(
                 closeButtonX,
-                buttonY,
+                buttonRow2Y,
                 getLocalizedText(UI_TEXT.ITEM_DETAIL.CLOSE_BUTTON),
                 {
                     fontFamily: FONT_NAME.CP_PERIOD,

@@ -106,7 +106,7 @@ export const UI_CONST = {
     /** アイテム詳細モーダルの幅 */
     ITEM_DETAIL_WIDTH: 500,
     /** アイテム詳細モーダルの高さ */
-    ITEM_DETAIL_HEIGHT: 600,
+    ITEM_DETAIL_HEIGHT: 640,
     /** アイテム詳細モーダルの背景色 */
     ITEM_DETAIL_BG_COLOR: 0x222222,
     /** アイテム詳細モーダルの枠色 */
@@ -120,20 +120,31 @@ export const UI_CONST = {
     /** アイテム詳細の説明フォントサイズ */
     ITEM_DETAIL_DESC_FONT_SIZE: 32,
     /** アイテム詳細のボタン幅 */
-    ITEM_DETAIL_BUTTON_WIDTH: 130,
+    ITEM_DETAIL_BUTTON_WIDTH: 200,
     /** アイテム詳細のボタン高さ */
-    ITEM_DETAIL_BUTTON_HEIGHT: 60,
-    /** アイテム詳細ボタンのY座標 */
-    ITEM_DETAIL_BUTTON_Y: 200,
-    /** アイテム詳細の魚ボタン配置 */
-    ITEM_DETAIL_BUTTON_POSITIONS_WITH_BAIT: {
-        BAIT_X: -150,
-        SELL_X: 0,
-        CLOSE_X: 150,
+    ITEM_DETAIL_BUTTON_HEIGHT: 70,
+    /** アイテム詳細ボタンの1段目Y座標 */
+    ITEM_DETAIL_BUTTON_Y_ROW1: 170,
+    /** アイテム詳細ボタンの2段目Y座標 */
+    ITEM_DETAIL_BUTTON_Y_ROW2: 260,
+    /** アイテム詳細の魚ボタン配置（1段目） */
+    ITEM_DETAIL_BUTTON_POSITIONS_WITH_BAIT_ROW1: {
+        SELL_ONE_X: -120,
+        SELL_ALL_X: 120,
     },
-    ITEM_DETAIL_BUTTON_POSITIONS_WITHOUT_BAIT: {
-        SELL_X: -70,
-        CLOSE_X: 70,
+    /** アイテム詳細の魚ボタン配置（2段目） */
+    ITEM_DETAIL_BUTTON_POSITIONS_WITH_BAIT_ROW2: {
+        BAIT_X: -120,
+        CLOSE_X: 120,
+    },
+    /** アイテム詳細の非魚ボタン配置（1段目） */
+    ITEM_DETAIL_BUTTON_POSITIONS_WITHOUT_BAIT_ROW1: {
+        SELL_ONE_X: -120,
+        SELL_ALL_X: 120,
+    },
+    /** アイテム詳細の非魚ボタン配置（2段目） */
+    ITEM_DETAIL_BUTTON_POSITIONS_WITHOUT_BAIT_ROW2: {
+        CLOSE_X: 0,
     },
 
     /** インベントリ餌表示の枠幅 */
@@ -569,7 +580,8 @@ export const UI_TEXT = {
         NO_DESCRIPTION: { JP: "説明なし", EN: "No description" },
         VALUE: { JP: "価値: ", EN: "Value: " },
         COIN: { JP: " コイン", EN: " Coins" },
-        SELL_BUTTON: { JP: "売る", EN: "Sell" },
+        SELL_ONE_BUTTON: { JP: "1つ売る", EN: "Sell 1" },
+        SELL_ALL_BUTTON: { JP: "すべて売る", EN: "Sell All" },
         USE_AS_BAIT_BUTTON: { JP: "餌にする", EN: "Bait" },
         REMOVE_BAIT_BUTTON: { JP: "餌を外す", EN: "No Bait" },
         CLOSE_BUTTON: { JP: "×", EN: "×" },
