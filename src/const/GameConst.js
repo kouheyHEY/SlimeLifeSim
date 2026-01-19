@@ -94,15 +94,16 @@ export const GAME_CONST = {
     /** 釣れる対象の確率重み */
     FISH_WEIGHT: {
         /** フナ */
-        fish_funa: 9000,
+        fish_funa: 16000000,
         /** ニジマス */
-        fish_nijimasu: 900,
+        fish_nijimasu: 3600000,
         /** エビ */
-        fish_ebi: 90,
+        fish_ebi: 380000,
         /** マグロ */
-        fish_tuna: 9,
+        fish_tuna: 200000,
         /** タイ */
-        fish_tai: 1,
+        fish_tai: 49999,
+        /** 幻の魚 1 */
         /** メッセージボトル */
         bottle_letter: 10,
     },
