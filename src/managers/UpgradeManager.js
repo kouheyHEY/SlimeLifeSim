@@ -22,22 +22,22 @@ export class UpgradeManager {
         // アップグレードの最大レベル
         this.maxLevels = {
             totalLevel: 30,
-            rarity: 10,
-            hitTime: 10,
+            rarity: 100,
+            hitTime: 100,
         };
 
         // アップグレードのコスト計算式（ベースコスト × 倍率^(レベル-1)）
         this.baseCosts = {
             totalLevel: 100,
-            rarity: 100,
-            hitTime: 120,
+            rarity: 5,
+            hitTime: 5,
         };
 
         // コストの増加倍率（指数的増加）
         this.costMultipliers = {
             totalLevel: 1.3,
-            rarity: 1.5,
-            hitTime: 1.6,
+            rarity: 1.08,
+            hitTime: 1.1,
         };
 
         // LocalStorageから読み込み
@@ -65,7 +65,7 @@ export class UpgradeManager {
     saveUpgrades() {
         localStorage.setItem(
             STORAGE_KEY.UPGRADES,
-            JSON.stringify(this.upgrades)
+            JSON.stringify(this.upgrades),
         );
     }
 
@@ -136,7 +136,7 @@ export class UpgradeManager {
         this.saveUpgrades();
 
         console.log(
-            `アップグレード成功: ${upgradeKey} レベル${this.upgrades[upgradeKey]}`
+            `アップグレード成功: ${upgradeKey} レベル${this.upgrades[upgradeKey]}`,
         );
 
         return { success: true, newCoins };
@@ -245,7 +245,7 @@ export class UpgradeManager {
         this.saveUpgrades();
 
         console.log(
-            `総合アップグレード成功: レベル${this.upgrades.totalLevel}`
+            `総合アップグレード成功: レベル${this.upgrades.totalLevel}`,
         );
 
         return { success: true, newCoins, newLevel: this.upgrades.totalLevel };

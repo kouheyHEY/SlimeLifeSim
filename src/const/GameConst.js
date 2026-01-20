@@ -19,6 +19,8 @@ export const GAME_CONST = {
         TUNA: "fish_tuna",
         /** エビ */
         EBI: "fish_ebi",
+        /** オウゴンギョ */
+        OUGONGYO: "fish_ougongyo",
         /** メッセージボトル */
         BOTTLE_LETTER: "bottle_letter",
     },
@@ -35,6 +37,8 @@ export const GAME_CONST = {
         fish_tuna: { JP: "マグロ", EN: "Bluefin tuna" },
         /** エビ */
         fish_ebi: { JP: "エビ", EN: "Shrimp" },
+        /** オウゴンギョ */
+        fish_ougongyo: { JP: "オウゴンギョ", EN: "Golden fish" },
         /** メッセージボトル */
         bottle_letter: { JP: "メッセージボトル", EN: "Message bottle" },
     },
@@ -61,6 +65,10 @@ export const GAME_CONST = {
             JP: "縁起の良い魚。\n最高級の食材で大変レア。",
             EN: "An auspicious fish.\nExtremely rare delicacy.",
         },
+        fish_ougongyo: {
+            JP: "幻の黄金の魚。\n非常に高価で伝説的な存在。",
+            EN: "A phantom golden fish.\nExtremely valuable and legendary.",
+        },
         bottle_letter: {
             JP: "海を漂う手紙入りの瓶。\n誰かのメッセージが入っている。",
             EN: "A bottle with a letter inside.\nContains someone's message.",
@@ -69,11 +77,12 @@ export const GAME_CONST = {
 
     /** アイテムの価値（コイン） */
     ITEM_VALUE: {
-        fish_funa: 10, // 重み40: 期待値 4.0
-        fish_ebi: 30, // 重み15: 期待値 4.5
-        fish_nijimasu: 50, // 重み25: 期待値 12.5
-        fish_tuna: 150, // 重み10: 期待値 15.0
-        fish_tai: 400, // 重み5:  期待値 20.0
+        fish_funa: 10,
+        fish_ebi: 100,
+        fish_nijimasu: 2000,
+        fish_tuna: 8000,
+        fish_tai: 40000,
+        fish_ougongyo: 8000000,
         bottle_letter: 0, // 売れない
     },
 
@@ -89,21 +98,24 @@ export const GAME_CONST = {
         fish_tuna: 4,
         /** タイ */
         fish_tai: 5,
+        /** オウゴンギョ */
+        fish_ougongyo: 6,
     },
 
     /** 釣れる対象の確率重み */
     FISH_WEIGHT: {
         /** フナ */
-        fish_funa: 16000000,
-        /** ニジマス */
-        fish_nijimasu: 3600000,
+        fish_funa: 1000000,
         /** エビ */
-        fish_ebi: 380000,
+        fish_ebi: 200000,
+        /** ニジマス */
+        fish_nijimasu: 100000,
         /** マグロ */
-        fish_tuna: 200000,
+        fish_tuna: 75000,
         /** タイ */
         fish_tai: 49999,
-        /** 幻の魚 1 */
+        /** オウゴンギョ */
+        fish_ougongyo: 1,
         /** メッセージボトル */
         bottle_letter: 10,
     },
@@ -167,7 +179,7 @@ export const GAME_CONST = {
     FISH_HIT_CEILING_TIME: 360,
 
     /** レア魚アップグレード：レベルごとに重みに加算する値 */
-    RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL: 1,
+    RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL: 50,
 
     /** メッセージボトルの基本出現率（％） */
     BOTTLE_LETTER_BASE_PROBABILITY_PERCENT: 10,

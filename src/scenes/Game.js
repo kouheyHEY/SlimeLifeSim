@@ -926,6 +926,18 @@ export class Game extends Phaser.Scene {
 
         // アップグレードレベルを取得（レア魚の確率向上）
         const rarityLevel = this.upgradeManager.upgrades.rarity || 0;
+        const hitTimeLevel = this.upgradeManager.upgrades.hitTime || 0;
+
+        // オウゴンギョの出現条件：レア度とヒット猶予の両方が最大レベル
+        const rarityMaxLevel = this.upgradeManager.getMaxLevel("rarity");
+        const hitTimeMaxLevel = this.upgradeManager.getMaxLevel("hitTime");
+        const canCatchOugongyo =
+            rarityLevel === rarityMaxLevel && hitTimeLevel === hitTimeMaxLevel;
+
+        // オウゴンギョが釣れない場合は除外
+        if (!canCatchOugongyo) {
+            delete weights[GAME_CONST.FISH_NAME.OUGONGYO];
+        }
 
         // 全ての魚の重みにレベル×定数を加算
         const weightBonus =
@@ -1633,8 +1645,8 @@ export class Game extends Phaser.Scene {
         this.topBarUI.update();
         this.sidebarUI.updateLetterButton();
 
-        // 背景色を更新
-        this.timeOfDayManager.updateBackgroundColor();
+        // 背景色を即座に設定（セーブデータから復元した時間帯に対応する色）
+        this.timeOfDayManager.setBackgroundColorImmediately();
 
         return true;
     }

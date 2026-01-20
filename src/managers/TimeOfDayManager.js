@@ -98,4 +98,30 @@ export class TimeOfDayManager {
             },
         });
     }
+
+    /**
+     * 背景色を即座に設定（Tweenなし、セーブデータ復元用）
+     * 時間帯に対応する色をすぐに適用します
+     */
+    setBackgroundColorImmediately() {
+        const currentTimeOfDay = this.gameTimeManager.getCurrentTimeOfDay();
+        const colorData = this.getColorForTimeOfDay(currentTimeOfDay);
+        const color = colorData.color;
+        const rgb = MAP_CONST.RGB_CONVERSION;
+
+        // 既存のTweenをキャンセル
+        if (this.colorTween) {
+            this.colorTween.stop();
+        }
+
+        // RGBに変換
+        this.currentColor = {
+            r: (color >> rgb.RED_SHIFT) & rgb.MAX_VALUE,
+            g: (color >> rgb.GREEN_SHIFT) & rgb.MAX_VALUE,
+            b: color & rgb.MAX_VALUE,
+        };
+
+        // 即座に背景色を設定
+        this.scene.cameras.main.setBackgroundColor(color);
+    }
 }

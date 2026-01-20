@@ -65,8 +65,8 @@ export const MAP_CONST = {
         MORNING_START: 6, // 早朝から朝への切り替え時刻
         DAY_START: 9, // 朝から昼への切り替え時刻
         EVENING_START: 16, // 昼から夕方への切り替え時刻
-        DUSK_START: 19, // 夕方から夜への切り替え時刻
-        NIGHT_START: 24, // 夜から次の日への切り替え時刻（常に24時間制で使用）
+        DUSK_START: 18, // 夕焼けの開始時刻
+        NIGHT_START: 19, // 夜（濃紺）の開始時刻
     },
 
     /** 初期背景色（ゲーム開始時） */

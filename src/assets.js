@@ -50,6 +50,10 @@ export default {
             key: "fish_ebi",
             args: ["assets/fish_ebi.png"],
         },
+        fish_ougongyo: {
+            key: "fish_ougongyo",
+            args: ["assets/fish_ougongyo.png"],
+        },
         icon_arrow_up: {
             key: "icon_arrow_up",
             args: ["assets/icon_arrow_up.png"],
