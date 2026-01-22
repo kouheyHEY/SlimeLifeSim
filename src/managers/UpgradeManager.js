@@ -294,7 +294,7 @@ export class UpgradeManager {
      */
     getHitTimeMultiplier() {
         const level = this.upgrades.hitTime || 0;
-        // レベル1で1.15倍、レベル10で2.35倍
-        return 1.0 + level * 0.15;
+        // 最大100レベルで2倍になる直線補正
+        return 1.0 + level / 100;
     }
 }

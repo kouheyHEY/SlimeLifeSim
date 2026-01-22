@@ -128,13 +128,14 @@ export const GAME_CONST = {
     SUCCESS_GAUGE_DECREASE_RATE: 0.2,
     /** 魚のレア度ごとの成功ゲージ減少速度（1フレームあたり、60fps想定） */
     FISH_GAUGE_DECREASE_RATE: {
-        fish_funa: 0.0028, // レアリティ1: 約300秒
-        fish_ebi: 0.0035, // レアリティ2: 約240秒
-        fish_nijimasu: 0.0046, // レアリティ3: 約180秒
-        fish_tuna: 0.0069, // レアリティ4: 約120秒
-        fish_tai: 0.0093, // レアリティ5: 約90秒
-        fish_ougongyo: 0.0139, // レアリティ6: 約60秒（1分）
-        bottle_letter: 0.0028, // メッセージボトルはフナと同じ
+        // 1フレームあたり = 50 ÷ (想定秒数 × 60)
+        fish_funa: 0.05556, // 15秒
+        fish_ebi: 0.06944, // 12秒
+        fish_nijimasu: 0.09259, // 9秒
+        fish_tuna: 0.13889, // 6秒
+        fish_tai: 0.20833, // 4秒
+        fish_ougongyo: 0.41667, // 2秒
+        bottle_letter: 0.05556, // フナと同じ
     },
 
     /** 釣りゲームの出現する円の半径の基準値 */
@@ -188,7 +189,7 @@ export const GAME_CONST = {
     INVENTORY_ITEM_STOCK: 5,
 
     /** 魚ヒット抽選の確率 (1/この値) TODO: リリース時は要調整 */
-    FISH_HIT_LOTTERY_PROBABILITY: 60,
+    FISH_HIT_LOTTERY_PROBABILITY: 20,
     /** 魚ヒットの最小持続時間（ゲーム内分） */
     FISH_HIT_DURATION_MIN: 1,
     /** 魚ヒットの最大持続時間（ゲーム内分） */

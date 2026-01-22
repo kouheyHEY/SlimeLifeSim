@@ -40,14 +40,17 @@ export class Fishing extends Phaser.Scene {
         this.isFishing = true;
         // 釣り結果表示中フラグ
         this.isShowingResult = false;
-        // この魚の成功ゲージ減少速度を設定（魚ごとに異なる）
+        // ヒット猶予アップグレード倍率を取得
+        const hitTimeMultiplier =
+            this.gameScene?.upgradeManager?.getHitTimeMultiplier?.() || 1.0;
+        // この魚の成功ゲージ減少速度を設定（アップグレードで緩和）
         this.gaugeDecreaseRate =
-            GAME_CONST.FISH_GAUGE_DECREASE_RATE[this.fishName] ||
-            GAME_CONST.SUCCESS_GAUGE_DECREASE_RATE;
-        // この魚の円の持続時間を設定（魚ごとに異なる）
+            (GAME_CONST.FISH_GAUGE_DECREASE_RATE[this.fishName] ||
+                GAME_CONST.SUCCESS_GAUGE_DECREASE_RATE) / hitTimeMultiplier;
+        // この魚の円の持続時間を設定（アップグレードで延長）
         this.circleLifetime =
-            GAME_CONST.FISH_CIRCLE_LIFETIME[this.fishName] ||
-            GAME_CONST.FISHING_GAME_CIRCLE_LIFETIME;
+            (GAME_CONST.FISH_CIRCLE_LIFETIME[this.fishName] ||
+                GAME_CONST.FISHING_GAME_CIRCLE_LIFETIME) * hitTimeMultiplier;
     }
 
     create() {
@@ -204,9 +207,11 @@ export class Fishing extends Phaser.Scene {
 
         // 成功ゲージの値を時間経過で減少させる（魚ごとの減少速度を使用）
         this.successGaugeValue -= this.gaugeDecreaseRate;
-        // 成功ゲージの値が0未満にならないようにする
-        if (this.successGaugeValue < 0) {
+        // 成功ゲージの値が0になった場合、釣り失敗処理を実行
+        if (this.successGaugeValue <= 0) {
             this.successGaugeValue = 0;
+            this.fishingFailure();
+            return;
         }
         // 成功ゲージの値に応じて魚アイコンの位置を更新
         this.fishIcon.x =
@@ -351,6 +356,31 @@ export class Fishing extends Phaser.Scene {
         // 一定時間後にシーンを終了してメインのゲームシーンに戻る
         this.time.delayedCall(GAME_CONST.SUCCESS_SCENE_FADE_TIME, () => {
             this.showFishingResultSuccess();
+        });
+    }
+
+    /**
+     * 釣り失敗時の処理（ゲージが0になった場合）
+     */
+    fishingFailure() {
+        this.isFishing = false;
+        this.isShowingResult = true;
+        // チャレンジ円出現のタイマーを停止
+        this.timerAppearChallengeCircle.remove(false);
+        // 円とゲージをフェードアウト
+        this.tweens.add({
+            targets: this.fishingUIContainer,
+            alpha: 0,
+            duration: GAME_CONST.SUCCESS_SCENE_FADE_TIME,
+            ease: "Linear",
+        });
+        // 一定時間後にシーンを終了してメインのゲームシーンに戻る
+        this.time.delayedCall(GAME_CONST.SUCCESS_SCENE_FADE_TIME, () => {
+            this.scene.stop("Fishing");
+            this.scene.resume("Game", {
+                from: "fishing",
+                success: false,
+            });
         });
     }
 
