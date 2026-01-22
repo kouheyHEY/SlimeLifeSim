@@ -40,6 +40,14 @@ export class Fishing extends Phaser.Scene {
         this.isFishing = true;
         // 釣り結果表示中フラグ
         this.isShowingResult = false;
+        // この魚の成功ゲージ減少速度を設定（魚ごとに異なる）
+        this.gaugeDecreaseRate =
+            GAME_CONST.FISH_GAUGE_DECREASE_RATE[this.fishName] ||
+            GAME_CONST.SUCCESS_GAUGE_DECREASE_RATE;
+        // この魚の円の持続時間を設定（魚ごとに異なる）
+        this.circleLifetime =
+            GAME_CONST.FISH_CIRCLE_LIFETIME[this.fishName] ||
+            GAME_CONST.FISHING_GAME_CIRCLE_LIFETIME;
     }
 
     create() {
@@ -54,14 +62,14 @@ export class Fishing extends Phaser.Scene {
                 this.cameras.main.width,
                 this.cameras.main.height,
                 UI_CONST.FISHING_BACKGROUND_COLOR,
-                UI_CONST.FISHING_BACKGROUND_ALPHA
+                UI_CONST.FISHING_BACKGROUND_ALPHA,
             )
             .setOrigin(0, 0);
 
         // 釣りゲームUIのコンテナを作成
         this.fishingUIContainer = this.add.container(
             this.cameras.main.width / 2,
-            this.cameras.main.height / 2
+            this.cameras.main.height / 2,
         );
 
         // 釣りゲームUIを長方形で表示
@@ -71,11 +79,11 @@ export class Fishing extends Phaser.Scene {
                 0,
                 UI_CONST.FISHING_WIDTH,
                 UI_CONST.FISHING_HEIGHT,
-                UI_CONST.FISHING_RECTANGLE_COLOR
+                UI_CONST.FISHING_RECTANGLE_COLOR,
             )
             .setStrokeStyle(
                 UI_CONST.FISHING_RECTANGLE_LINE_WIDTH,
-                UI_CONST.FISHING_RECTANGLE_LINE_COLOR
+                UI_CONST.FISHING_RECTANGLE_LINE_COLOR,
             );
         this.fishingUIContainer.add(uiRectangle);
 
@@ -91,7 +99,7 @@ export class Fishing extends Phaser.Scene {
                 0,
                 0,
                 UI_CONST.FISHING_SUCCESS_GAUGE_HEIGHT,
-                UI_CONST.FISHING_SUCCESS_GAUGE_LINE_COLOR
+                UI_CONST.FISHING_SUCCESS_GAUGE_LINE_COLOR,
             )
             .setLineWidth(UI_CONST.FISHING_SUCCESS_GAUGE_LINE_WIDTH);
         this.fishingUIContainer.add(this.successGaugeLeftLine);
@@ -107,7 +115,7 @@ export class Fishing extends Phaser.Scene {
                 0,
                 0,
                 UI_CONST.FISHING_SUCCESS_GAUGE_HEIGHT,
-                UI_CONST.FISHING_SUCCESS_GAUGE_LINE_COLOR
+                UI_CONST.FISHING_SUCCESS_GAUGE_LINE_COLOR,
             )
             .setLineWidth(UI_CONST.FISHING_SUCCESS_GAUGE_LINE_WIDTH);
         this.fishingUIContainer.add(this.successGaugeRightLine);
@@ -123,7 +131,7 @@ export class Fishing extends Phaser.Scene {
                 0,
                 UI_CONST.FISHING_SUCCESS_GAUGE_LENGTH,
                 0,
-                UI_CONST.FISHING_SUCCESS_GAUGE_LINE_COLOR
+                UI_CONST.FISHING_SUCCESS_GAUGE_LINE_COLOR,
             )
             .setLineWidth(UI_CONST.FISHING_SUCCESS_GAUGE_LINE_WIDTH)
             .setOrigin(0, 0.5);
@@ -138,7 +146,7 @@ export class Fishing extends Phaser.Scene {
                 -UI_CONST.FISHING_HEIGHT / 2 +
                     UI_CONST.FISHING_SUCCESS_GAUGE_Y +
                     UI_CONST.FISHING_SUCCESS_GAUGE_HEIGHT / 2,
-                assets.image.icon_fish_mini.key
+                assets.image.icon_fish_mini.key,
             )
             .setOrigin(0.5, 0.5);
         this.fishingUIContainer.add(this.fishIcon);
@@ -159,15 +167,15 @@ export class Fishing extends Phaser.Scene {
                         20,
                     GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE,
                     Phaser.Display.Color.HexStringToColor(
-                        GAME_CONST.FISHING_GAME_CIRCLE_BACKGROUND_COLOR
+                        GAME_CONST.FISHING_GAME_CIRCLE_BACKGROUND_COLOR,
                     ).color,
-                    GAME_CONST.FISHING_GAME_CIRCLE_ALPHA
+                    GAME_CONST.FISHING_GAME_CIRCLE_ALPHA,
                 );
                 circle.setStrokeStyle(
                     GAME_CONST.FISHING_GAME_CIRCLE_BORDER_WIDTH,
                     Phaser.Display.Color.HexStringToColor(
-                        GAME_CONST.FISHING_GAME_CIRCLE_BACKGROUND_COLOR
-                    ).color
+                        GAME_CONST.FISHING_GAME_CIRCLE_BACKGROUND_COLOR,
+                    ).color,
                 );
                 this.fishingUIContainer.add(circle);
                 this.gameCircleGroup.add(circle);
@@ -194,8 +202,8 @@ export class Fishing extends Phaser.Scene {
             this.fishingSuccess();
         }
 
-        // 成功ゲージの値を時間経過で減少させる
-        this.successGaugeValue -= GAME_CONST.SUCCESS_GAUGE_DECREASE_RATE;
+        // 成功ゲージの値を時間経過で減少させる（魚ごとの減少速度を使用）
+        this.successGaugeValue -= this.gaugeDecreaseRate;
         // 成功ゲージの値が0未満にならないようにする
         if (this.successGaugeValue < 0) {
             this.successGaugeValue = 0;
@@ -248,9 +256,9 @@ export class Fishing extends Phaser.Scene {
             baseCircle.y,
             GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE,
             Phaser.Display.Color.HexStringToColor(
-                GAME_CONST.FISHING_GAME_CHALLENGE_CIRCLE_COLOR
+                GAME_CONST.FISHING_GAME_CHALLENGE_CIRCLE_COLOR,
             ).color,
-            GAME_CONST.FISHING_GAME_CHALLENGE_CIRCLE_ALPHA
+            GAME_CONST.FISHING_GAME_CHALLENGE_CIRCLE_ALPHA,
         );
         this.fishingUIContainer.add(challengeCircle);
         // ベースサークルに紐づける
@@ -259,11 +267,11 @@ export class Fishing extends Phaser.Scene {
         // 円出現音を再生
         this.playAppearCircleSe();
 
-        // 徐々に小さくなるアニメーションを追加
+        // 徐々に小さくなるアニメーションを追加（魚ごとの持続時間を使用）
         this.tweens.add({
             targets: challengeCircle,
             radius: 0,
-            duration: GAME_CONST.FISHING_GAME_CIRCLE_LIFETIME,
+            duration: this.circleLifetime,
             ease: "Linear",
             onComplete: () => {
                 // アニメーション完了後に円を削除
@@ -308,7 +316,7 @@ export class Fishing extends Phaser.Scene {
             GAME_CONST.FISHING_GAME_CIRCLE_RADIUS_BASE,
             Phaser.Display.Color.HexStringToColor(GAME_CONST.SUCCESS_FADE_COLOR)
                 .color,
-            GAME_CONST.SUCCESS_FADE_ALPHA
+            GAME_CONST.SUCCESS_FADE_ALPHA,
         );
         successCircle.setDepth(100);
         this.fishingUIContainer.add(successCircle);
@@ -354,7 +362,7 @@ export class Fishing extends Phaser.Scene {
         // メインの時と同じようにコンテナを作成
         this.fishingResultContainer = this.add.container(
             this.cameras.main.width / 2,
-            this.cameras.main.height / 2
+            this.cameras.main.height / 2,
         );
         // UIを長方形で表示
         const uiRectangle = this.add
@@ -363,11 +371,11 @@ export class Fishing extends Phaser.Scene {
                 0,
                 UI_CONST.FISHING_RESULT_WIDTH,
                 UI_CONST.FISHING_RESULT_HEIGHT,
-                UI_CONST.FISHING_RESULT_RECTANGLE_COLOR
+                UI_CONST.FISHING_RESULT_RECTANGLE_COLOR,
             )
             .setStrokeStyle(
                 UI_CONST.FISHING_RESULT_RECTANGLE_LINE_WIDTH,
-                UI_CONST.FISHING_RESULT_RECTANGLE_LINE_COLOR
+                UI_CONST.FISHING_RESULT_RECTANGLE_LINE_COLOR,
             );
         this.fishingResultContainer.add(uiRectangle);
 
@@ -376,7 +384,7 @@ export class Fishing extends Phaser.Scene {
             .sprite(
                 0,
                 UI_CONST.FISHING_RESULT_SPRITE_Y,
-                assets.image[this.fishName].key
+                assets.image[this.fishName].key,
             )
             .setOrigin(0.5, 0.5);
         this.fishingResultContainer.add(fishSprite);
@@ -403,14 +411,14 @@ export class Fishing extends Phaser.Scene {
                 UI_CONST.FISHING_RESULT_BUTTON_WIDTH,
                 UI_CONST.FISHING_RESULT_BUTTON_HEIGHT,
                 Phaser.Display.Color.HexStringToColor(
-                    UI_CONST.FISHING_RESULT_BUTTON_BACKGROUND_COLOR
-                ).color
+                    UI_CONST.FISHING_RESULT_BUTTON_BACKGROUND_COLOR,
+                ).color,
             )
             .setStrokeStyle(
                 UI_CONST.FISHING_RESULT_BUTTON_BORDER_WIDTH,
                 Phaser.Display.Color.HexStringToColor(
-                    UI_CONST.FISHING_RESULT_BUTTON_BORDER_COLOR
-                ).color
+                    UI_CONST.FISHING_RESULT_BUTTON_BORDER_COLOR,
+                ).color,
             )
             .setOrigin(0.5, 0.5)
             .setInteractive({ useHandCursor: true });
@@ -428,7 +436,7 @@ export class Fishing extends Phaser.Scene {
                     align: "center",
                     stroke: "#000000",
                     strokeThickness: 2,
-                }
+                },
             )
             .setOrigin(0.5, 0.5);
         this.fishingResultContainer.add(okButtonText);
@@ -466,7 +474,7 @@ export class Fishing extends Phaser.Scene {
             // 手紙コンテナを作成
             this.letterContainer = this.add.container(
                 this.cameras.main.width / 2,
-                this.cameras.main.height / 2
+                this.cameras.main.height / 2,
             );
             // UIを長方形で表示
             const uiRectangle = this.add
@@ -475,11 +483,11 @@ export class Fishing extends Phaser.Scene {
                     0,
                     UI_CONST.LETTER_WINDOW_WIDTH,
                     UI_CONST.LETTER_WINDOW_HEIGHT,
-                    UI_CONST.LETTER_WINDOW_RECTANGLE_COLOR
+                    UI_CONST.LETTER_WINDOW_RECTANGLE_COLOR,
                 )
                 .setStrokeStyle(
                     UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_WIDTH,
-                    UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_COLOR
+                    UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_COLOR,
                 );
             this.letterContainer.add(uiRectangle);
 
@@ -512,7 +520,7 @@ export class Fishing extends Phaser.Scene {
             const wrappedText = wrapText(
                 tempText,
                 letterContent,
-                UI_CONST.LETTER_TEXT_MAX_WIDTH
+                UI_CONST.LETTER_TEXT_MAX_WIDTH,
             );
             tempText.destroy();
 
@@ -539,7 +547,7 @@ export class Fishing extends Phaser.Scene {
                         fontSize: UI_CONST.LETTER_CONTENT_PAGE_NUMBER_FONT_SIZE,
                         color: UI_CONST.LETTER_TEXT_COLOR,
                         align: "center",
-                    }
+                    },
                 )
                 .setOrigin(0.5, 0.5);
             this.letterContainer.add(pageNumber);
@@ -551,11 +559,11 @@ export class Fishing extends Phaser.Scene {
                     UI_CONST.LETTER_CLOSE_BUTTON_Y,
                     UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
                     UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
-                    UI_CONST.LETTER_CLOSE_BUTTON_BACKGROUND_COLOR
+                    UI_CONST.LETTER_CLOSE_BUTTON_BACKGROUND_COLOR,
                 )
                 .setStrokeStyle(
                     UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
-                    UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR
+                    UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR,
                 )
                 .setOrigin(0.5, 0.5)
                 .setInteractive({ useHandCursor: true });
@@ -571,7 +579,7 @@ export class Fishing extends Phaser.Scene {
                         fontSize: `${UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE}px`,
                         color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                         align: "center",
-                    }
+                    },
                 )
                 .setOrigin(0.5, 0.5);
             this.letterContainer.add(closeButtonText);

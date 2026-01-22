@@ -124,13 +124,33 @@ export const GAME_CONST = {
     SUCCESS_GAUGE_MAX: 200,
     /** 成功ゲージの初期値 */
     SUCCESS_GAUGE_INITIAL: 50,
-    /** 成功ゲージの時間減少値 */
+    /** 成功ゲージの時間減少値（デフォルト、レガシー用） */
     SUCCESS_GAUGE_DECREASE_RATE: 0.2,
+    /** 魚のレア度ごとの成功ゲージ減少速度（1フレームあたり、60fps想定） */
+    FISH_GAUGE_DECREASE_RATE: {
+        fish_funa: 0.0028, // レアリティ1: 約300秒
+        fish_ebi: 0.0035, // レアリティ2: 約240秒
+        fish_nijimasu: 0.0046, // レアリティ3: 約180秒
+        fish_tuna: 0.0069, // レアリティ4: 約120秒
+        fish_tai: 0.0093, // レアリティ5: 約90秒
+        fish_ougongyo: 0.0139, // レアリティ6: 約60秒（1分）
+        bottle_letter: 0.0028, // メッセージボトルはフナと同じ
+    },
 
     /** 釣りゲームの出現する円の半径の基準値 */
     FISHING_GAME_CIRCLE_RADIUS_BASE: 120,
-    /** 釣りゲームの出現する円の消失時間 */
+    /** 釣りゲームの出現する円の消失時間（デフォルト、レガシー用） */
     FISHING_GAME_CIRCLE_LIFETIME: 2000,
+    /** 魚のレア度ごとの円の持続時間（ミリ秒） */
+    FISH_CIRCLE_LIFETIME: {
+        fish_funa: 2500, // レアリティ1: 2.5秒
+        fish_ebi: 2200, // レアリティ2: 2.2秒
+        fish_nijimasu: 2000, // レアリティ3: 2.0秒
+        fish_tuna: 1700, // レアリティ4: 1.7秒
+        fish_tai: 1400, // レアリティ5: 1.4秒
+        fish_ougongyo: 1000, // レアリティ6: 1.0秒
+        bottle_letter: 2500, // メッセージボトルはフナと同じ
+    },
     /** 釣りゲームの出現する円の出現間隔 */
     FISHING_GAME_CIRCLE_SPAWN_INTERVAL: 800,
     /** 釣りゲームの出現する円の透明度 */
@@ -168,11 +188,21 @@ export const GAME_CONST = {
     INVENTORY_ITEM_STOCK: 5,
 
     /** 魚ヒット抽選の確率 (1/この値) TODO: リリース時は要調整 */
-    FISH_HIT_LOTTERY_PROBABILITY: 2,
+    FISH_HIT_LOTTERY_PROBABILITY: 60,
     /** 魚ヒットの最小持続時間（ゲーム内分） */
-    FISH_HIT_DURATION_MIN: 4,
+    FISH_HIT_DURATION_MIN: 1,
     /** 魚ヒットの最大持続時間（ゲーム内分） */
     FISH_HIT_DURATION_MAX: 20,
+    /** 魚のレア度ごとのヒットインジケータ持続時間（ゲーム内分） */
+    FISH_HIT_DURATION_BY_RARITY: {
+        fish_funa: 20, // レアリティ1: 20分
+        fish_ebi: 16, // レアリティ2: 16分
+        fish_nijimasu: 12, // レアリティ3: 12分
+        fish_tuna: 8, // レアリティ4: 8分
+        fish_tai: 5, // レアリティ5: 5分
+        fish_ougongyo: 1, // レアリティ6: 1分
+        bottle_letter: 15, // メッセージボトル: 15分
+    },
     /** 釣った後のクールダウン時間（ゲーム内分） */
     FISH_HIT_COOLDOWN_AFTER_CATCH: 10,
     /** 天井システム：この時間ヒットがなければ確定ヒット（ゲーム内分） */

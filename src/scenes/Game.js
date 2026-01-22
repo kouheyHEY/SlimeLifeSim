@@ -673,7 +673,7 @@ export class Game extends Phaser.Scene {
                 this.player.y + UI_CONST.FISH_HIT_INDICATOR_Y_OFFSET,
                 buttonWidth,
                 buttonHeight,
-                0xff6600,
+                0x80ff80,
             )
             .setStrokeStyle(4, 0xffffff)
             .setOrigin(0.5, 0.5);
@@ -878,8 +878,15 @@ export class Game extends Phaser.Scene {
         this.gameTimeManager.pause();
         // 魚ヒットシステムを停止（釣り中や手紙読み中に重複しないように）
         this.gameTimeManager.pauseFishSystem();
-        // 確率をもとに対象を選択（重み付けランダム）
-        const target = this.selectFishByWeight();
+
+        // 事前に決定された魚を使用（triggerFishHitで決定済み）
+        let target = this.gameTimeManager.nextFishToHit;
+
+        // nextFishToHitが設定されていない場合は通常の抽選を行う（安全のため）
+        if (!target) {
+            target = this.selectFishByWeight();
+        }
+
         // メッセージボトルの場合は次の手紙のインデックスを渡す
         const params = {
             fishName: target,
@@ -900,8 +907,14 @@ export class Game extends Phaser.Scene {
      */
     autoFishing() {
         console.log("自動釣り実行");
-        // 確率をもとに対象を選択（重み付けランダム）
-        const target = this.selectFishByWeight();
+
+        // 事前に決定された魚を使用（triggerFishHitで決定済み）
+        let target = this.gameTimeManager.nextFishToHit;
+
+        // nextFishToHitが設定されていない場合は通常の抽選を行う（安全のため）
+        if (!target) {
+            target = this.selectFishByWeight();
+        }
 
         // 手紙の処理
         if (target === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {

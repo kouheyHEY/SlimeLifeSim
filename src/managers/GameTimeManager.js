@@ -35,6 +35,7 @@ export class GameTimeManager {
         // 魚ヒット関連
         this.fishHitActive = false; // 魚がヒットしているか
         this.fishHitEndTime = null; // ヒット終了時刻（ゲーム内分の合計）
+        this.nextFishToHit = null; // 次に釣れる魚の種類
         this.lotteryActive = true; // 抽選が有効かどうか
         this.lastLotteryMinute = this.getTotalMinutes(); // 最後に抽選を行った時刻
         this.cooldownEndTime = null; // クールダウン終了時刻（ゲーム内分の合計）
@@ -212,7 +213,7 @@ export class GameTimeManager {
             const timeSinceLastHit = currentTotalMinutes - this.lastFishHitTime;
             if (timeSinceLastHit >= GAME_CONST.FISH_HIT_CEILING_TIME) {
                 console.log(
-                    `天井到達！最後のヒットから${timeSinceLastHit}分経過`
+                    `天井到達！最後のヒットから${timeSinceLastHit}分経過`,
                 );
                 this.triggerFishHit();
                 return;
@@ -233,8 +234,8 @@ export class GameTimeManager {
                 1,
                 Math.floor(
                     GAME_CONST.FISH_HIT_LOTTERY_PROBABILITY /
-                        catchRateMultiplier
-                )
+                        catchRateMultiplier,
+                ),
             );
 
             // 低確率で魚がヒット
@@ -252,11 +253,20 @@ export class GameTimeManager {
         this.fishHitActive = true;
         this.lotteryActive = false;
 
-        // ヒット持続時間をランダムに決定（4～20分）
-        const baseDuration = Phaser.Math.Between(
-            GAME_CONST.FISH_HIT_DURATION_MIN,
-            GAME_CONST.FISH_HIT_DURATION_MAX
-        );
+        // 釣れる魚を先に決定（ゲームシーンのselectFishByWeightを使用）
+        const selectedFish = this.scene.selectFishByWeight();
+        this.nextFishToHit = selectedFish;
+
+        // 魚のレア度に応じたヒット持続時間を取得
+        let baseDuration = GAME_CONST.FISH_HIT_DURATION_BY_RARITY[selectedFish];
+
+        // 魚ごとの持続時間が設定されていない場合はデフォルト値を使用
+        if (baseDuration === undefined) {
+            baseDuration = Phaser.Math.Between(
+                GAME_CONST.FISH_HIT_DURATION_MIN,
+                GAME_CONST.FISH_HIT_DURATION_MAX,
+            );
+        }
 
         // アップグレード倍率を適用
         const hitTimeMultiplier = this.upgradeManager
@@ -270,9 +280,9 @@ export class GameTimeManager {
         this.lastFishHitTime = this.getTotalMinutes();
 
         console.log(
-            `魚ヒット発生！ ${duration}分間有効 (倍率: ${hitTimeMultiplier.toFixed(
-                2
-            )}x)`
+            `魚ヒット発生！ ${selectedFish} - ${duration}分間有効 (倍率: ${hitTimeMultiplier.toFixed(
+                2,
+            )}x)`,
         );
 
         // イベントを発火してUIを更新
@@ -306,7 +316,7 @@ export class GameTimeManager {
         this.cooldownEndTime =
             this.getTotalMinutes() + GAME_CONST.FISH_HIT_COOLDOWN_AFTER_CATCH;
         console.log(
-            `魚ヒットシステム再開（${GAME_CONST.FISH_HIT_COOLDOWN_AFTER_CATCH}分間のクールダウン）`
+            `魚ヒットシステム再開（${GAME_CONST.FISH_HIT_COOLDOWN_AFTER_CATCH}分間のクールダウン）`,
         );
 
         // イベントを発火してUIを更新
