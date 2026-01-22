@@ -137,7 +137,7 @@ export const GAME_CONST = {
     /** 成功ゲージの最大値 */
     SUCCESS_GAUGE_MAX: 200,
     /** 成功ゲージの初期値 */
-    SUCCESS_GAUGE_INITIAL: 50,
+    SUCCESS_GAUGE_INITIAL: 60,
     /** 成功ゲージの時間減少値（デフォルト、レガシー用） */
     SUCCESS_GAUGE_DECREASE_RATE: 0.2,
     /** 魚のレア度ごとの成功ゲージ減少速度（1フレームあたり、60fps想定） */
@@ -205,7 +205,7 @@ export const GAME_CONST = {
     INVENTORY_ITEM_STOCK: 5,
 
     /** 魚ヒット抽選の確率 (1/この値) TODO: リリース時は要調整 */
-    FISH_HIT_LOTTERY_PROBABILITY: 2,
+    FISH_HIT_LOTTERY_PROBABILITY: 20,
     /** 魚ヒットの最小持続時間（ゲーム内分） */
     FISH_HIT_DURATION_MIN: 1,
     /** 魚ヒットの最大持続時間（ゲーム内分） */
@@ -230,7 +230,7 @@ export const GAME_CONST = {
     RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL: 50,
 
     /** メッセージボトルの基本出現率（％） */
-    BOTTLE_LETTER_BASE_PROBABILITY_PERCENT: 80,
+    BOTTLE_LETTER_BASE_PROBABILITY_PERCENT: 10,
 
     /** 魚を餌として使う時の最低レア度 */
     BAIT_FISH_MINIMUM_RARITY: 1,

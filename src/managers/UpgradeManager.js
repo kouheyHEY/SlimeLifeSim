@@ -29,8 +29,8 @@ export class UpgradeManager {
         // アップグレードのコスト計算式（ベースコスト × 倍率^(レベル-1)）
         this.baseCosts = {
             totalLevel: 100,
-            rarity: 5,
-            hitTime: 5,
+            rarity: 15,
+            hitTime: 10,
         };
 
         // コストの増加倍率（指数的増加）
