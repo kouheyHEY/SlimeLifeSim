@@ -23,6 +23,8 @@ export const GAME_CONST = {
         OUGONGYO: "fish_ougongyo",
         /** メッセージボトル */
         BOTTLE_LETTER: "bottle_letter",
+        /** くまとうさぎの物語ボトル */
+        BEAR_AND_RABBIT_LETTER: "bear_and_rabbit_letter",
     },
 
     /** 魚の表示名 */
@@ -41,6 +43,11 @@ export const GAME_CONST = {
         fish_ougongyo: { JP: "オウゴンギョ", EN: "Golden fish" },
         /** メッセージボトル */
         bottle_letter: { JP: "メッセージボトル", EN: "Message bottle" },
+        /** くまとうさぎの物語ボトル */
+        bear_and_rabbit_letter: {
+            JP: "くまとうさぎの物語ボトル",
+            EN: "Bear & Rabbit Story Bottle",
+        },
     },
 
     /** アイテムの説明 */
@@ -73,6 +80,10 @@ export const GAME_CONST = {
             JP: "海を漂う手紙入りの瓶。\n誰かのメッセージが入っている。",
             EN: "A bottle with a letter inside.\nContains someone's message.",
         },
+        bear_and_rabbit_letter: {
+            JP: "くまとうさぎの物語が入った瓶。\n新しい物語が読める。",
+            EN: "A bottle with the Bear & Rabbit story.\nContains a new tale.",
+        },
     },
 
     /** アイテムの価値（コイン） */
@@ -84,6 +95,7 @@ export const GAME_CONST = {
         fish_tai: 40000,
         fish_ougongyo: 8000000,
         bottle_letter: 0, // 売れない
+        bear_and_rabbit_letter: 0, // 売れない
     },
 
     /** 魚のレア度（値が高いほどレア） */
@@ -118,6 +130,8 @@ export const GAME_CONST = {
         fish_ougongyo: 1,
         /** メッセージボトル */
         bottle_letter: 10,
+        /** くまとうさぎの物語ボトル */
+        bear_and_rabbit_letter: 10,
     },
 
     /** 成功ゲージの最大値 */
@@ -136,6 +150,7 @@ export const GAME_CONST = {
         fish_tai: 0.20833, // 4秒
         fish_ougongyo: 0.41667, // 2秒
         bottle_letter: 0.05556, // フナと同じ
+        bear_and_rabbit_letter: 0.05556, // フナと同じ
     },
 
     /** 釣りゲームの出現する円の半径の基準値 */
@@ -151,6 +166,7 @@ export const GAME_CONST = {
         fish_tai: 1400, // レアリティ5: 1.4秒
         fish_ougongyo: 1000, // レアリティ6: 1.0秒
         bottle_letter: 2500, // メッセージボトルはフナと同じ
+        bear_and_rabbit_letter: 2500, // くまとうさぎの物語ボトルはフナと同じ
     },
     /** 釣りゲームの出現する円の出現間隔 */
     FISHING_GAME_CIRCLE_SPAWN_INTERVAL: 800,
@@ -189,7 +205,7 @@ export const GAME_CONST = {
     INVENTORY_ITEM_STOCK: 5,
 
     /** 魚ヒット抽選の確率 (1/この値) TODO: リリース時は要調整 */
-    FISH_HIT_LOTTERY_PROBABILITY: 20,
+    FISH_HIT_LOTTERY_PROBABILITY: 2,
     /** 魚ヒットの最小持続時間（ゲーム内分） */
     FISH_HIT_DURATION_MIN: 1,
     /** 魚ヒットの最大持続時間（ゲーム内分） */
@@ -203,9 +219,10 @@ export const GAME_CONST = {
         fish_tai: 5, // レアリティ5: 5分
         fish_ougongyo: 1, // レアリティ6: 1分
         bottle_letter: 15, // メッセージボトル: 15分
+        bear_and_rabbit_letter: 15, // くまとうさぎの物語ボトル: 15分
     },
     /** 釣った後のクールダウン時間（ゲーム内分） */
-    FISH_HIT_COOLDOWN_AFTER_CATCH: 10,
+    FISH_HIT_COOLDOWN_AFTER_CATCH: 5,
     /** 天井システム：この時間ヒットがなければ確定ヒット（ゲーム内分） */
     FISH_HIT_CEILING_TIME: 360,
 
@@ -213,7 +230,7 @@ export const GAME_CONST = {
     RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL: 50,
 
     /** メッセージボトルの基本出現率（％） */
-    BOTTLE_LETTER_BASE_PROBABILITY_PERCENT: 10,
+    BOTTLE_LETTER_BASE_PROBABILITY_PERCENT: 80,
 
     /** 魚を餌として使う時の最低レア度 */
     BAIT_FISH_MINIMUM_RARITY: 1,

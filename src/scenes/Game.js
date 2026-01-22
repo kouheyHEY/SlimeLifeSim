@@ -396,6 +396,7 @@ export class Game extends Phaser.Scene {
             }
 
             if (data.from === "fishing" && data.success) {
+                console.log(`[Game resume] Fishing data:`, data);
                 this.handleFishingSuccess(
                     data.fishName,
                     data.letterIndex,
@@ -535,12 +536,17 @@ export class Game extends Phaser.Scene {
      */
     handleFishingSuccess(fishName, letterIndex, letterCategory) {
         console.log(`釣り成功: ${fishName}`);
+        console.log(
+            `[handleFishingSuccess] fishName=${fishName}, letterIndex=${letterIndex}, letterCategory=${letterCategory}`,
+        );
+
+        // 手紙かどうかを判定
+        const isLetterBottle =
+            fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER ||
+            fishName === GAME_CONST.FISH_NAME.BEAR_AND_RABBIT_LETTER;
 
         // 餌が設定されている場合、魚を釣ったタイミングで1つ消費（ボトルは除外）
-        if (
-            this.fishBaitItemKey &&
-            fishName !== GAME_CONST.FISH_NAME.BOTTLE_LETTER
-        ) {
+        if (this.fishBaitItemKey && !isLetterBottle) {
             const consumed = this.inventoryManager.removeItem(
                 this.fishBaitItemKey,
                 1,
@@ -571,16 +577,16 @@ export class Game extends Phaser.Scene {
         }
 
         // メッセージボトルの場合はインベントリに追加しない
-        if (fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
+        if (isLetterBottle) {
             // 手紙を読んだことを記録
             if (letterIndex !== undefined && letterCategory) {
                 this.letterManager.markLetterAsRead(
                     letterCategory,
                     letterIndex,
                 );
-                // UIを更新（手紙ボタンの表示）
-                this.sidebarUI.updateLetterButton();
             }
+            // UIを更新（手紙ボタンの表示）
+            this.sidebarUI.updateLetterButton();
         } else {
             // ここに釣り成功時の処理を追加
             // アップグレードによる価値倍率を適用（売却時に使用）
@@ -880,24 +886,31 @@ export class Game extends Phaser.Scene {
         this.gameTimeManager.pauseFishSystem();
 
         // 事前に決定された魚を使用（triggerFishHitで決定済み）
-        let target = this.gameTimeManager.nextFishToHit;
+        let result = this.gameTimeManager.nextFishToHit;
 
         // nextFishToHitが設定されていない場合は通常の抽選を行う（安全のため）
-        if (!target) {
-            target = this.selectFishByWeight();
+        if (!result) {
+            result = this.selectFishByWeight();
         }
+        console.log(`[startFishing] selectFishByWeight result:`, result);
 
         // メッセージボトルの場合は次の手紙のインデックスを渡す
         const params = {
-            fishName: target,
+            fishName: result.fishName,
             linePowerMultiplier: this.upgradeManager.getLinePowerMultiplier(),
         };
-        if (target === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
-            // 現在はstory_planetのみ、将来的には確率で選択するなど
-            const letterCategory = "story_planet";
+        if (
+            result.fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER ||
+            result.fishName === GAME_CONST.FISH_NAME.BEAR_AND_RABBIT_LETTER
+        ) {
+            const letterCategory = result.letterCategory || "story_planet";
             params.letterIndex =
                 this.letterManager.getNextLetterIndex(letterCategory);
             params.letterCategory = letterCategory;
+            console.log(
+                `[startFishing] Letter bottle detected. params:`,
+                params,
+            );
         }
         this.scene.launch("Fishing", params);
     }
@@ -909,21 +922,28 @@ export class Game extends Phaser.Scene {
         console.log("自動釣り実行");
 
         // 事前に決定された魚を使用（triggerFishHitで決定済み）
-        let target = this.gameTimeManager.nextFishToHit;
+        let result = this.gameTimeManager.nextFishToHit;
 
         // nextFishToHitが設定されていない場合は通常の抽選を行う（安全のため）
-        if (!target) {
-            target = this.selectFishByWeight();
+        if (!result) {
+            result = this.selectFishByWeight();
         }
 
         // 手紙の処理
-        if (target === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
-            const letterCategory = "story_planet";
+        if (
+            result.fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER ||
+            result.fishName === GAME_CONST.FISH_NAME.BEAR_AND_RABBIT_LETTER
+        ) {
+            const letterCategory = result.letterCategory || "story_planet";
             const letterIndex =
                 this.letterManager.getNextLetterIndex(letterCategory);
-            this.handleFishingSuccess(target, letterIndex, letterCategory);
+            this.handleFishingSuccess(
+                result.fishName,
+                letterIndex,
+                letterCategory,
+            );
         } else {
-            this.handleFishingSuccess(target);
+            this.handleFishingSuccess(result.fishName);
         }
 
         // 魚ヒットシステムを再開
@@ -932,33 +952,64 @@ export class Game extends Phaser.Scene {
 
     /**
      * 重み付けランダム選択で魚またはボトルを選択
-     * @returns {string} 選択された魚またはボトルの名前
+     * @returns {{ fishName: string, letterCategory?: string }}
      */
     selectFishByWeight() {
-        const weights = { ...GAME_CONST.FISH_WEIGHT };
+        // 未読があるカテゴリのみ抽選対象
+        const unreadCategories = this.letterManager.getUnreadCategories(this);
+        const tutorialCompleted =
+            this.tutorialManager && this.tutorialManager.isTutorialCompleted();
+        const baitTutorialCompleted =
+            this.tutorialManager &&
+            this.tutorialManager.isBaitTutorialCompleted();
 
-        // アップグレードレベルを取得（レア魚の確率向上）
+        // ボトル抽選（未読カテゴリが1つ以上、チュートリアル完了）
+        if (
+            unreadCategories.length > 0 &&
+            tutorialCompleted &&
+            baitTutorialCompleted
+        ) {
+            // ランダムでカテゴリを選択
+            const selectedCategory =
+                unreadCategories[
+                    Math.floor(Math.random() * unreadCategories.length)
+                ];
+            // 一定確率でボトル
+            const roll = Phaser.Math.Between(1, 100);
+            if (roll <= GAME_CONST.BOTTLE_LETTER_BASE_PROBABILITY_PERCENT) {
+                // カテゴリに応じてボトル名を返す
+                if (selectedCategory === "story_planet") {
+                    return {
+                        fishName: GAME_CONST.FISH_NAME.BOTTLE_LETTER,
+                        letterCategory: "story_planet",
+                    };
+                } else if (selectedCategory === "story_bear_and_rabbit") {
+                    return {
+                        fishName: GAME_CONST.FISH_NAME.BEAR_AND_RABBIT_LETTER,
+                        letterCategory: "story_bear_and_rabbit",
+                    };
+                }
+            }
+        }
+
+        // 通常の魚抽選
+        const weights = { ...GAME_CONST.FISH_WEIGHT };
+        // オウゴンギョの出現条件：レア度とヒット猶予の両方が最大レベル
         const rarityLevel = this.upgradeManager.upgrades.rarity || 0;
         const hitTimeLevel = this.upgradeManager.upgrades.hitTime || 0;
-
-        // オウゴンギョの出現条件：レア度とヒット猶予の両方が最大レベル
         const rarityMaxLevel = this.upgradeManager.getMaxLevel("rarity");
         const hitTimeMaxLevel = this.upgradeManager.getMaxLevel("hitTime");
         const canCatchOugongyo =
             rarityLevel === rarityMaxLevel && hitTimeLevel === hitTimeMaxLevel;
-
-        // オウゴンギョが釣れない場合は除外
         if (!canCatchOugongyo) {
             delete weights[GAME_CONST.FISH_NAME.OUGONGYO];
         }
-
         // 全ての魚の重みにレベル×定数を加算
         const weightBonus =
             rarityLevel * GAME_CONST.RARE_FISH_UPGRADE_WEIGHT_BONUS_PER_LEVEL;
         Object.keys(weights).forEach((fishName) => {
             weights[fishName] += weightBonus;
         });
-
         // 餌が設定されている場合、指定レア度未満の魚を除外
         if (this.fishBaitItemKey) {
             Object.keys(weights).forEach((fishName) => {
@@ -971,65 +1022,22 @@ export class Game extends Phaser.Scene {
                 }
             });
         }
-
-        // 未読の手紙がない場合はメッセージボトルを除外
-        const hasUnreadLetters = this.letterManager.hasAnyUnreadLetters(this);
-        // チュートリアル完了状態を取得
-        const tutorialCompleted =
-            this.tutorialManager && this.tutorialManager.isTutorialCompleted();
-        const baitTutorialCompleted =
-            this.tutorialManager &&
-            this.tutorialManager.isBaitTutorialCompleted();
-
-        const bottleKey = GAME_CONST.FISH_NAME.BOTTLE_LETTER;
-        const bottleAllowed =
-            tutorialCompleted && baitTutorialCompleted && hasUnreadLetters;
-
-        // チュートリアル未完了または未読手紙なしのときはボトルを候補から除外
-        if (!bottleAllowed) {
-            delete weights[bottleKey];
-        }
-
-        // ボトルが出現可能なときは固定確率で先行抽選
-        if (bottleAllowed) {
-            const roll = Phaser.Math.Between(1, 100);
-            if (roll <= GAME_CONST.BOTTLE_LETTER_BASE_PROBABILITY_PERCENT) {
-                return bottleKey;
-            }
-        }
-
-        // チュートリアル終了後、未読の手紙がある場合は交互パターンを適用
-        if (bottleAllowed) {
-            const shouldGetLetter = this.letterManager.getShouldGetLetterNext();
-            if (shouldGetLetter) {
-                // 手紙の番：手紙を必ず返す
-                return bottleKey;
-            }
-            // 魚の番：以降の抽選からボトルを除外
-            delete weights[bottleKey];
-        }
-
+        // ボトルは重み抽選から除外
+        delete weights[GAME_CONST.FISH_NAME.BOTTLE_LETTER];
+        delete weights[GAME_CONST.FISH_NAME.BEAR_AND_RABBIT_LETTER];
         const targets = Object.keys(weights);
-
-        // 総重みを計算
         const totalWeight = targets.reduce(
             (sum, target) => sum + weights[target],
             0,
         );
-
-        // ランダムな値を生成（0～totalWeight）
         let random = Phaser.Math.Between(1, totalWeight);
-
-        // 累積重みで対象を選択
         for (const target of targets) {
             random -= weights[target];
             if (random <= 0) {
-                return target;
+                return { fishName: target };
             }
         }
-
-        // フォールバック（通常は到達しない）
-        return targets[0];
+        return { fishName: targets[0] };
     }
 
     GameOver() {

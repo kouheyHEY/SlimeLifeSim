@@ -46,12 +46,12 @@ export class SidebarUI {
                 UI_CONST.SIDEBAR_WIDTH,
                 sidebarHeight,
                 UI_CONST.SIDEBAR_COLOR,
-                UI_CONST.SIDEBAR_ALPHA
+                UI_CONST.SIDEBAR_ALPHA,
             )
             .setOrigin(0, 0)
             .setStrokeStyle(
                 UI_CONST.SIDEBAR_BORDER_WIDTH,
-                UI_CONST.SIDEBAR_BORDER_COLOR
+                UI_CONST.SIDEBAR_BORDER_COLOR,
             );
         this.sidebarContainer.add(this.background);
 
@@ -63,7 +63,7 @@ export class SidebarUI {
             this.scene,
             this.gameTimeManager,
             gameInfoX,
-            gameInfoY
+            gameInfoY,
         );
         this.sidebarContainer.add(this.gameInfoUI.infoContainer);
 
@@ -81,7 +81,7 @@ export class SidebarUI {
             this.gameTimeManager,
             this.gameInfoUI,
             inventoryX,
-            inventoryY
+            inventoryY,
         );
         this.sidebarContainer.add(this.inventoryUI.inventoryContainer);
 
@@ -94,6 +94,9 @@ export class SidebarUI {
 
         // サイドバー全体をメインカメラから除外（UIはカメラの移動に追従しない）
         this.scene.cameras.main.ignore(this.sidebarContainer);
+
+        // 手紙ボタンの初期表示状態を更新
+        this.updateLetterButton();
     }
 
     /**
@@ -124,7 +127,7 @@ export class SidebarUI {
                     fontSize: "32px",
                     color: "#FFFFFF",
                     align: "left",
-                }
+                },
             )
             .setOrigin(0, 0.5)
             .setVisible(false);
@@ -149,7 +152,11 @@ export class SidebarUI {
      */
     updateLetterButton() {
         const letterManager = this.scene.letterManager;
-        if (letterManager && letterManager.hasReadAnyLetter()) {
+        // 読んだ手紙があるか、または未読の手紙がある場合に表示
+        const hasLetters =
+            (letterManager && letterManager.hasReadAnyLetter()) ||
+            (letterManager && letterManager.hasAnyUnreadLetters(this.scene));
+        if (hasLetters) {
             this.letterButton.setVisible(true);
             this.letterButtonIcon.setVisible(true);
             this.letterButtonText.setVisible(true);

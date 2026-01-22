@@ -26,9 +26,13 @@ export class Fishing extends Phaser.Scene {
      * @param {number} [paramObj.linePowerMultiplier] 釣り糸の引っ張り力倍率
      */
     init(paramObj) {
+        console.log(`[Fishing.init] Received params:`, paramObj);
         this.fishName = paramObj.fishName;
         this.letterIndex = paramObj.letterIndex;
         this.letterCategory = paramObj.letterCategory || "story_planet";
+        console.log(
+            `[Fishing.init] Set letterCategory=${this.letterCategory}, letterIndex=${this.letterIndex}`,
+        );
         this.linePowerMultiplier = paramObj.linePowerMultiplier || 1.0;
         // 成功ゲージの初期値を設定
         this.successGaugeValue = GAME_CONST.SUCCESS_GAUGE_INITIAL;
@@ -410,19 +414,36 @@ export class Fishing extends Phaser.Scene {
         this.fishingResultContainer.add(uiRectangle);
 
         // 結果の魚スプライトを表示
+        let imageKey = this.fishName;
+        // ボトルの場合は画像キーを変換
+        if (this.fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
+            imageKey = "bottle_letter";
+        } else if (
+            this.fishName === GAME_CONST.FISH_NAME.BEAR_AND_RABBIT_LETTER
+        ) {
+            imageKey = "bottle_letter"; // 画像が分かれていれば"bear_and_rabbit_letter"に
+        }
         const fishSprite = this.add
             .sprite(
                 0,
                 UI_CONST.FISHING_RESULT_SPRITE_Y,
-                assets.image[this.fishName].key,
+                assets.image[imageKey]?.key || imageKey,
             )
             .setOrigin(0.5, 0.5);
         this.fishingResultContainer.add(fishSprite);
 
         // テキストを表示
+        // ボトルレターの場合は常に「メッセージボトル」と表示
+        let displayName = this.fishName;
+        if (
+            this.fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER ||
+            this.fishName === GAME_CONST.FISH_NAME.BEAR_AND_RABBIT_LETTER
+        ) {
+            displayName = GAME_CONST.FISH_NAME.BOTTLE_LETTER;
+        }
         const fishDisplayName =
-            getLocalizedText(GAME_CONST.FISH_DISPLAY_NAME[this.fishName]) ||
-            this.fishName;
+            getLocalizedText(GAME_CONST.FISH_DISPLAY_NAME[displayName]) ||
+            displayName;
         const resultText = this.add
             .text(0, UI_CONST.FISHING_RESULT_TEXT_Y, fishDisplayName, {
                 fontFamily: FONT_NAME.CP_PERIOD,
@@ -473,7 +494,10 @@ export class Fishing extends Phaser.Scene {
         okButton.on("pointerdown", () => {
             this.playDecisionSe();
             // メッセージボトルの場合は手紙表示ウィンドウを表示
-            if (this.fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER) {
+            if (
+                this.fishName === GAME_CONST.FISH_NAME.BOTTLE_LETTER ||
+                this.fishName === GAME_CONST.FISH_NAME.BEAR_AND_RABBIT_LETTER
+            ) {
                 this.showLetterWindow();
             } else {
                 // 釣りシーンを終了してメインのゲームシーンに戻る
@@ -615,14 +639,16 @@ export class Fishing extends Phaser.Scene {
             this.letterContainer.add(closeButtonText);
             closeButton.on("pointerdown", () => {
                 // 釣りシーンを終了してメインのゲームシーンに戻る
-                this.scene.stop("Fishing");
-                this.scene.resume("Game", {
+                const resumeData = {
                     from: "fishing",
                     fishName: this.fishName,
                     letterIndex: this.currentLetterIndex,
                     letterCategory: this.letterCategory,
                     success: true,
-                });
+                };
+                console.log(`[Fishing] Resuming Game with data:`, resumeData);
+                this.scene.stop("Fishing");
+                this.scene.resume("Game", resumeData);
             });
         });
     }

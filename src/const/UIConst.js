@@ -312,11 +312,11 @@ export const UI_CONST = {
     /** 手紙リストのカテゴリタイトルのストローク太さ */
     LETTER_LIST_CATEGORY_STROKE_THICKNESS: 2,
     /** 手紙リストの開始Y座標 */
-    LETTER_LIST_START_Y: -250,
+    LETTER_LIST_START_Y: -180,
     /** 手紙リストのアイテム高さ */
     LETTER_LIST_ITEM_HEIGHT: 60,
     /** 手紙リストのカテゴリ間スペース */
-    LETTER_LIST_CATEGORY_SPACING: 20,
+    LETTER_LIST_CATEGORY_SPACING: 30,
     /** 手紙リストのアイテム背景色 */
     LETTER_LIST_ITEM_BG_COLOR: 0x2244aa,
     /** 手紙リストのアイテム背景の枠色 */

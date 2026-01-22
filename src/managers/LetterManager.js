@@ -47,6 +47,9 @@ export class LetterManager {
      * @param {number} index 読んだ手紙のインデックス
      */
     markLetterAsRead(categoryKey, index) {
+        console.log(
+            `[LetterManager] markLetterAsRead called: categoryKey=${categoryKey}, index=${index}`,
+        );
         this.initCategory(categoryKey);
         const category = this.categories[categoryKey];
 
@@ -54,6 +57,10 @@ export class LetterManager {
             category.readLetters.push(index);
             // 次の手紙のインデックスを進める
             category.currentIndex++;
+            console.log(
+                `[LetterManager] Letter marked as read. readLetters now:`,
+                category.readLetters,
+            );
         }
     }
 
@@ -83,18 +90,26 @@ export class LetterManager {
      */
     hasReadAnyLetter() {
         return Object.values(this.categories).some(
-            (category) => category.readLetters.length > 0
+            (category) => category.readLetters.length > 0,
         );
     }
 
     /**
-     * 全てのカテゴリを取得
+     * 全てのカテゴリを取得（読んだことがあるカテゴリのみ）
      * @returns {string[]} カテゴリキーのリスト
      */
     getAllCategories() {
         return Object.keys(this.categories).filter(
-            (key) => this.categories[key].readLetters.length > 0
+            (key) => this.categories[key].readLetters.length > 0,
         );
+    }
+
+    /**
+     * 利用可能な全てのカテゴリを取得（読んだかどうかに関わらず）
+     * @returns {string[]} カテゴリキーのリスト
+     */
+    getAvailableCategories() {
+        return ["story_planet", "story_bear_and_rabbit"];
     }
 
     /**
@@ -108,6 +123,10 @@ export class LetterManager {
             story_planet: {
                 JP: "元住民からの手紙",
                 EN: "Letters from a Former Resident",
+            },
+            story_bear_and_rabbit: {
+                JP: "クマとウサギの物語",
+                EN: "The Story of Bear and Rabbit",
             },
             // 将来的に追加されるカテゴリ
             // "story_ocean": { JP: "海底の物語", EN: "Tales from the Deep" },
@@ -146,10 +165,20 @@ export class LetterManager {
      * @returns {boolean} 未読の手紙があればtrue
      */
     hasAnyUnreadLetters(scene) {
-        // 現在対応しているカテゴリをチェック
-        const availableCategories = ["story_planet"]; // 将来的に増える
+        // すべてのカテゴリをチェック（story_planet, story_bear_and_rabbit など）
+        const availableCategories = ["story_planet", "story_bear_and_rabbit"];
         return availableCategories.some((categoryKey) =>
-            this.hasUnreadLetters(categoryKey, scene)
+            this.hasUnreadLetters(categoryKey, scene),
+        );
+    }
+
+    /**
+     * 未読があるカテゴリのリストを返す
+     */
+    getUnreadCategories(scene) {
+        const availableCategories = ["story_planet", "story_bear_and_rabbit"];
+        return availableCategories.filter((categoryKey) =>
+            this.hasUnreadLetters(categoryKey, scene),
         );
     }
 

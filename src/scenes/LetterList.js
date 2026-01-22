@@ -8,7 +8,7 @@ import { wrapText } from "../../core/utils/TextUtils.js";
 
 /**
  * 手紙リスト表示シーン
- * 読んだ手紙の一覧を表示し、再読可能にする
+ * カテゴリ選択 → カテゴリ内一覧 → 手紙内容
  */
 export class LetterList extends Phaser.Scene {
     constructor() {
@@ -16,15 +16,14 @@ export class LetterList extends Phaser.Scene {
     }
 
     /**
-     * シーンの初期化
-     * 手紙リストの表示
+     * 初期化
      */
     create() {
-        // ゲームシーンへの参照を取得
+        // Gameシーン参照
         this.gameScene = this.scene.get("Game");
         this.letterManager = this.gameScene.letterManager;
 
-        // 背景全体にオーバーレイをかける
+        // 背景オーバーレイ
         this.add
             .rectangle(
                 0,
@@ -32,79 +31,237 @@ export class LetterList extends Phaser.Scene {
                 this.cameras.main.width,
                 this.cameras.main.height,
                 UI_CONST.FISHING_BACKGROUND_COLOR,
-                UI_CONST.FISHING_BACKGROUND_ALPHA
+                UI_CONST.FISHING_BACKGROUND_ALPHA,
             )
             .setOrigin(0, 0);
 
-        // 手紙リストコンテナを作成
+        // 利用可能カテゴリ
+        this.categories = this.letterManager.getAvailableCategories();
+        this.showCategorySelection();
+    }
+
+    /**
+     * カテゴリ選択画面
+     */
+    showCategorySelection() {
+        // 既存コンテナ破棄
+        if (this.letterListContainer) {
+            this.letterListContainer.destroy();
+        }
+
+        // UIコンテナ
         this.letterListContainer = this.add.container(
             this.cameras.main.width / 2,
-            this.cameras.main.height / 2
+            this.cameras.main.height / 2,
         );
 
-        // UIを長方形で表示
+        // ウィンドウ
         const uiRectangle = this.add
             .rectangle(
                 0,
                 0,
                 UI_CONST.LETTER_WINDOW_WIDTH,
                 UI_CONST.LETTER_WINDOW_HEIGHT,
-                UI_CONST.LETTER_WINDOW_RECTANGLE_COLOR
+                UI_CONST.LETTER_WINDOW_RECTANGLE_COLOR,
             )
             .setStrokeStyle(
                 UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_WIDTH,
-                UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_COLOR
+                UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_COLOR,
             );
         this.letterListContainer.add(uiRectangle);
 
-        // カテゴリ別に手紙を表示
-        const categories = this.letterManager.getAllCategories();
+        // タイトル
+        const titleText = this.add
+            .text(0, UI_CONST.LETTER_LIST_START_Y - 80, "物語を選択", {
+                fontFamily: FONT_NAME.CP_PERIOD,
+                fontSize: UI_CONST.LETTER_LIST_CATEGORY_FONT_SIZE,
+                color: UI_CONST.LETTER_LIST_CATEGORY_COLOR,
+                align: "center",
+                stroke: UI_CONST.LETTER_LIST_CATEGORY_STROKE_COLOR,
+                strokeThickness: 2,
+            })
+            .setOrigin(0.5, 0.5);
+        this.letterListContainer.add(titleText);
+
+        // カテゴリ一覧
         const startY = UI_CONST.LETTER_LIST_START_Y;
         const itemHeight = UI_CONST.LETTER_LIST_ITEM_HEIGHT;
         let currentY = startY;
 
-        categories.forEach((categoryKey) => {
-            // カテゴリタイトルを表示
+        this.categories.forEach((categoryKey) => {
+            const categoryBg = this.add
+                .rectangle(
+                    0,
+                    currentY,
+                    UI_CONST.LETTER_LIST_ITEM_WIDTH,
+                    UI_CONST.LETTER_LIST_ITEM_HEIGHT - 5,
+                    UI_CONST.LETTER_LIST_ITEM_BG_COLOR,
+                )
+                .setStrokeStyle(
+                    UI_CONST.LETTER_LIST_ITEM_BORDER_WIDTH,
+                    UI_CONST.LETTER_LIST_ITEM_BORDER_COLOR,
+                )
+                .setInteractive({ useHandCursor: true });
+            this.letterListContainer.add(categoryBg);
+
             const categoryName =
                 this.letterManager.getCategoryDisplayName(categoryKey);
-            const categoryTitle = this.add
-                .text(0, currentY, `【${categoryName}】`, {
-                    fontFamily: FONT_NAME.CP_PERIOD,
-                    fontSize: UI_CONST.LETTER_LIST_CATEGORY_FONT_SIZE,
-                    color: UI_CONST.LETTER_LIST_CATEGORY_COLOR,
-                    align: "center",
-                    stroke: UI_CONST.LETTER_LIST_CATEGORY_STROKE_COLOR,
-                    strokeThickness:
-                        UI_CONST.LETTER_LIST_CATEGORY_STROKE_THICKNESS,
-                })
-                .setOrigin(0.5, 0.5);
-            this.letterListContainer.add(categoryTitle);
-            currentY += itemHeight;
-
-            // カテゴリ内の手紙を表示
             const readLetters = this.letterManager.getReadLetters(categoryKey);
             const storyData = this.cache.json.get(categoryKey);
             const currentLang = getCurrentLanguage() || "JP";
-            const letterMessages = storyData.messages[currentLang];
+            const totalLetters = storyData.messages[currentLang].length;
 
-            readLetters.forEach((letterIndex) => {
-                // 手紙アイテムの背景
+            const categoryText = this.add
+                .text(
+                    0,
+                    currentY,
+                    `${categoryName} (${readLetters.length}/${totalLetters})`,
+                    {
+                        fontFamily: FONT_NAME.CP_PERIOD,
+                        fontSize: UI_CONST.LETTER_LIST_ITEM_FONT_SIZE,
+                        color: UI_CONST.LETTER_TEXT_COLOR,
+                        align: "center",
+                        stroke: UI_CONST.LETTER_LIST_ITEM_STROKE_COLOR,
+                        strokeThickness:
+                            UI_CONST.LETTER_LIST_ITEM_STROKE_THICKNESS,
+                    },
+                )
+                .setOrigin(0.5, 0.5);
+            this.letterListContainer.add(categoryText);
+
+            categoryBg.on("pointerdown", () => {
+                this.playDecisionSe();
+                this.showCategoryLetters(categoryKey);
+            });
+
+            currentY += itemHeight + 10;
+        });
+
+        // 閉じる
+        const closeButton = this.add
+            .rectangle(
+                0,
+                UI_CONST.LETTER_CLOSE_BUTTON_Y,
+                UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
+                UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
+                UI_CONST.LETTER_CLOSE_BUTTON_BACKGROUND_COLOR,
+            )
+            .setStrokeStyle(
+                UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
+                UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR,
+            )
+            .setOrigin(0.5, 0.5)
+            .setInteractive({ useHandCursor: true });
+        this.letterListContainer.add(closeButton);
+
+        const closeButtonText = this.add
+            .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "×", {
+                fontFamily: FONT_NAME.CP_PERIOD,
+                fontSize: UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE,
+                color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
+                align: "center",
+                stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
+                strokeThickness: 2,
+            })
+            .setOrigin(0.5, 0.5);
+        this.letterListContainer.add(closeButtonText);
+
+        closeButton.on("pointerdown", () => {
+            this.playCancelSe();
+            this.gameScene.gameTimeManager.resume();
+            this.gameScene.gameTimeManager.resumeFishSystem();
+            this.scene.stop("LetterList");
+            this.scene.resume("Game");
+        });
+    }
+
+    /**
+     * カテゴリ内手紙一覧
+     */
+    showCategoryLetters(categoryKey) {
+        // コンテナ再構成
+        this.letterListContainer.destroy();
+        this.letterListContainer = this.add.container(
+            this.cameras.main.width / 2,
+            this.cameras.main.height / 2,
+        );
+
+        // ウィンドウ
+        const uiRectangle = this.add
+            .rectangle(
+                0,
+                0,
+                UI_CONST.LETTER_WINDOW_WIDTH,
+                UI_CONST.LETTER_WINDOW_HEIGHT,
+                UI_CONST.LETTER_WINDOW_RECTANGLE_COLOR,
+            )
+            .setStrokeStyle(
+                UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_WIDTH,
+                UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_COLOR,
+            );
+        this.letterListContainer.add(uiRectangle);
+
+        // タイトル
+        const categoryName =
+            this.letterManager.getCategoryDisplayName(categoryKey);
+        const categoryTitle = this.add
+            .text(0, UI_CONST.LETTER_LIST_START_Y - 80, `【${categoryName}】`, {
+                fontFamily: FONT_NAME.CP_PERIOD,
+                fontSize: UI_CONST.LETTER_LIST_CATEGORY_FONT_SIZE,
+                color: UI_CONST.LETTER_LIST_CATEGORY_COLOR,
+                align: "center",
+                stroke: UI_CONST.LETTER_LIST_CATEGORY_STROKE_COLOR,
+                strokeThickness: UI_CONST.LETTER_LIST_CATEGORY_STROKE_THICKNESS,
+            })
+            .setOrigin(0.5, 0.5);
+        this.letterListContainer.add(categoryTitle);
+
+        const startY = UI_CONST.LETTER_LIST_START_Y;
+        const itemHeight = UI_CONST.LETTER_LIST_ITEM_HEIGHT;
+        let currentY = startY;
+
+        const readLetters = this.letterManager.getReadLetters(categoryKey);
+        const storyData = this.cache.json.get(categoryKey);
+        const currentLang = getCurrentLanguage() || "JP";
+        const letterMessages = storyData.messages[currentLang];
+
+        console.log(
+            `[LetterList] showCategoryLetters: categoryKey=${categoryKey}, readLetters=${JSON.stringify(readLetters)}`,
+        );
+
+        // 表示対象: 読んだページのみ
+        const displayLetters = readLetters.slice();
+
+        if (displayLetters.length === 0) {
+            // まだ手紙がない場合はメッセージを表示
+            const noLetterText = this.add
+                .text(0, currentY, "このカテゴリはまだ手紙が到着していません", {
+                    fontFamily: FONT_NAME.CP_PERIOD,
+                    fontSize: UI_CONST.LETTER_LIST_ITEM_FONT_SIZE,
+                    color: UI_CONST.LETTER_TEXT_COLOR,
+                    align: "center",
+                    stroke: UI_CONST.LETTER_LIST_ITEM_STROKE_COLOR,
+                    strokeThickness: UI_CONST.LETTER_LIST_ITEM_STROKE_THICKNESS,
+                })
+                .setOrigin(0.5, 0.5);
+            this.letterListContainer.add(noLetterText);
+        } else {
+            displayLetters.forEach((letterIndex) => {
                 const itemBg = this.add
                     .rectangle(
                         0,
                         currentY,
                         UI_CONST.LETTER_LIST_ITEM_WIDTH,
                         UI_CONST.LETTER_LIST_ITEM_HEIGHT - 5,
-                        UI_CONST.LETTER_LIST_ITEM_BG_COLOR
+                        UI_CONST.LETTER_LIST_ITEM_BG_COLOR,
                     )
                     .setStrokeStyle(
                         UI_CONST.LETTER_LIST_ITEM_BORDER_WIDTH,
-                        UI_CONST.LETTER_LIST_ITEM_BORDER_COLOR
+                        UI_CONST.LETTER_LIST_ITEM_BORDER_COLOR,
                     )
                     .setInteractive({ useHandCursor: true });
                 this.letterListContainer.add(itemBg);
 
-                // 手紙の番号とプレビュー（改行コードを削除）
                 const previewText =
                     letterMessages[letterIndex]
                         .replace(/\n/g, " ")
@@ -125,42 +282,43 @@ export class LetterList extends Phaser.Scene {
                             stroke: UI_CONST.LETTER_LIST_ITEM_STROKE_COLOR,
                             strokeThickness:
                                 UI_CONST.LETTER_LIST_ITEM_STROKE_THICKNESS,
-                        }
+                        },
                     )
                     .setOrigin(0.5, 0.5);
                 this.letterListContainer.add(itemText);
 
-                // クリック時に手紙の内容を表示
                 itemBg.on("pointerdown", () => {
                     this.playDecisionSe();
-                    this.showLetterContent(categoryKey, letterIndex);
+                    this.showLetterContent(
+                        categoryKey,
+                        letterIndex,
+                        displayLetters,
+                    );
                 });
 
-                currentY += itemHeight;
+                currentY += itemHeight + 10;
             });
+        }
 
-            currentY += UI_CONST.LETTER_LIST_CATEGORY_SPACING;
-        });
-
-        // 閉じるボタンを追加
-        const closeButton = this.add
+        // 戻る（カテゴリ選択へ）
+        const backButton = this.add
             .rectangle(
                 0,
                 UI_CONST.LETTER_CLOSE_BUTTON_Y,
                 UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
                 UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
-                UI_CONST.LETTER_CLOSE_BUTTON_BACKGROUND_COLOR
+                UI_CONST.LETTER_CLOSE_BUTTON_BACKGROUND_COLOR,
             )
             .setStrokeStyle(
                 UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
-                UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR
+                UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR,
             )
             .setOrigin(0.5, 0.5)
             .setInteractive({ useHandCursor: true });
-        this.letterListContainer.add(closeButton);
+        this.letterListContainer.add(backButton);
 
-        const closeButtonText = this.add
-            .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "×", {
+        const backButtonText = this.add
+            .text(0, UI_CONST.LETTER_CLOSE_BUTTON_Y, "←", {
                 fontFamily: FONT_NAME.CP_PERIOD,
                 fontSize: UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE,
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
@@ -169,56 +327,48 @@ export class LetterList extends Phaser.Scene {
                 strokeThickness: 2,
             })
             .setOrigin(0.5, 0.5);
-        this.letterListContainer.add(closeButtonText);
+        this.letterListContainer.add(backButtonText);
 
-        closeButton.on("pointerdown", () => {
+        backButton.on("pointerdown", () => {
             this.playCancelSe();
-            // ゲーム時間を再開
-            this.gameScene.gameTimeManager.resume();
-            // 魚ヒットシステムを再開
-            this.gameScene.gameTimeManager.resumeFishSystem();
-            this.scene.stop("LetterList");
-            this.scene.resume("Game");
+            this.showCategorySelection();
         });
     }
 
     /**
-     * 手紙の内容を表示
-     * @param {string} categoryKey カテゴリキー
-     * @param {number} letterIndex 手紙のインデックス
+     * 手紙内容
      */
-    showLetterContent(categoryKey, letterIndex) {
-        // 現在のリストを非表示
+    showLetterContent(categoryKey, letterIndex, displayLetters) {
+        // リスト非表示
         this.letterListContainer.setVisible(false);
 
-        // 手紙内容コンテナを作成
+        // コンテナ
         this.letterContentContainer = this.add.container(
             this.cameras.main.width / 2,
-            this.cameras.main.height / 2
+            this.cameras.main.height / 2,
         );
 
-        // UIを長方形で表示
+        // ウィンドウ
         const uiRectangle = this.add
             .rectangle(
                 0,
                 0,
                 UI_CONST.LETTER_WINDOW_WIDTH,
                 UI_CONST.LETTER_WINDOW_HEIGHT,
-                UI_CONST.LETTER_WINDOW_RECTANGLE_COLOR
+                UI_CONST.LETTER_WINDOW_RECTANGLE_COLOR,
             )
             .setStrokeStyle(
                 UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_WIDTH,
-                UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_COLOR
+                UI_CONST.LETTER_WINDOW_RECTANGLE_LINE_COLOR,
             );
         this.letterContentContainer.add(uiRectangle);
 
-        // 手紙の内容を取得
+        // 内容テキスト
         const storyData = this.cache.json.get(categoryKey);
         const currentLang = getCurrentLanguage() || "JP";
         const letterMessages = storyData.messages[currentLang];
         const letterContent = letterMessages[letterIndex];
 
-        // 一時的なテキストオブジェクトを作成してテキストの幅を測定
         const fontSize =
             currentLang === "EN"
                 ? UI_CONST.LETTER_TEXT_FONT_SIZE_EN
@@ -228,11 +378,10 @@ export class LetterList extends Phaser.Scene {
             fontSize: `${fontSize}px`,
         });
 
-        // テキストを幅に合わせて改行
         const wrappedText = wrapText(
             tempText,
             letterContent,
-            UI_CONST.LETTER_TEXT_MAX_WIDTH
+            UI_CONST.LETTER_TEXT_MAX_WIDTH,
         );
         tempText.destroy();
 
@@ -249,7 +398,7 @@ export class LetterList extends Phaser.Scene {
             .setOrigin(0.5, 0);
         this.letterContentContainer.add(letterText);
 
-        // ページ番号を表示
+        // ページ番号
         const totalLetters = letterMessages.length;
         const pageNumber = this.add
             .text(
@@ -265,28 +414,30 @@ export class LetterList extends Phaser.Scene {
                     stroke: UI_CONST.LETTER_CONTENT_PAGE_NUMBER_STROKE_COLOR,
                     strokeThickness:
                         UI_CONST.LETTER_CONTENT_PAGE_NUMBER_STROKE_THICKNESS,
-                }
+                },
             )
             .setOrigin(0.5, 0.5);
         this.letterContentContainer.add(pageNumber);
 
-        // 読んだ手紙のリストを取得
-        const readLetters = this.letterManager.getReadLetters(categoryKey);
-        const currentIndexInReadList = readLetters.indexOf(letterIndex);
+        // ナビ用配列
+        const displayList = Array.isArray(displayLetters)
+            ? displayLetters
+            : [letterIndex];
+        const currentIndex = displayList.indexOf(letterIndex);
 
-        // 前へボタンを追加（最初の手紙でなければ表示）
-        if (currentIndexInReadList > 0) {
+        // 前へ
+        if (currentIndex > 0) {
             const prevButton = this.add
                 .rectangle(
                     UI_CONST.LETTER_CONTENT_PREV_BUTTON_X_OFFSET,
                     UI_CONST.LETTER_CLOSE_BUTTON_Y,
                     UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
                     UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
-                    UI_CONST.LETTER_CONTENT_PREV_BUTTON_COLOR
+                    UI_CONST.LETTER_CONTENT_PREV_BUTTON_COLOR,
                 )
                 .setStrokeStyle(
                     UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
-                    UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR
+                    UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR,
                 )
                 .setOrigin(0.5, 0.5)
                 .setInteractive({ useHandCursor: true });
@@ -304,33 +455,36 @@ export class LetterList extends Phaser.Scene {
                         align: "center",
                         stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
                         strokeThickness: 2,
-                    }
+                    },
                 )
                 .setOrigin(0.5, 0.5);
             this.letterContentContainer.add(prevButtonText);
 
             prevButton.on("pointerdown", () => {
                 this.playDecisionSe();
-                // 前の手紙を表示
-                const prevLetterIndex = readLetters[currentIndexInReadList - 1];
+                const prevLetterIndex = displayList[currentIndex - 1];
                 this.letterContentContainer.destroy();
-                this.showLetterContent(categoryKey, prevLetterIndex);
+                this.showLetterContent(
+                    categoryKey,
+                    prevLetterIndex,
+                    displayList,
+                );
             });
         }
 
-        // 次へボタンを追加（最後の手紙でなければ表示）
-        if (currentIndexInReadList < readLetters.length - 1) {
+        // 次へ
+        if (currentIndex < displayList.length - 1) {
             const nextButton = this.add
                 .rectangle(
                     UI_CONST.LETTER_CONTENT_NEXT_BUTTON_X_OFFSET,
                     UI_CONST.LETTER_CLOSE_BUTTON_Y,
                     UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
                     UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
-                    UI_CONST.LETTER_CONTENT_NEXT_BUTTON_COLOR
+                    UI_CONST.LETTER_CONTENT_NEXT_BUTTON_COLOR,
                 )
                 .setStrokeStyle(
                     UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
-                    UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR
+                    UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR,
                 )
                 .setOrigin(0.5, 0.5)
                 .setInteractive({ useHandCursor: true });
@@ -348,32 +502,35 @@ export class LetterList extends Phaser.Scene {
                         align: "center",
                         stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
                         strokeThickness: 2,
-                    }
+                    },
                 )
                 .setOrigin(0.5, 0.5);
             this.letterContentContainer.add(nextButtonText);
 
             nextButton.on("pointerdown", () => {
                 this.playDecisionSe();
-                // 次の手紙を表示
-                const nextLetterIndex = readLetters[currentIndexInReadList + 1];
+                const nextLetterIndex = displayList[currentIndex + 1];
                 this.letterContentContainer.destroy();
-                this.showLetterContent(categoryKey, nextLetterIndex);
+                this.showLetterContent(
+                    categoryKey,
+                    nextLetterIndex,
+                    displayList,
+                );
             });
         }
 
-        // 戻るボタンを追加
+        // 閉じる（カテゴリ内一覧へ戻る）
         const backButton = this.add
             .rectangle(
                 0,
                 UI_CONST.LETTER_CLOSE_BUTTON_Y,
                 UI_CONST.LETTER_CLOSE_BUTTON_WIDTH,
                 UI_CONST.LETTER_CLOSE_BUTTON_HEIGHT,
-                UI_CONST.LETTER_CLOSE_BUTTON_BACKGROUND_COLOR
+                UI_CONST.LETTER_CLOSE_BUTTON_BACKGROUND_COLOR,
             )
             .setStrokeStyle(
                 UI_CONST.LETTER_CLOSE_BUTTON_BORDER_WIDTH,
-                UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR
+                UI_CONST.LETTER_CLOSE_BUTTON_BORDER_COLOR,
             )
             .setOrigin(0.5, 0.5)
             .setInteractive({ useHandCursor: true });
@@ -385,7 +542,7 @@ export class LetterList extends Phaser.Scene {
                 fontSize: UI_CONST.LETTER_CLOSE_BUTTON_FONT_SIZE,
                 color: UI_CONST.LETTER_CLOSE_BUTTON_TEXT_COLOR,
                 align: "center",
-                stroke: UI_CONST.PAUSE_MODAL_TITLE_STROKE_COLOR,
+                stroke: UI_CONST.PAUSE_MODAL_TITLE_STROーク_COLOR,
                 strokeThickness: 2,
             })
             .setOrigin(0.5, 0.5);
@@ -393,7 +550,6 @@ export class LetterList extends Phaser.Scene {
 
         backButton.on("pointerdown", () => {
             this.playCancelSe();
-            // 手紙内容を破棄してリストに戻る
             this.letterContentContainer.destroy();
             this.letterListContainer.setVisible(true);
         });

@@ -142,5 +142,9 @@ export default {
             key: "story_planet",
             args: ["assets/stories/story_planet.json"],
         },
+        story_bear_and_rabbit: {
+            key: "story_bear_and_rabbit",
+            args: ["assets/stories/story_bear_and_rabbit.json"],
+        },
     },
 };
